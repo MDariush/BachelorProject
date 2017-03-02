@@ -33,7 +33,7 @@ void Timer::TimeLoop() {
 		if (timeSincePreviousStep >= stepDuration) {
 			programSteps++;
 			previousStepTime = currentTime;
-			cout << "Step number: " << programSteps << ".   Step length [ms]: " << timeSincePreviousStep.count() << ".\n";
+			cout << "Step " << programSteps << ", " << timeSincePreviousStep.count() << " ms.\n";
 		}
 	}
 }
