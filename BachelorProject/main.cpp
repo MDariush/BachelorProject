@@ -26,3 +26,4 @@ int main(int argc, char* argv[]) {
 
 	return (unitTestResult < 0xff ? unitTestResult : 0xff);
 }
+
