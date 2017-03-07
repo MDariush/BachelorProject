@@ -117,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catch.hpp" />
+    <ClInclude Include="Configurations.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>

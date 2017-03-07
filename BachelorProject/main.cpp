@@ -3,6 +3,7 @@
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
+#include "Configurations.h"
 #include "Timer.h"
 #include <iostream>
 using namespace std;
@@ -10,7 +11,6 @@ using namespace std;
 int main(int argc, char* argv[]) {
 	
 	// Run unit tests
-	const bool UNIT_TESTS_ENABLED = true;
 	int unitTestResult = 0;
 
 	if (UNIT_TESTS_ENABLED == true) {
@@ -26,4 +26,3 @@ int main(int argc, char* argv[]) {
 
 	return (unitTestResult < 0xff ? unitTestResult : 0xff);
 }
-
