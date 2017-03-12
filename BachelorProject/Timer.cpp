@@ -3,6 +3,7 @@
 
 #include "catch.hpp"
 #include "Timer.h"
+#include "Window.h"
 #include <iostream>
 using namespace std;
 
@@ -12,7 +13,7 @@ Timer::Timer() {
 Timer::~Timer() {
 }
 
-void Timer::Init(int timeLoopRuns0) {
+void Timer::Init(const Window & Window0, int timeLoopRuns0) {
 	currentTime = high_resolution_clock::now();
 	programStartTime = currentTime;
 	previousStepTime = currentTime;

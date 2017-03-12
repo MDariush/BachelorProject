@@ -5,6 +5,7 @@
 #include "catch.hpp"
 #include "Configurations.h"
 #include "Timer.h"
+#include "Window.h"
 #include <iostream>
 using namespace std;
 
@@ -18,8 +19,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Run program
+
+	Window Window;
+	Window.Init();
 	Timer Timer;
-	Timer.Init(-1);
+	Timer.Init(Window, -1);
 
 	cout << "\nPROGRAM ENDED";
 	std::getchar();
