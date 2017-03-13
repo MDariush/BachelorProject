@@ -14,27 +14,35 @@ public:
 	Program();
 	~Program();
 	void Init(int timeLoopRuns0);
+	int getTimeLoopRuns();
+	unsigned int getProgramSteps();
+	double getProgramTime();
+
+private:
 	void TimeLoop(int timeLoopRuns0);
 	void ProcessEvents();
 	void ProgramStep();
 	void RenderGraphics();
-	void UpdateTime();
-	int getTimeLoopRuns();
-	int getProgramSteps();
-	double getProgramTime();
-
-private:
+	void UpdateSteps();
+	void RecordFrameTime();
+	bool ReadyForProgramStep();
+	bool ReadyToRenderGraphics();
 
 	// Window
 	sf::RenderWindow window;
 	sf::CircleShape shape;
 
 	// Time
-	const milliseconds stepDuration = milliseconds(STEP_DURATION);
-	steady_clock::time_point currentTime;
 	steady_clock::time_point programStartTime;
-	steady_clock::time_point previousStepTime;
-	signed int timeLoopRuns;
-	unsigned int programSteps;
+	steady_clock::time_point currentTime;
+	int timeLoopRuns;
 	double programTime;
+	nanoseconds stepDuration;
+	nanoseconds frameDuration;
+	steady_clock::time_point previousStepTime;
+	steady_clock::time_point previousFrameTime;
+	duration<double, std::milli> timeSincePreviousStep;
+	duration<double, std::milli> timeSincePreviousFrame;
+	unsigned int programSteps;
+	unsigned int programFrames;
 };

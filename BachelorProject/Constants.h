@@ -4,7 +4,8 @@
 #pragma once
 
 // Engine
-const int STEP_DURATION = 1000 / 200;
+const int STEP_DURATION = 1000000000 / 200;
+const int FRAME_DURATION = 1000000000 / 60;
 
 // Graphics
 const int TARGET_RESOLUTION_X = 1920;

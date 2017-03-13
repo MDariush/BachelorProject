@@ -14,18 +14,20 @@ Program::~Program() {
 
 void Program::Init(int timeLoopRuns0) {
 
-	// Window setup
-	//sf::RenderWindow window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLUTION_Y), "Bachelor Project");
-
+	// Load/define graphics
 	shape.setRadius(40.f);
 	shape.setPosition(100.f, 100.f);
 	shape.setFillColor(sf::Color::Cyan);
 
 	// Time setup
 	currentTime = high_resolution_clock::now();
+	stepDuration = nanoseconds(STEP_DURATION);
+	frameDuration = nanoseconds(FRAME_DURATION);
 	programStartTime = currentTime;
 	previousStepTime = currentTime;
+	previousFrameTime = currentTime;
 	programSteps = 0;
+	programFrames = 0;
 	programTime = 0;
 	timeLoopRuns = timeLoopRuns0;
 
@@ -34,11 +36,24 @@ void Program::Init(int timeLoopRuns0) {
 
 void Program::TimeLoop(int timeLoopRuns0) {
 	timeLoopRuns = timeLoopRuns0;
-	while (timeLoopRuns != 0 /*&& window.isOpen()*/) {
+	while (timeLoopRuns != 0 && window.isOpen()) {
+
+		// Events (e.g. mouse press)
 		ProcessEvents();
-		ProgramStep();
-		RenderGraphics();
-		UpdateTime();
+
+		// Program step
+		currentTime = high_resolution_clock::now();
+		if (ReadyForProgramStep()) {
+			ProgramStep();
+			UpdateSteps();
+		}
+
+		// Render graphics
+		currentTime = high_resolution_clock::now();
+		if (ReadyToRenderGraphics()) {
+			RenderGraphics();
+			RecordFrameTime();
+		}
 	}
 }
 
@@ -64,26 +79,37 @@ void Program::RenderGraphics() {
 	window.display();
 }
 
-void Program::UpdateTime() {
-	currentTime = high_resolution_clock::now();
-	duration<double, std::milli> timeSincePreviousStep = currentTime - previousStepTime;
-
-	if (timeSincePreviousStep >= stepDuration) {
-		programSteps++;
-		previousStepTime = currentTime;
-		programTime += timeSincePreviousStep.count();
-		if (timeLoopRuns > 0) {
-			timeLoopRuns--;
-		}
-		cout << "Step " << programSteps << ", " << timeSincePreviousStep.count() << " ms.\n";
+void Program::UpdateSteps() {
+	programSteps++;
+	previousStepTime = currentTime;
+	programTime += timeSincePreviousStep.count();
+	if (timeLoopRuns > 0) {
+		timeLoopRuns--;
 	}
+	//cout << "Step " << programSteps << ", " << timeSincePreviousStep.count() << " ms.\n";
+}
+
+void Program::RecordFrameTime() {
+	programFrames++;
+	previousFrameTime = currentTime;
+	//cout << "Frame " << programFrames << ", " << timeSincePreviousFrame.count() << " ms.\n";
+}
+
+bool Program::ReadyForProgramStep() {
+	timeSincePreviousStep = currentTime - previousStepTime;
+	return timeSincePreviousStep >= stepDuration;
+}
+
+bool Program::ReadyToRenderGraphics() {
+	timeSincePreviousFrame = currentTime - previousFrameTime;
+	return timeSincePreviousFrame >= frameDuration;
 }
 
 int Program::getTimeLoopRuns() {
 	return timeLoopRuns;
 }
 
-int Program::getProgramSteps() {
+unsigned int Program::getProgramSteps() {
 	return programSteps;
 }
 
