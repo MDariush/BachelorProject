@@ -1,6 +1,6 @@
 // Timer_Test.cpp
 // Created by Martin Dariush Hansen, 2017-03-04
-
+/*
 #include "catch.hpp"
 #include "Timer.h"
 
@@ -53,3 +53,4 @@ TEST_CASE("Testing timer performance", "[timer]") {
 
 	REQUIRE(timer.getProgramTime() <= timeLoopRuns * STEP_DURATION * 2);
 }
+*/

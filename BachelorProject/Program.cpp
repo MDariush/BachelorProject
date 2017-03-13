@@ -74,7 +74,7 @@ void Program::ProgramStep() {
 void Program::RenderGraphics() {
 	window.clear();
 
-	shape.setPosition(programSteps*10 % (960+32) - 32.f, 100.f);
+	shape.setPosition(programSteps % 960, 240.f);
 	shape.setFillColor(sf::Color::Cyan);
 
 	window.draw(shape);
