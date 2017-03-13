@@ -13,13 +13,14 @@ Timer::Timer() {
 Timer::~Timer() {
 }
 
-void Timer::Init(const Window & Window0, int timeLoopRuns0) {
+void Timer::Init(Window* window0, int timeLoopRuns0) {
 	currentTime = high_resolution_clock::now();
 	programStartTime = currentTime;
 	previousStepTime = currentTime;
 	programSteps = 0;
 	programTime = 0;
 	timeLoopRuns = timeLoopRuns0;
+	pWindow = window0;
 
 	TimeLoop(timeLoopRuns);
 }
@@ -31,6 +32,9 @@ void Timer::TimeLoop(int timeLoopRuns0) {
 
 		// Program step
 
+
+		// Draw graphics
+		pWindow->RenderingThread();
 
 		// Timing
 		currentTime = high_resolution_clock::now();

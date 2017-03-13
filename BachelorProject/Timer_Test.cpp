@@ -9,7 +9,7 @@ TEST_CASE("Timer test with no iterans", "[timer]") {
 	Timer timer;
 
 	const signed int timeLoopRuns = 0;
-	timer.Init(window, timeLoopRuns);
+	timer.Init(& window, timeLoopRuns);
 	timer.TimeLoop(timer.getTimeLoopRuns());
 
 	REQUIRE(timer.getTimeLoopRuns() == 0);
@@ -22,7 +22,7 @@ TEST_CASE("Timer test with single iteration", "[timer]") {
 	Timer timer;
 
 	const signed int timeLoopRuns = 1;
-	timer.Init(window, timeLoopRuns);
+	timer.Init(& window, timeLoopRuns);
 	timer.TimeLoop(timer.getTimeLoopRuns());
 
 	REQUIRE(timer.getTimeLoopRuns() == 0);
@@ -35,7 +35,7 @@ TEST_CASE("Timer test with multiple iterans", "[timer]") {
 	Timer timer;
 
 	const signed int timeLoopRuns = 4;
-	timer.Init(window, timeLoopRuns);
+	timer.Init(& window, timeLoopRuns);
 	timer.TimeLoop(timer.getTimeLoopRuns());
 
 	REQUIRE(timer.getTimeLoopRuns() == 0);
@@ -48,7 +48,7 @@ TEST_CASE("Testing timer performance", "[timer]") {
 	Timer timer;
 
 	const signed int timeLoopRuns = 4;
-	timer.Init(window, timeLoopRuns);
+	timer.Init(& window, timeLoopRuns);
 	timer.TimeLoop(timer.getTimeLoopRuns());
 
 	REQUIRE(timer.getProgramTime() <= timeLoopRuns * STEP_DURATION * 2);
