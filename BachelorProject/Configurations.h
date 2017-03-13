@@ -3,5 +3,5 @@
 
 #pragma once
 
-const bool UNIT_TESTS_ENABLED = true;
+const bool UNIT_TESTS = true;
 const int TIME_LOOP_RUNS = -1; // -1 = infinite

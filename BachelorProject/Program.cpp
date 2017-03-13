@@ -1,5 +1,5 @@
 // Program.cpp
-// Created by Martin Dariush Hansen, 2017-03-13
+// Created by Martin Dariush Hansen, 2017-03-01
 
 #include "catch.hpp"
 #include "Program.h"
@@ -15,14 +15,14 @@ Program::~Program() {
 void Program::Init(int timeLoopRuns0) {
 
 	// Load/define graphics
-	shape.setRadius(40.f);
+	shape.setRadius(32.f);
 	shape.setPosition(100.f, 100.f);
 	shape.setFillColor(sf::Color::Cyan);
 
 	// Time setup
 	currentTime = high_resolution_clock::now();
 	stepDuration = nanoseconds(STEP_DURATION);
-	frameDuration = nanoseconds(FRAME_DURATION);
+	frameDuration = nanoseconds(NANO / TARGET_FPS);
 	programStartTime = currentTime;
 	previousStepTime = currentTime;
 	previousFrameTime = currentTime;
@@ -73,6 +73,9 @@ void Program::ProgramStep() {
 
 void Program::RenderGraphics() {
 	window.clear();
+
+	shape.setPosition(programSteps*10 % (960+32) - 32.f, 100.f);
+	shape.setFillColor(sf::Color::Cyan);
 
 	window.draw(shape);
 
