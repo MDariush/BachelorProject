@@ -5,7 +5,6 @@ Created by Martin Dariush Hansen, 2017-03-14
 
 #pragma once
 #include <vector>
-using namespace std;
 
 class Map
 {
