@@ -1,10 +1,14 @@
-// Program.cpp
-// Created by Martin Dariush Hansen, 2017-03-01
+/*
+Program.cpp
+Created by Martin Dariush Hansen, 2017-03-01
+*/
 
 #include "catch.hpp"
+#include "Model.h"
 #include "Program.h"
 #include <iostream>
 using namespace std;
+using namespace std::chrono;
 
 Program::Program() : window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLUTION_Y), "Bachelor Project") {
 }
@@ -31,6 +35,10 @@ void Program::Init(int timeLoopRuns0) {
 	programTime = 0;
 	timeLoopRuns = timeLoopRuns0;
 
+	// Create objects
+	model.Init();
+
+	// Start timeloop
 	TimeLoop(timeLoopRuns);
 }
 
@@ -69,12 +77,13 @@ void Program::ProcessEvents() {
 }
 
 void Program::ProgramStep() {
+	//model.Step();
 }
 
 void Program::RenderGraphics() {
 	window.clear();
 
-	shape.setPosition(programSteps % 960, 240.f);
+	shape.setPosition(programSteps % 960 -32.f, 240.f);
 	shape.setFillColor(sf::Color::Cyan);
 
 	window.draw(shape);

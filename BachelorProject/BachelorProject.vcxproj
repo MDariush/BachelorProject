@@ -126,19 +126,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Program.cpp" />
-    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Timer_Test.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catch.hpp" />
     <ClInclude Include="Configurations.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="lodepng.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Program.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

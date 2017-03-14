@@ -1,5 +1,12 @@
-// main.cpp
-// Created by Martin Dariush Hansen, 2017-03-01
+/*
+main.cpp
+Created by Martin Dariush Hansen, 2017-03-01
+
+External dependencies used in this project:
+ - "Catch". For unit testing. catch.hpp only.
+ - "LodePNG". For reading png-files. lodepng.cpp and lodepng.h only.
+ - "SFML". For window and graphics. Installed.
+*/
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
