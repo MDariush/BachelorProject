@@ -20,7 +20,6 @@ public:
 private:
 	bool mapLoaded;
 	const char* mapName;
-	
 	std::vector<CellStatus> mapArray;
 	unsigned int mapWidth;
 	unsigned int mapHeight;

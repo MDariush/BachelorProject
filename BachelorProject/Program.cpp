@@ -77,7 +77,7 @@ void Program::ProcessEvents() {
 }
 
 void Program::ProgramStep() {
-	//model.Step();
+	model.Step();
 }
 
 void Program::RenderGraphics() {
