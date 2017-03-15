@@ -5,16 +5,16 @@ Created by Martin Dariush Hansen, 2017-03-01
 
 #pragma once
 #include "Constants.h"
+#include "Controls.h"
+#include "Graphics.h"
 #include "Model.h"
 #include <chrono>
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
 
-class Program
+class Timer
 {
 public:
-	Program();
-	~Program();
+	Timer();
+	~Timer();
 	void Init(int timeLoopRuns0);
 	int getTimeLoopRuns();
 	unsigned int getProgramSteps();
@@ -22,21 +22,15 @@ public:
 
 private:
 	void TimeLoop(int timeLoopRuns0);
-	void ProcessEvents();
-	void ProgramStep();
-	void RenderGraphics();
 	void UpdateSteps();
 	void RecordFrameTime();
 	bool ReadyForProgramStep();
 	bool ReadyToRenderGraphics();
 
 	Model model;
+	Graphics graphics;
+	Controls controls;
 
-	// Window
-	sf::RenderWindow window;
-	sf::CircleShape shape;
-
-	// Time
 	std::chrono::steady_clock::time_point programStartTime;
 	std::chrono::steady_clock::time_point currentTime;
 	int timeLoopRuns;
@@ -50,5 +44,3 @@ private:
 	unsigned int programSteps;
 	unsigned int programFrames;
 };
-
-

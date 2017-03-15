@@ -27,9 +27,6 @@
     <ClCompile Include="Timer_Test.cpp">
       <Filter>Unit Tests</Filter>
     </ClCompile>
-    <ClCompile Include="Program.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,15 +36,21 @@
     <ClCompile Include="lodepng.cpp">
       <Filter>Libraries</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Configurations.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Program.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
@@ -61,6 +64,15 @@
     </ClInclude>
     <ClInclude Include="catch.hpp">
       <Filter>Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

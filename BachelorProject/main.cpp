@@ -11,15 +11,15 @@ External dependencies used in this project:
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 #include "Configurations.h"
-#include "Program.h"
+#include "Timer.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	Program program;
-	program.Init(TIME_LOOP_RUNS);
+	Timer timer;
+	timer.Init(TIME_LOOP_RUNS);
 
 	cout << "\nPROGRAM ENDED";
 	std::getchar();

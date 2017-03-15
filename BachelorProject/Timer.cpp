@@ -4,24 +4,18 @@ Created by Martin Dariush Hansen, 2017-03-01
 */
 
 #include "catch.hpp"
-#include "Model.h"
-#include "Program.h"
+#include "Timer.h"
 #include <iostream>
 using namespace std;
 using namespace std::chrono;
 
-Program::Program() : window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLUTION_Y), "Bachelor Project") {
+Timer::Timer() {
 }
 
-Program::~Program() {
+Timer::~Timer() {
 }
 
-void Program::Init(int timeLoopRuns0) {
-
-	// Load/define graphics
-	shape.setRadius(32.f);
-	shape.setPosition(100.f, 100.f);
-	shape.setFillColor(sf::Color::Cyan);
+void Timer::Init(int timeLoopRuns0) {
 
 	// Time setup
 	currentTime = high_resolution_clock::now();
@@ -37,61 +31,37 @@ void Program::Init(int timeLoopRuns0) {
 
 	// Create objects
 	model.Init();
+	graphics.Init();
+	controls.Init();
 
 	// Start timeloop
 	TimeLoop(timeLoopRuns);
 }
 
-void Program::TimeLoop(int timeLoopRuns0) {
+void Timer::TimeLoop(int timeLoopRuns0) {
 	timeLoopRuns = timeLoopRuns0;
-	while (timeLoopRuns != 0 && window.isOpen()) {
+	while (timeLoopRuns != 0 && graphics.getWindowOpen()) {
 
 		// Events (e.g. mouse press)
-		ProcessEvents();
+		controls.ProcessEvents(graphics.getWindow());
 
 		// Program step
 		currentTime = high_resolution_clock::now();
 		if (ReadyForProgramStep()) {
-			ProgramStep();
+			model.Step();
 			UpdateSteps();
 		}
 
 		// Render graphics
 		currentTime = high_resolution_clock::now();
 		if (ReadyToRenderGraphics()) {
-			RenderGraphics();
+			graphics.RenderGraphics();
 			RecordFrameTime();
 		}
 	}
 }
 
-void Program::ProcessEvents() {
-	sf::Event event;
-	while (window.pollEvent(event)) {
-		switch (event.type) {
-			case sf::Event::Closed:
-				window.close();
-				break;
-		}
-	}
-}
-
-void Program::ProgramStep() {
-	model.Step();
-}
-
-void Program::RenderGraphics() {
-	window.clear();
-
-	shape.setPosition(programSteps % 960 -32.f, 240.f);
-	shape.setFillColor(sf::Color::Cyan);
-
-	window.draw(shape);
-
-	window.display();
-}
-
-void Program::UpdateSteps() {
+void Timer::UpdateSteps() {
 	programSteps++;
 	previousStepTime = currentTime;
 	programTime += timeSincePreviousStep.count();
@@ -101,30 +71,30 @@ void Program::UpdateSteps() {
 	//cout << "Step " << programSteps << ", " << timeSincePreviousStep.count() << " ms.\n";
 }
 
-void Program::RecordFrameTime() {
+void Timer::RecordFrameTime() {
 	programFrames++;
 	previousFrameTime = currentTime;
 	//cout << "Frame " << programFrames << ", " << timeSincePreviousFrame.count() << " ms.\n";
 }
 
-bool Program::ReadyForProgramStep() {
+bool Timer::ReadyForProgramStep() {
 	timeSincePreviousStep = currentTime - previousStepTime;
 	return timeSincePreviousStep >= stepDuration;
 }
 
-bool Program::ReadyToRenderGraphics() {
+bool Timer::ReadyToRenderGraphics() {
 	timeSincePreviousFrame = currentTime - previousFrameTime;
 	return timeSincePreviousFrame >= frameDuration;
 }
 
-int Program::getTimeLoopRuns() {
+int Timer::getTimeLoopRuns() {
 	return timeLoopRuns;
 }
 
-unsigned int Program::getProgramSteps() {
+unsigned int Timer::getProgramSteps() {
 	return programSteps;
 }
 
-double Program::getProgramTime() {
+double Timer::getProgramTime() {
 	return programTime;
 }
