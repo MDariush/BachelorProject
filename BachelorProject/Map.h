@@ -16,12 +16,15 @@ public:
 	void Init(const char* mapName);
 	void LoadMapImage();
 	bool getMapLoaded();
+	unsigned int getWidth();
+	unsigned int getHeight();
+	std::vector<std::vector<CellStatus>> getCellStatusArray();
 
 private:
-	bool mapLoaded;
-	const char* mapName;
-	std::vector<CellStatus> mapArray;
-	unsigned int mapWidth;
-	unsigned int mapHeight;
+	bool loaded;
+	const char* name;
+	unsigned int width;
+	unsigned int height;
+	std::vector<std::vector<CellStatus>> cellStatusArray;
 };
 

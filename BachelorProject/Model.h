@@ -9,17 +9,20 @@ Created by Martin Dariush Hansen, 2017-03-14
 class Model
 {
 public:
+	enum Status { LOADING_MAP, IN_MAP };
+
 	Model();
 	~Model();
 
 	void Init();
 	void Step();
 
-private:
-	enum Status { LOADING_MAP, IN_MAP };
-	
+	Status getStatus();
+
+	Map map;
+
+private:	
 	void LoadMap();
 
 	Status status;
-	Map map;
 };

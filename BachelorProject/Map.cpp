@@ -15,26 +15,29 @@ Map::~Map() {
 }
 
 void Map::Init(const char* mapName0) {
-	mapName = mapName0;
-	mapLoaded = false;
+	name = mapName0;
+	loaded = false;
 }
 
 void Map::LoadMapImage() {
 	std::vector<unsigned char> mapVector;
-	unsigned int error = lodepng::decode(mapVector, mapWidth, mapHeight, mapName);
+	unsigned int error = lodepng::decode(mapVector, width, height, name);
 	
 	if (error) {
 		cout << "Unable to load map image. Decoder error " << error << ": " << lodepng_error_text(error) << "\n";
 	}
 	else {
-		// Create map array from map vector
-		CellStatus** cellStatusArray = new CellStatus*[mapWidth];
-		for (int i = 0; i < mapWidth; ++i) {
-			cellStatusArray[i] = new CellStatus[mapHeight];
+		// Set cell status array size
+		cellStatusArray.resize(width);
+		for (int i = 0; i < height; i++) {
+			cellStatusArray[i].resize(height);
 		}
-		for (int i = 0; i < mapWidth; ++i) {
-			for (int j = 0; j < mapHeight; ++j) {
-				if (mapVector.at(mapWidth*(j)+i) == 0 && mapVector.at(mapWidth*(j)+i + 1) == 0 && mapVector.at(mapWidth*(j)+i + 2) == 0) {
+
+		// Set cell status array values
+		for (int i = 0; i < width; i++) {
+			cellStatusArray.push_back(vector<CellStatus>());
+			for (int j = 0; j < height; j++) {
+				if (mapVector.at((width*(j)+i) * 4) == 0 && mapVector.at((width*(j)+i) * 4 + 1) == 0 && mapVector.at((width*(j)+i) * 4 + 2) == 0) {
 					cellStatusArray[i][j] = CellStatus::CLOSED;
 				}
 				else {
@@ -43,11 +46,23 @@ void Map::LoadMapImage() {
 			}
 		}
 
-		mapLoaded = true;
+		loaded = true;
 		cout << "Map image loaded.";
 	}
 }
 
 bool Map::getMapLoaded() {
-	return mapLoaded;
+	return loaded;
+}
+
+unsigned int Map::getWidth() {
+	return width;
+}
+
+unsigned int Map::getHeight() {
+	return height;
+}
+
+std::vector<std::vector<Map::CellStatus>> Map::getCellStatusArray() {
+	return cellStatusArray;
 }
