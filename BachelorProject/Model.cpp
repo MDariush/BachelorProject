@@ -25,6 +25,8 @@ void Model::Step() {
 		if (!map.getMapLoaded()) {
 			map.LoadMapImage();
 			pGraphics->computeScaling();
+			pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
+			pGraphics->setMapCellStatusArray(map.getCellStatusArray());
 		}
 		else {
 			status = Status::IN_MAP;

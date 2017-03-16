@@ -66,3 +66,7 @@ unsigned int Map::getHeight() {
 Map::CellStatus Map::getCellStatus(signed int i, signed int j) {
 	return cellStatusArray[i][j];
 }
+
+std::vector<std::vector<Map::CellStatus>> Map::getCellStatusArray() {
+	return cellStatusArray;
+}

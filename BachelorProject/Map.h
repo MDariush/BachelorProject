@@ -19,6 +19,7 @@ public:
 	unsigned int getWidth();
 	unsigned int getHeight();
 	CellStatus getCellStatus(signed int i, signed int j);
+	std::vector<std::vector<CellStatus>> getCellStatusArray();
 
 private:
 	bool loaded;
