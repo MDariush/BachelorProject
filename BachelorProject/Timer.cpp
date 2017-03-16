@@ -74,7 +74,7 @@ void Timer::UpdateSteps() {
 void Timer::RecordFrameTime() {
 	programFrames++;
 	previousFrameTime = currentTime;
-	//cout << "Frame " << programFrames << ", " << timeSincePreviousFrame.count() << " ms.\n";
+	cout << "Frame " << programFrames << ", " << timeSincePreviousFrame.count() << " ms.\n";
 }
 
 bool Timer::ReadyForProgramStep() {

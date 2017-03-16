@@ -6,6 +6,8 @@ Created by Martin Dariush Hansen, 2017-03-15
 #include "Constants.h"
 #include "Graphics.h"
 #include "Model.h"
+#include <iostream>
+using namespace std;
 
 Graphics::Graphics() : window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLUTION_Y), "Bachelor Project") {
 }
@@ -31,11 +33,11 @@ void Graphics::RenderGraphics() {
 	if (pModel->getStatus() == Model::Status::IN_MAP) {
 		for (int i = 0; i < pModel->map.getWidth(); i++) {
 			for (int j = 0; j < pModel->map.getHeight(); j++) {
-				if (pModel->map.getCellStatusArray()[i][j] == Map::CellStatus::OPEN) {
+				if (pModel->map.getCellStatus(i, j) == Map::CellStatus::OPEN) {
 					spriteTileOpen.setPosition(sf::Vector2f(i * scaling, j * scaling));
 					window.draw(spriteTileOpen);
 				}
-				else if (pModel->map.getCellStatusArray()[i][j] == Map::CellStatus::CLOSED) {
+				else if (pModel->map.getCellStatus(i, j) == Map::CellStatus::CLOSED) {
 					spriteTileClosed.setPosition(sf::Vector2f(i * scaling, j * scaling));
 					window.draw(spriteTileClosed);
 				}
@@ -60,4 +62,6 @@ void Graphics::computeScaling() {
 	spriteTileOpen.setScale(sf::Vector2f(scaling / spriteTileOpen.getTexture()->getSize().x, scaling / spriteTileOpen.getTexture()->getSize().x));
 	spriteTileClosed.setScale(sf::Vector2f(scaling / spriteTileClosed.getTexture()->getSize().x, scaling / spriteTileClosed.getTexture()->getSize().x));
 	spriteTileUnknown.setScale(sf::Vector2f(scaling / spriteTileUnknown.getTexture()->getSize().x, scaling / spriteTileUnknown.getTexture()->getSize().x));
+
+	cout << "Sprites scaled.\n";
 }

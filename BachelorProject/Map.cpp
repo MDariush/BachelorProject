@@ -47,7 +47,7 @@ void Map::LoadMapImage() {
 		}
 
 		loaded = true;
-		cout << "Map image loaded.";
+		cout << "Map image loaded.\n";
 	}
 }
 
@@ -63,6 +63,6 @@ unsigned int Map::getHeight() {
 	return height;
 }
 
-std::vector<std::vector<Map::CellStatus>> Map::getCellStatusArray() {
-	return cellStatusArray;
+Map::CellStatus Map::getCellStatus(signed int i, signed int j) {
+	return cellStatusArray[i][j];
 }

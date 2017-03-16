@@ -18,7 +18,7 @@ public:
 	bool getMapLoaded();
 	unsigned int getWidth();
 	unsigned int getHeight();
-	std::vector<std::vector<CellStatus>> getCellStatusArray();
+	CellStatus getCellStatus(signed int i, signed int j);
 
 private:
 	bool loaded;

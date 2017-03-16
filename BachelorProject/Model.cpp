@@ -17,7 +17,7 @@ void Model::Init(Graphics* graphics) {
 	pGraphics = graphics;
 
 	status = Status::LOADING_MAP;
-	map.Init("TestMap1.png");
+	map.Init("TestMap8.png");
 }
 
 void Model::Step() {
