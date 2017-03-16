@@ -14,7 +14,7 @@ public:
 	Model();
 	~Model();
 
-	void Init();
+	void Init(class Graphics* graphics);
 	void Step();
 
 	Status getStatus();
@@ -25,4 +25,5 @@ private:
 	void LoadMap();
 
 	Status status;
+	class Graphics* pGraphics;
 };
