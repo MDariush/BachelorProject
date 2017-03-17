@@ -18,34 +18,20 @@ Graphics::~Graphics() {
 void Graphics::Init(Model* model) {
 	pModel = model;
 
-	imageTile.loadFromFile("Tile8x8.png");
-	textureTile.loadFromImage(imageTile);
+	textureTile.loadFromFile("Tile8x8.png");
 	spriteTileOpen.setTexture(textureTile);
-	spriteTileOpen.setColor(sf::Color(191, 191, 191));
+	spriteTileOpen.setColor(sf::Color(191, 191, 127));
 	spriteTileClosed.setTexture(textureTile);
-	spriteTileClosed.setColor(sf::Color(47, 47, 47));
+	spriteTileClosed.setColor(sf::Color(127, 63, 31));
 	spriteTileUnknown.setTexture(textureTile);
-	spriteTileUnknown.setColor(sf::Color(95, 95, 95));
+	spriteTileUnknown.setColor(sf::Color(127, 127, 127));
 }
 
 void Graphics::RenderGraphics() {
 	window.clear();
 
 	if (pModel->getStatus() == Model::Status::IN_MAP) {
-		for (int i = 0; i < mapWidth; i++) {
-			for (int j = 0; j < mapHeight; j++) {
-				if (pModel->map.getCellStatus(i, j) == Map::CellStatus::OPEN) {
-				//if (cellStatusArray[i][j] == Map::CellStatus::OPEN) {
-					spriteTileOpen.setPosition(sf::Vector2f(i * scaling, j * scaling));
-					window.draw(spriteTileOpen);
-				}
-				else if (pModel->map.getCellStatus(i, j) == Map::CellStatus::CLOSED) {
-				//else if (cellStatusArray[i][j] == Map::CellStatus::CLOSED) {
-					spriteTileClosed.setPosition(sf::Vector2f(i * scaling, j * scaling));
-					window.draw(spriteTileClosed);
-				}
-			}
-		}
+		window.draw(spriteBackground);
 	}
 	
 	window.display();
@@ -59,8 +45,13 @@ sf::RenderWindow * Graphics::getWindow() {
 	return &window;
 }
 
+void Graphics::setMapDimensions(unsigned int mapWidth0, unsigned int mapHeight0) {
+	mapWidth = mapWidth0;
+	mapHeight = mapHeight0;
+}
+
 void Graphics::computeScaling() {
-	scaling = window.getSize().x / pModel->map.getWidth();
+	scaling = window.getSize().x / mapWidth;
 
 	spriteTileOpen.setScale(sf::Vector2f(scaling / spriteTileOpen.getTexture()->getSize().x, scaling / spriteTileOpen.getTexture()->getSize().x));
 	spriteTileClosed.setScale(sf::Vector2f(scaling / spriteTileClosed.getTexture()->getSize().x, scaling / spriteTileClosed.getTexture()->getSize().x));
@@ -69,11 +60,24 @@ void Graphics::computeScaling() {
 	cout << "Sprites scaled.\n";
 }
 
-void Graphics::setMapDimensions(unsigned int mapWidth0, unsigned int mapHeight0) {
-	mapWidth = mapWidth0;
-	mapHeight = mapHeight0;
-}
+void Graphics::generateBackgroundTexture() {
+	renderTextureBackground.create(mapWidth * scaling, mapHeight * scaling);
 
-void Graphics::setMapCellStatusArray(std::vector<std::vector<Map::CellStatus>> cellStatusArray0) {
-	cellStatusArray = cellStatusArray0;
+	renderTextureBackground.clear();
+
+	for (signed int i = 0; i < mapWidth; i++) {
+		for (signed int j = 0; j < mapHeight; j++) {
+			if (pModel->map.getCellStatus(i, j) == Map::CellStatus::OPEN) {
+				spriteTileOpen.setPosition(sf::Vector2f(i * scaling, j * scaling));
+				renderTextureBackground.draw(spriteTileOpen);
+			}
+			else if (pModel->map.getCellStatus(i, j) == Map::CellStatus::CLOSED) {
+				spriteTileClosed.setPosition(sf::Vector2f(i * scaling, j * scaling));
+				renderTextureBackground.draw(spriteTileClosed);
+			}
+		}
+	}
+
+	spriteBackground.setTexture(renderTextureBackground.getTexture());
+
 }

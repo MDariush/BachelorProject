@@ -17,16 +17,16 @@ void Model::Init(Graphics* graphics) {
 	pGraphics = graphics;
 
 	status = Status::LOADING_MAP;
-	map.Init("TestMap8.png");
+	map.Init("TestMapRandom100x100.png");
 }
 
 void Model::Step() {
 	if (status == Status::LOADING_MAP) {
 		if (!map.getMapLoaded()) {
 			map.LoadMapImage();
-			pGraphics->computeScaling();
 			pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
-			pGraphics->setMapCellStatusArray(map.getCellStatusArray());
+			pGraphics->computeScaling();
+			pGraphics->generateBackgroundTexture();
 		}
 		else {
 			status = Status::IN_MAP;

@@ -17,16 +17,17 @@ public:
 	void RenderGraphics();
 	bool getWindowOpen();
 	sf::RenderWindow* getWindow();
-	void computeScaling();
 	void setMapDimensions(unsigned int mapWidth0, unsigned int mapHeight0);
-	void setMapCellStatusArray(std::vector<std::vector<Map::CellStatus>> cellStatusArray0);
+	void computeScaling();
+	void generateBackgroundTexture();
 
 private:
 	class Model* pModel;
 
 	sf::RenderWindow window;
-	sf::Image imageTile;
 	sf::Texture textureTile;
+	sf::RenderTexture renderTextureBackground;
+	sf::Sprite spriteBackground;
 	sf::Sprite spriteTileOpen;
 	sf::Sprite spriteTileClosed;
 	sf::Sprite spriteTileUnknown;
@@ -34,5 +35,4 @@ private:
 	float scaling;
 	unsigned int mapWidth;
 	unsigned int mapHeight;
-	std::vector<std::vector<Map::CellStatus>> cellStatusArray;
 };
