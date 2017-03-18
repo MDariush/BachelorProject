@@ -13,7 +13,7 @@ class Graphics
 public:
 	Graphics();
 	~Graphics();
-	void Init(class Model* model);
+	void Init(class Model* model, class Map* map);
 	void RenderGraphics();
 	bool getWindowOpen();
 	sf::RenderWindow* getWindow();
@@ -23,6 +23,7 @@ public:
 
 private:
 	class Model* pModel;
+	class Map* pMap;
 
 	sf::RenderWindow window;
 	sf::Texture textureTile;
@@ -32,7 +33,7 @@ private:
 	sf::Sprite spriteTileClosed;
 	sf::Sprite spriteTileUnknown;
 
-	float scaling;
+	long double scaling;
 	unsigned int mapWidth;
 	unsigned int mapHeight;
 };

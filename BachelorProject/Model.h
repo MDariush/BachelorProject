@@ -4,6 +4,7 @@ Created by Martin Dariush Hansen, 2017-03-14
 */
 
 #pragma once
+#include "Game.h"
 #include "Map.h"
 
 class Model
@@ -16,14 +17,14 @@ public:
 
 	void Init(class Graphics* graphics);
 	void Step();
-
 	Status getStatus();
+	Map* getMapPtr();
 
-	Map map;
-
-private:	
+private:
 	void LoadMap();
 
 	Status status;
 	class Graphics* pGraphics;
+	Game game;
+	Map map;
 };

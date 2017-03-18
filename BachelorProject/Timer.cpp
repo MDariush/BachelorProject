@@ -31,7 +31,7 @@ void Timer::Init(int timeLoopRuns0) {
 
 	// Create objects
 	model.Init(&graphics);
-	graphics.Init(&model);
+	graphics.Init(&model, model.getMapPtr());
 	controls.Init();
 
 	// Start timeloop
@@ -74,7 +74,7 @@ void Timer::UpdateSteps() {
 void Timer::RecordFrameTime() {
 	programFrames++;
 	previousFrameTime = currentTime;
-	cout << "Frame " << programFrames << ", " << timeSincePreviousFrame.count() << " ms.\n";
+	//cout << "Frame " << programFrames << ", " << timeSincePreviousFrame.count() << " ms.\n";
 }
 
 bool Timer::ReadyForProgramStep() {

@@ -15,8 +15,9 @@ Graphics::Graphics() : window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLU
 Graphics::~Graphics() {
 }
 
-void Graphics::Init(Model* model) {
+void Graphics::Init(Model* model, Map* map) {
 	pModel = model;
+	pMap = map;
 
 	textureTile.loadFromFile("Tile8x8.png");
 	spriteTileOpen.setTexture(textureTile);
@@ -67,16 +68,18 @@ void Graphics::generateBackgroundTexture() {
 
 	for (signed int i = 0; i < mapWidth; i++) {
 		for (signed int j = 0; j < mapHeight; j++) {
-			if (pModel->map.getCellStatus(i, j) == Map::CellStatus::OPEN) {
+			if (pMap->getCellStatus(i, j) == Map::CellStatus::OPEN) {
 				spriteTileOpen.setPosition(sf::Vector2f(i * scaling, j * scaling));
 				renderTextureBackground.draw(spriteTileOpen);
 			}
-			else if (pModel->map.getCellStatus(i, j) == Map::CellStatus::CLOSED) {
+			else if (pMap->getCellStatus(i, j) == Map::CellStatus::CLOSED) {
 				spriteTileClosed.setPosition(sf::Vector2f(i * scaling, j * scaling));
 				renderTextureBackground.draw(spriteTileClosed);
 			}
 		}
 	}
+
+	renderTextureBackground.display();
 
 	spriteBackground.setTexture(renderTextureBackground.getTexture());
 
