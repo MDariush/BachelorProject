@@ -31,7 +31,7 @@ void Timer::Init(int timeLoopRuns0) {
 
 	// Create objects
 	model.Init(&graphics);
-	graphics.Init(&model, model.getMapPtr());
+	graphics.Init(&model, model.getMapPtr(), model.getGamePtr()->getUnitsPtr());
 	controls.Init();
 
 	// Start timeloop

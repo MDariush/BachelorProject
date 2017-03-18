@@ -18,19 +18,21 @@ Game::~Game() {
 
 void Game::Init(class Map* pMap0) {
 	pMap = pMap0;
+
+	unitsCreated = 0;
 }
 
 void Game::Step() {
 
 	// Create unit at random location
-	if (units.size() < MAX_UNITS_ON_MAP) {
+	if (unitsCreated < UNITS_TO_CREATE && units.size() < MAX_UNITS_ON_MAP) {
 
-		unsigned int randomX = int((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
-		unsigned int randomY = int((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+		long double randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0)) + 0.5;
+		long double randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0)) + 0.5;
 
 		while (pMap->getCellStatus(randomX, randomY) != Map::OPEN) {
-			randomX = int((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
-			randomY = int((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0)) + 0.5;
+			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0)) + 0.5;
 		}
 
 		createUnit(randomX, randomY);
@@ -38,7 +40,11 @@ void Game::Step() {
 }
 
 void Game::createUnit(long double x0, long double y0) {
-	Unit unit;
-	units.push_back(&unit);
-	cout << "Unit created in cell at (" << x0 << ", " << y0 << ").\n";
+	units.push_back(Unit());
+	units.at(units.size() - 1).Init(x0, y0);
+	cout << "Unit created at (" << units.at(units.size()-1).getX() << ", " << units.at(units.size() - 1).getY() << ").\n";
+}
+
+std::vector<class Unit>* Game::getUnitsPtr() {
+	return &units;
 }

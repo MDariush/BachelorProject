@@ -18,6 +18,7 @@ public:
 	void Init(class Graphics* graphics);
 	void Step();
 	Status getStatus();
+	Game* getGamePtr();
 	Map* getMapPtr();
 
 private:

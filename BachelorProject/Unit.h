@@ -12,6 +12,9 @@ public:
 	~Unit();
 	void Init(long double x0, long double y0);
 
+	long double getX();
+	long double getY();
+
 private:
 	long double x, y;
 	long double direction;

@@ -15,9 +15,11 @@ public:
 	void Step();
 	void createUnit(long double x0, long double y0);
 
+	std::vector<class Unit>* getUnitsPtr();
+
 private:
-	unsigned int unitsCreated = 0;
-	std::vector<class Unit*> units;
+	unsigned int unitsCreated;
+	std::vector<class Unit> units;
 
 	class Map* pMap;
 };

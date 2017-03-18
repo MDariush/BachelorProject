@@ -21,22 +21,32 @@ void Model::Init(Graphics* graphics) {
 }
 
 void Model::Step() {
-	if (status == Status::LOADING_MAP) {
-		if (!map.getMapLoaded()) {
-			map.LoadMapImage();
-			pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
-			pGraphics->computeScaling();
-			pGraphics->generateBackgroundTexture();
-		}
-		else {
-			status = Status::IN_MAP;
+	switch (status) {
+		case Model::LOADING_MAP:
+			if (!map.getMapLoaded()) {
+				map.LoadMapImage();
+				pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
+				pGraphics->computeScaling();
+				pGraphics->generateBackgroundTexture();
+			}
+			else {
+				status = Status::IN_MAP;
+			}
+			break;
+		case Model::IN_MAP:
 			game.Step();
-		}
+			break;
+		default:
+			break;
 	}
 }
 
 Model::Status Model::getStatus() {
 	return status;
+}
+
+Game * Model::getGamePtr() {
+	return &game;
 }
 
 Map * Model::getMapPtr() {

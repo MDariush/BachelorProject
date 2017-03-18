@@ -4,7 +4,6 @@ Created by Martin Dariush Hansen, 2017-03-15
 */
 
 #pragma once
-#include "Map.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
@@ -13,7 +12,7 @@ class Graphics
 public:
 	Graphics();
 	~Graphics();
-	void Init(class Model* model, class Map* map);
+	void Init(class Model* pModel0, class Map* pMap0, std::vector<class Unit>* pUnits0);
 	void RenderGraphics();
 	bool getWindowOpen();
 	sf::RenderWindow* getWindow();
@@ -27,13 +26,15 @@ private:
 
 	sf::RenderWindow window;
 	sf::Texture textureTile;
+	sf::Texture textureUnit;
 	sf::RenderTexture renderTextureBackground;
 	sf::Sprite spriteBackground;
 	sf::Sprite spriteTileOpen;
 	sf::Sprite spriteTileClosed;
-	sf::Sprite spriteTileUnknown;
+	sf::Sprite spriteUnit;
 
 	long double scaling;
 	unsigned int mapWidth;
 	unsigned int mapHeight;
+	std::vector<class Unit>* pUnits;
 };
