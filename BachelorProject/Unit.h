@@ -10,12 +10,13 @@ class Unit
 public:
 	Unit();
 	~Unit();
-	void Init(long double x0, long double y0);
+	void Init(signed int player0, long double x0, long double y0);
 
 	long double getX();
 	long double getY();
 
 private:
+	signed int player;
 	long double x, y;
 	long double direction;
 	long double orientation;

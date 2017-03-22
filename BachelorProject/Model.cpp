@@ -16,18 +16,20 @@ Model::~Model() {
 void Model::Init(Graphics* graphics) {
 	pGraphics = graphics;
 	status = Status::LOADING_MAP;
-	game.Init(&map);
-	map.Init("TestMapRandom100x100.png");
+	
 }
 
 void Model::Step() {
 	switch (status) {
 		case Model::LOADING_MAP:
-			if (!map.getMapLoaded()) {
-				map.LoadMapImage();
+			if (!map.getInitialized()) {
+				map.Init("TestMapRandom100x100.png");
 				pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
 				pGraphics->computeScaling();
 				pGraphics->generateBackgroundTexture();
+			}
+			else if (!game.getInitialized()) {
+				game.Init(&map);
 			}
 			else {
 				status = Status::IN_MAP;

@@ -9,6 +9,7 @@ Created by Martin Dariush Hansen, 2017-03-14
 using namespace std;
 
 Map::Map() {
+	initialized = false;
 }
 
 Map::~Map() {
@@ -16,7 +17,10 @@ Map::~Map() {
 
 void Map::Init(const char* mapName0) {
 	name = mapName0;
-	loaded = false;
+
+	LoadMapImage();
+
+	initialized = true;
 }
 
 void Map::LoadMapImage() {
@@ -29,7 +33,7 @@ void Map::LoadMapImage() {
 	else {
 		// Set cell status array size
 		cellStatusArray.resize(width);
-		for (int i = 0; i < height; i++) {
+		for (int i = 0; i < width; i++) {
 			cellStatusArray[i].resize(height);
 		}
 
@@ -46,13 +50,12 @@ void Map::LoadMapImage() {
 			}
 		}
 
-		loaded = true;
 		cout << "Map image loaded.\n";
 	}
 }
 
-bool Map::getMapLoaded() {
-	return loaded;
+bool Map::getInitialized() {
+	return initialized;
 }
 
 unsigned int Map::getWidth() {

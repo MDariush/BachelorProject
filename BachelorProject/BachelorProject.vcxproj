@@ -132,10 +132,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Timer_Test.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="Vision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catch.hpp" />
@@ -146,9 +148,11 @@
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Unit.h" />
+    <ClInclude Include="Vision.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

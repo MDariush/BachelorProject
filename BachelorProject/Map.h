@@ -15,7 +15,7 @@ public:
 	~Map();
 	void Init(const char* mapName);
 	void LoadMapImage();
-	bool getMapLoaded();
+	bool getInitialized();
 	unsigned int getWidth();
 	unsigned int getHeight();
 	CellStatus getCellStatus(signed int i, signed int j);
@@ -27,5 +27,6 @@ private:
 	unsigned int width;
 	unsigned int height;
 	std::vector<std::vector<CellStatus>> cellStatusArray;
+	bool initialized;
 };
 

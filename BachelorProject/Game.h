@@ -13,14 +13,20 @@ public:
 	~Game();
 	void Init(class Map* pMap0);
 	void Step();
-	void createUnit(long double x0, long double y0);
+	void CreatePlayer();
+	void CreateUnit(unsigned int player0, long double x0, long double y0);
+	bool getInitialized();
 
+	std::vector<class Player>* getPlayersPtr();
 	std::vector<class Unit>* getUnitsPtr();
 
 private:
-	unsigned int unitsCreated;
+	std::vector<class Player> players;
 	std::vector<class Unit> units;
+	unsigned int unitsCreated;
 
 	class Map* pMap;
+
+	bool initialized;
 };
 

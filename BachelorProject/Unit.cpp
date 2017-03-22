@@ -11,7 +11,8 @@ Unit::Unit() {
 Unit::~Unit() {
 }
 
-void Unit::Init(long double x0, long double y0) {
+void Unit::Init(signed int player0, long double x0, long double y0) {
+	player = player0;
 	x = x0;
 	y = y0;
 	direction = 0.0;
