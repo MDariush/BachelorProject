@@ -23,13 +23,14 @@ void Model::Step() {
 	switch (status) {
 		case Model::LOADING_MAP:
 			if (!map.getInitialized()) {
-				map.Init("TestMapRandom100x100.png");
+				map.Init("TestMapRandom10x10.png");
 				pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
-				pGraphics->computeScaling();
-				pGraphics->generateBackgroundTexture();
+				pGraphics->ComputeScaling();
+				pGraphics->GenerateBackgroundTexture();
 			}
 			else if (!game.getInitialized()) {
 				game.Init(&map);
+				pGraphics->GenerateFogTexture();
 			}
 			else {
 				status = Status::IN_MAP;

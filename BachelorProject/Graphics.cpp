@@ -7,6 +7,7 @@ Created by Martin Dariush Hansen, 2017-03-15
 #include "Graphics.h"
 #include "Map.h"
 #include "Model.h"
+#include "Player.h"
 #include "Unit.h"
 #include <iostream>
 using namespace std;
@@ -17,10 +18,14 @@ Graphics::Graphics() : window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLU
 Graphics::~Graphics() {
 }
 
-void Graphics::Init(Model* pModel0, Map* pMap0, std::vector<class Unit>* pUnits0) {
+void Graphics::Init(Model* pModel0, Map* pMap0, std::vector<class Player>* pPlayers0, std::vector<class Unit>* pUnits0) {
 	pModel = pModel0;
 	pMap = pMap0;
+	pPlayers = pPlayers0;
 	pUnits = pUnits0;
+
+	shapeVisionPixel.setSize(sf::Vector2f(1, 1));
+	shapeVisionPixel.setFillColor(sf::Color(255, 255, 255, 255));
 
 	textureTile.loadFromFile("Tile10x10.png");
 	spriteTileOpen.setTexture(textureTile);
@@ -46,8 +51,12 @@ void Graphics::RenderGraphics() {
 			spriteUnit.setPosition(sf::Vector2f(pUnits->at(i).getX() * scaling, pUnits->at(i).getY() * scaling));
 			window.draw(spriteUnit);
 		}
+
+		// Draw fog
+		UpdateEntireFogTexture();
+		window.draw(spriteFog);
 	}
-	
+
 	window.display();
 }
 
@@ -64,7 +73,7 @@ void Graphics::setMapDimensions(unsigned int mapWidth0, unsigned int mapHeight0)
 	mapHeight = mapHeight0;
 }
 
-void Graphics::computeScaling() {
+void Graphics::ComputeScaling() {
 	scaling = window.getSize().x / mapWidth;
 
 	spriteTileOpen.setScale(sf::Vector2f(scaling / spriteTileOpen.getTexture()->getSize().x, scaling / spriteTileOpen.getTexture()->getSize().x));
@@ -76,27 +85,52 @@ void Graphics::computeScaling() {
 
 	cout << "Scaling set to: " << scaling << ".\n";
 }
+void Graphics::GenerateFogTexture() {
+	renderTextureFog.create(mapWidth, mapHeight);
+	renderTextureFog.clear(sf::Color(0, 0, 0, 255));
 
-void Graphics::generateBackgroundTexture() {
+	renderTextureFog.display();
+	spriteFog.setTexture(renderTextureFog.getTexture());
+	spriteFog.scale(sf::Vector2f(scaling, scaling));
+}
+
+void Graphics::UpdateEntireFogTexture() {
+	renderTextureFog.clear(sf::Color(0, 0, 0, 255));
+
+	for (signed int i = 0; i < mapWidth; i++) {
+		for (signed int j = 0; j < mapHeight; j++) {
+			switch (pPlayers->at(0).getVisionArrayPtr()->at(i).at(j)) {
+			case Vision::EXPLORED:
+				shapeVisionPixel.setPosition(sf::Vector2f(i, j));
+				renderTextureFog.draw(shapeVisionPixel);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	renderTextureFog.display();
+	spriteFog.setTexture(renderTextureFog.getTexture());
+}
+
+void Graphics::GenerateBackgroundTexture() {
 	renderTextureBackground.create(mapWidth * scaling, mapHeight * scaling);
-
 	renderTextureBackground.clear();
 
 	for (signed int i = 0; i < mapWidth; i++) {
 		for (signed int j = 0; j < mapHeight; j++) {
-			if (pMap->getCellStatus(i, j) == Map::CellStatus::OPEN) {
-				spriteTileOpen.setPosition(sf::Vector2f(i * scaling, j * scaling));
-				renderTextureBackground.draw(spriteTileOpen);
-			}
-			else if (pMap->getCellStatus(i, j) == Map::CellStatus::CLOSED) {
+			switch (pMap->getCellStatus(i, j)) {
+			case Map::CellStatus::CLOSED:
 				spriteTileClosed.setPosition(sf::Vector2f(i * scaling, j * scaling));
 				renderTextureBackground.draw(spriteTileClosed);
+				break;
+			default:
+				spriteTileOpen.setPosition(sf::Vector2f(i * scaling, j * scaling));
+				renderTextureBackground.draw(spriteTileOpen);
+				break;
 			}
 		}
 	}
-
 	renderTextureBackground.display();
-
 	spriteBackground.setTexture(renderTextureBackground.getTexture());
-
 }

@@ -23,3 +23,9 @@ void Player::Step() {
 void Player::AddUnit(Unit* unit0) {
 	unitsPtr.push_back(unit0);
 }
+
+std::vector<std::vector<Vision::VisionStatus>> * Player::getVisionArrayPtr() {
+	return vision.getVisionMapPtr();
+}
+
+

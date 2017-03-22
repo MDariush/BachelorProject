@@ -14,6 +14,9 @@ public:
 
 	long double getX();
 	long double getY();
+	unsigned int getVisionRng();
+	unsigned int getVisionRngSquared();
+	void setVisionRng(signed int visionRng0);
 
 private:
 	signed int player;
@@ -24,4 +27,5 @@ private:
 	long double spdAcc;
 	long double maxSpd;
 	unsigned int visionRng;
+	unsigned int visionRngSquared;
 };

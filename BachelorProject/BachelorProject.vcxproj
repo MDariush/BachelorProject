@@ -147,6 +147,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Mathematics.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Timer.h" />

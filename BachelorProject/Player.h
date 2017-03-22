@@ -15,6 +15,7 @@ public:
 	void Init(signed int mapWidth0, signed int mapHeight0);
 	void Step();
 	void AddUnit(class Unit* unit0);
+	std::vector<std::vector<Vision::VisionStatus>>* getVisionArrayPtr();
 
 private:
 	Vision vision;
