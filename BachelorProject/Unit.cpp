@@ -19,16 +19,33 @@ void Unit::Init(signed int player0, long double x0, long double y0) {
 	y = y0;
 
 	// #TODO
-	direction = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_2));
+	direction = 0; // static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_2));
 	orientation = 0.0;
 	orientationAcc = 0.125;
-	spd = 1.0 / 200.0;
+	spd = 2.0 / STEPS_PER_SECOND;
 	spdAcc = 1.0 / 256.0;
 	spdMax = 1.0 / 32.0;
 	setVisionRng(4.0 + 0.5);
+	commandQueue.push(command());
+	commandQueue.front().commandType = MOVE;
+	commandQueue.front().x = 0;
+	commandQueue.front().y = 0;
 }
 
 void Unit::UpdateMovement() {
+
+	if (commandQueue.size() > 0) {
+		switch (commandQueue.front().commandType) {
+		case MOVE:
+
+			// #TODO Direction acc
+			direction = atan2(commandQueue.front().x - x, y - commandQueue.front().y);
+
+			break;
+		default:
+			break;
+		}
+	}
 
 	// #TODO Orientation acc
 	if (orientation != direction) {

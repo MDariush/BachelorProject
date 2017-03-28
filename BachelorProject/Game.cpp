@@ -43,6 +43,7 @@ void Game::Step() {
 		randomY += 0.5;
 
 		players.at(0).CreateUnit(randomX, randomY);
+		unitsCreated++;
 	}
 
 	// Update units

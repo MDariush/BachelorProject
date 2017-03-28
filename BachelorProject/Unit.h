@@ -6,9 +6,19 @@ Created by Martin Dariush Hansen, 2017-03-17
 #pragma once
 #include <queue>
 
+
+
 class Unit
 {
 public:
+	enum CommandType {
+		MOVE
+	};
+	struct command {
+		CommandType commandType;
+		long double x;
+		long double y;
+	};
 	Unit();
 	~Unit();
 	void Init(signed int player0, long double x0, long double y0);
@@ -32,5 +42,5 @@ private:
 	long double spdMax;
 	long double visionRng;
 	long double visionRngSquared;
-	std::queue<long double> commands;
+	std::queue<command> commandQueue;
 };
