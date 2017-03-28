@@ -39,6 +39,7 @@ private:
 	long double orientationAcc;
 	long double spd;
 	long double spdAcc;
+	long double spdBrk;
 	long double spdMax;
 	long double visionRng;
 	long double visionRngSquared;

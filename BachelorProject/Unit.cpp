@@ -4,7 +4,9 @@ Created by Martin Dariush Hansen, 2017-03-17
 */
 
 #include "Constants.h"
+//#include "Mathematics.h"
 #include "Unit.h"
+#include <math.h>
 #include <stdlib.h>
 
 Unit::Unit() {
@@ -19,27 +21,183 @@ void Unit::Init(signed int player0, long double x0, long double y0) {
 	y = y0;
 
 	// #TODO
-	direction = 0; // static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_2));
+	direction = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_X2));
 	orientation = 0.0;
-	orientationAcc = 0.125;
-	spd = 2.0 / STEPS_PER_SECOND;
-	spdAcc = 1.0 / 256.0;
-	spdMax = 1.0 / 32.0;
+	orientationAcc = (PI_X2 / STEPS_PER_SECOND) / 0.5;
+	spdMax = 2.0 / STEPS_PER_SECOND;
+	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
+	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
+	spd = 0;
 	setVisionRng(4.0 + 0.5);
+	/*
 	commandQueue.push(command());
-	commandQueue.front().commandType = MOVE;
-	commandQueue.front().x = 0;
-	commandQueue.front().y = 0;
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 4.5;
+	*/
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 9.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 8.5;
+	commandQueue.back().y = 3.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 7.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 6.5;
+	commandQueue.back().y = 3.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 4.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 5.5;
+	commandQueue.push(command());
+	commandQueue.back().commandType = MOVE;
+	commandQueue.back().x = 5.5;
+	commandQueue.back().y = 4.5;
+	commandQueue.push(command());
 }
 
 void Unit::UpdateMovement() {
-
 	if (commandQueue.size() > 0) {
 		switch (commandQueue.front().commandType) {
 		case MOVE:
 
-			// #TODO Direction acc
-			direction = atan2(commandQueue.front().x - x, y - commandQueue.front().y);
+			// Set direction towards target
+			direction = atan2(y - commandQueue.front().y, x - commandQueue.front().x) - PI;
+
+			// Set direction between -180 and 180 deg
+			/*while (direction < -PI) {
+				direction += PI_X2;
+			}
+			while (direction > PI) {
+				direction -= PI_X2;
+			}
+			while (orientation < -PI) {
+				orientation += PI_X2;
+			}
+			while (orientation > PI) {
+				orientation -= PI_X2;
+			}*/
+
+			// Slowly rotate orientation towards direction
+			/*if (orientation - direction < PI) {
+				orientation -= orientationAcc;
+				if (orientation < direction) {
+					orientation = direction;
+				}
+			}
+			else if (orientation - direction > PI) {
+				orientation += orientationAcc;
+				if (orientation > direction) {
+					orientation = direction;
+				}
+			}*/
+			
+			if (fmod(direction - orientation + PI, PI_X2) - PI < 0) {
+				orientation -= orientationAcc;
+				if (fmod(direction - orientation + PI, PI_X2) - PI > 0) {
+					orientation = direction;
+				}
+			}
+			else if (fmod(direction - orientation + PI, PI_X2) - PI > 0) {
+				orientation += orientationAcc;
+				if (fmod(direction - orientation + PI, PI_X2) - PI < 0) {
+					orientation = direction;
+				}
+			}
+
+			// Accelerate
+			if (spd < spdMax) {
+				spd += spdAcc;
+				if (spd > spdMax) {
+					spd = spdMax;
+				}
+			}
+
+			// Move
+			if (x < commandQueue.front().x + spdMax
+				&& x > commandQueue.front().x - spdMax
+				&& y < commandQueue.front().y + spdMax
+				&& y > commandQueue.front().y - spdMax) {
+				commandQueue.pop();
+			}
 
 			break;
 		default:
@@ -47,15 +205,12 @@ void Unit::UpdateMovement() {
 		}
 	}
 
-	// #TODO Orientation acc
-	if (orientation != direction) {
-		orientation = direction;
-	}
-
 	if (spd != 0) {
 		x += spd * cos(direction);
 		y += spd * sin(direction);
 	}
+
+
 }
 
 long double Unit::getX() {
@@ -71,7 +226,7 @@ long double Unit::getOrientation() {
 }
 
 long double Unit::getOrientationDeg() {
-	return orientation * PI_2_TO_DEG;
+	return orientation * PI_X2_TO_DEG;
 }
 
 long double Unit::getVisionRng() {
