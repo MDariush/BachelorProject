@@ -5,6 +5,8 @@ Created by Martin Dariush Hansen, 2017-03-22
 
 #include "Player.h"
 #include "Unit.h"
+#include <iostream>
+using namespace std;
 
 Player::Player() {
 }
@@ -12,20 +14,31 @@ Player::Player() {
 Player::~Player() {
 }
 
-void Player::Init(signed int mapWidth0, signed int mapHeight0) {
-	vision.Init(&unitsPtr, mapWidth0, mapHeight0);
+void Player::Init(int playerNumberArg, unsigned int mapWidthArg, unsigned int mapHeightArg) {
+	playerNumber = playerNumberArg;
+	vision.Init(mapWidthArg, mapHeightArg);
 }
 
 void Player::Step() {
-	vision.FullUpdate();
+	vision.FullUpdate(&units);
 }
 
-void Player::AddUnit(Unit* unit0) {
-	unitsPtr.push_back(unit0);
+void Player::CreateUnit(long double xArg, long double yArg) {
+	units.push_back(Unit());
+	units.at(units.size() - 1).Init(playerNumber, xArg, yArg);
+	cout << "Unit created for Player " << playerNumber << " at (" << units.at(units.size() - 1).getX() << ", " << units.at(units.size() - 1).getY() << ").\n";
+}
+
+void Player::UpdateUnitMovement() {
+	for (unsigned int i = 0; i < units.size(); i++) {
+		units.at(i).UpdateMovement();
+	}
+}
+
+std::vector<class Unit>* Player::getUnitsPtr() {
+	return &units;
 }
 
 std::vector<std::vector<Vision::VisionStatus>> * Player::getVisionArrayPtr() {
 	return vision.getVisionMapPtr();
 }
-
-

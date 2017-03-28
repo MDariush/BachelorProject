@@ -12,13 +12,16 @@ class Player
 public:
 	Player();
 	~Player();
-	void Init(signed int mapWidth0, signed int mapHeight0);
+	void Init(int playerNumberArg, unsigned int mapWidthArg, unsigned int mapHeightArg);
 	void Step();
-	void AddUnit(class Unit* unit0);
+	void CreateUnit(long double xArg, long double yArg);
+	void UpdateUnitMovement();
+	std::vector<class Unit>* getUnitsPtr();
 	std::vector<std::vector<Vision::VisionStatus>>* getVisionArrayPtr();
 
 private:
 	Vision vision;
 
-	std::vector<class Unit*> unitsPtr;
+	std::vector<class Unit> units;
+	int playerNumber;
 };

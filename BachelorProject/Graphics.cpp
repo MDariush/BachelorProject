@@ -18,14 +18,15 @@ Graphics::Graphics() : window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLU
 Graphics::~Graphics() {
 }
 
-void Graphics::Init(Model* pModel0, Map* pMap0, std::vector<class Player>* pPlayers0, std::vector<class Unit>* pUnits0) {
+void Graphics::Init(Model* pModel0, Map* pMap0, std::vector<class Player>* pPlayers0) {
 	pModel = pModel0;
 	pMap = pMap0;
 	pPlayers = pPlayers0;
-	pUnits = pUnits0;
 
-	shapeVisionPixel.setSize(sf::Vector2f(1, 1));
-	shapeVisionPixel.setFillColor(sf::Color(255, 255, 255, 255));
+	shapeUnexploredPixel.setSize(sf::Vector2f(1, 1));
+	shapeUnexploredPixel.setFillColor(sf::Color(0, 0, 0, 255));
+	shapeExploredPixel.setSize(sf::Vector2f(1, 1));
+	shapeExploredPixel.setFillColor(sf::Color(0, 0, 0, 127));
 
 	textureTile.loadFromFile("Tile10x10.png");
 	spriteTileOpen.setTexture(textureTile);
@@ -47,9 +48,12 @@ void Graphics::RenderGraphics() {
 		window.draw(spriteBackground);
 
 		// Draw units
-		for (int i = 0; i < pUnits->size(); i++) {
-			spriteUnit.setPosition(sf::Vector2f(pUnits->at(i).getX() * scaling, pUnits->at(i).getY() * scaling));
-			window.draw(spriteUnit);
+		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size() ; i++) {
+			for (int j = 0; j < pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->size(); j++) {
+				spriteUnit.setPosition(sf::Vector2f(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getX() * scaling, pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getY() * scaling));
+				spriteUnit.setRotation(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getOrientationDeg());
+				window.draw(spriteUnit);
+			}
 		}
 
 		// Draw fog
@@ -95,14 +99,18 @@ void Graphics::GenerateFogTexture() {
 }
 
 void Graphics::UpdateEntireFogTexture() {
-	renderTextureFog.clear(sf::Color(0, 0, 0, 255));
+	renderTextureFog.clear(sf::Color(0, 0, 0, 0));
 
 	for (signed int i = 0; i < mapWidth; i++) {
 		for (signed int j = 0; j < mapHeight; j++) {
 			switch (pPlayers->at(0).getVisionArrayPtr()->at(i).at(j)) {
+			case Vision::UNEXPLORED:
+				shapeUnexploredPixel.setPosition(sf::Vector2f(i, j));
+				renderTextureFog.draw(shapeUnexploredPixel);
+				break;
 			case Vision::EXPLORED:
-				shapeVisionPixel.setPosition(sf::Vector2f(i, j));
-				renderTextureFog.draw(shapeVisionPixel);
+				shapeExploredPixel.setPosition(sf::Vector2f(i, j));
+				renderTextureFog.draw(shapeExploredPixel);
 				break;
 			default:
 				break;

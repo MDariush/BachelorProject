@@ -13,8 +13,8 @@ public:
 
 	Vision();
 	~Vision();
-	void Init(std::vector<class Unit*>* unitsPtr0, signed int width0, signed int height0);
-	void FullUpdate();
+	void Init(signed int widthArg, signed int heightArg);
+	void FullUpdate(std::vector<class Unit>* pUnitsArg);
 	void UpdateVisionForUnit(Unit* unit0);
 	
 	void setVisionMapSize(signed int width0, signed int height0);
@@ -22,6 +22,5 @@ public:
 	void setEntireVisionMap(VisionStatus);
 
 private:
-	std::vector<class Unit*>* unitsPtr;
 	std::vector<std::vector<VisionStatus>> visionMap;
 };

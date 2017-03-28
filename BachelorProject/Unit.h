@@ -4,6 +4,7 @@ Created by Martin Dariush Hansen, 2017-03-17
 */
 
 #pragma once
+#include <queue>
 
 class Unit
 {
@@ -11,12 +12,14 @@ public:
 	Unit();
 	~Unit();
 	void Init(signed int player0, long double x0, long double y0);
-
+	void UpdateMovement();
 	long double getX();
 	long double getY();
-	unsigned int getVisionRng();
-	unsigned int getVisionRngSquared();
-	void setVisionRng(signed int visionRng0);
+	long double getOrientation();
+	long double getOrientationDeg();
+	long double getVisionRng();
+	long double getVisionRngSquared();
+	void setVisionRng(long double visionRng0);
 
 private:
 	signed int player;
@@ -24,8 +27,10 @@ private:
 	long double direction;
 	long double orientation;
 	long double orientationAcc;
+	long double spd;
 	long double spdAcc;
-	long double maxSpd;
-	unsigned int visionRng;
-	unsigned int visionRngSquared;
+	long double spdMax;
+	long double visionRng;
+	long double visionRngSquared;
+	std::queue<long double> commands;
 };

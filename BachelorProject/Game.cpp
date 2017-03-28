@@ -29,31 +29,37 @@ void Game::Init(class Map* pMap0) {
 void Game::Step() {
 
 	// Create unit at random location
-	if (unitsCreated < UNITS_TO_CREATE && units.size() < MAX_UNITS_ON_MAP) {
+	if (unitsCreated < UNITS_TO_CREATE && players.at(0).getUnitsPtr()->size() < MAX_UNITS_ON_MAP) {
 
-		long double randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0)) + 0.5;
-		long double randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0)) + 0.5;
+		long double randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+		long double randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
 
 		while (pMap->getCellStatus(randomX, randomY) != Map::OPEN) {
-			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0)) + 0.5;
-			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0)) + 0.5;
+			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
 		}
 
-		CreateUnit(0, randomX, randomY);
+		randomX += 0.5;
+		randomY += 0.5;
+
+		players.at(0).CreateUnit(randomX, randomY);
+	}
+
+	// Update units
+	for (int i = 0; i < players.size(); i++) {
+		players.at(i).UpdateUnitMovement();
+	}
+
+	// Update players
+	for (int i = 0; i < players.size(); i++) {
+		players.at(i).Step();
 	}
 }
 
 void Game::CreatePlayer() {
 	players.push_back(Player());
-	players.at(players.size() - 1).Init(pMap->getWidth(), pMap->getHeight());
-	cout << "Player created.\n";
-}
-
-void Game::CreateUnit(unsigned int player0, long double x0, long double y0) {
-	units.push_back(Unit());
-	units.at(units.size() - 1).Init(player0, x0, y0);
-	players.at(player0).AddUnit(&units.at(units.size() - 1));
-	cout << "Unit created for Player " << player0 << " at (" << units.at(units.size()-1).getX() << ", " << units.at(units.size() - 1).getY() << ").\n";
+	players.at(players.size() - 1).Init(players.size() - 1, pMap->getWidth(), pMap->getHeight());
+	cout << "Player " << players.size() - 1 << " created.\n";
 }
 
 bool Game::getInitialized() {
@@ -62,8 +68,4 @@ bool Game::getInitialized() {
 
 std::vector<class Player>* Game::getPlayersPtr() {
 	return &players;
-}
-
-std::vector<class Unit>* Game::getUnitsPtr() {
-	return &units;
 }

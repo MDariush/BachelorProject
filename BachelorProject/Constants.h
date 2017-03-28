@@ -5,6 +5,11 @@ Created by Martin Dariush Hansen, 2017-03-04
 
 #pragma once
 
+// Math
+const double PI =   3.141592653589793238;
+const double PI_2 = 6.283185307179586476;
+const double PI_2_TO_DEG = 360 / PI_2;
+
 // Screen resolution
 const int TARGET_RESOLUTION_X = 1920;
 const int TARGET_RESOLUTION_Y = 1080;

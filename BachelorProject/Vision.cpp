@@ -15,23 +15,21 @@ Vision::Vision() {
 Vision::~Vision() {
 }
 
-void Vision::Init(std::vector<class Unit*>* unitsPtr0, signed int width0, signed int height0) {
-	unitsPtr = unitsPtr0;
-	cout << "Units in Vision's vector pointer " << unitsPtr->size() << ".\n";
-	setVisionMapSize(width0, height0);
+void Vision::Init(signed int widthArg, signed int heightArg) {
+	setVisionMapSize(widthArg, heightArg);
 	setEntireVisionMap(VisionStatus::UNEXPLORED);
 }
 
-void Vision::FullUpdate() {
+void Vision::FullUpdate(std::vector<class Unit>* pUnitsArg) {
 	for (int i = 0; i < visionMap.size(); i++) {
 		for (int j = 0; j < visionMap.at(0).size(); j++) {
 			if (visionMap[i][j] == VisionStatus::VISIBLE)
 			visionMap[i][j] = VisionStatus::EXPLORED;
 		}
 	}
-
-	for (int u = 0; u < unitsPtr->size(); u++) {
-		UpdateVisionForUnit(unitsPtr->at(u));
+	
+	for (int u = 0; u < pUnitsArg->size(); u++) {
+		UpdateVisionForUnit(&pUnitsArg->at(u));
 	}
 }
 
@@ -40,25 +38,25 @@ void Vision::UpdateVisionForUnit(Unit* unit0) {
 	// Skip vision outside map
 	int iMin = unit0->getX() - unit0->getVisionRng();
 	int jMin = unit0->getY() - unit0->getVisionRng();
-	int iMax = unit0->getX() + unit0->getVisionRng();
-	int jMax = unit0->getY() + unit0->getVisionRng();
+	int iMax = unit0->getX() + unit0->getVisionRng() + 1.0;
+	int jMax = unit0->getY() + unit0->getVisionRng() + 1.0;
 	if (iMin < 0) {
 		iMin = 0;
 	}
 	if (jMin < 0) {
 		jMin = 0;
 	}
-	if (iMax > visionMap.size() - 1) {
-		iMax = visionMap.size() - 1;
+	if (iMax > visionMap.size()) {
+		iMax = visionMap.size();
 	}
-	if (jMax > visionMap.size() - 1) {
-		jMax = visionMap.size() - 1;
+	if (jMax > visionMap.at(0).size()) {
+		jMax = visionMap.at(0).size();
 	}
 
 	// Fill the field of view
-	// #TODO: Obstacles should block vision
-	for (int i = iMin; i < jMax; i++) {
-		for (int j = jMin; j < jMin; j++) {
+	// #TODO Obstacles should block vision
+	for (int i = iMin; i < iMax; i++) {
+		for (int j = jMin; j < jMax; j++) {
 			if (visionMap[i][j] != VisionStatus::VISIBLE 
 				&& distanceToCellSquared(unit0->getX(), unit0->getY(), i, j) <= unit0->getVisionRngSquared()) {
 				visionMap[i][j] = VisionStatus::VISIBLE;
