@@ -18,7 +18,6 @@ Vision::~Vision() {
 
 void Vision::Init(std::vector<std::vector<Map::CellStatus>>* pCellStatusArrayArg) {
 	pCellStatusArray = pCellStatusArrayArg;
-
 	ResetVisionMap(pCellStatusArray->size(), pCellStatusArray->at(0).size(), VisionStatus::UNEXPLORED);
 }
 
@@ -35,12 +34,13 @@ void Vision::FullUpdate(std::vector<class Unit>* pUnitsArg) {
 	}
 }
 
-void Vision::UpdateVisionForUnit(Unit* unit0) {
-	long double visionRng = unit0->getVisionRng();
+void Vision::UpdateVisionForUnit(Unit* unitArg) {
+	long double visionRng = unitArg->getVisionRng();
+	
 
 	if (visionRng > 0) {
-		long double x = unit0->getX();
-		long double y = unit0->getY();
+		long double x = unitArg->getX();
+		long double y = unitArg->getY();
 
 
 		// Skip vision outside map
@@ -63,17 +63,17 @@ void Vision::UpdateVisionForUnit(Unit* unit0) {
 
 		// Fill the field of view
 		// Vision on unit position
-		visionMap.at(x).at(y) = VisionStatus::VISIBLE;
+		PointVision(x, y);
 
 		// Line vision for every 45 deg
-		LineVision(x + 1, y, 1, 0, visionRng);
-		/*lineVision(x + 1, y + 1, 1, 1, visionRng * HYPOTENUSE_SCALAR);
-		lineVision(x, y + 1, 0, 1, visionRng);
-		lineVision(x - 1, y + 1, -1, 1, visionRng * HYPOTENUSE_SCALAR);
-		lineVision(x - 1, y, -1, 0, visionRng);
-		lineVision(x + 1, y + 1, 1, 1, visionRng * HYPOTENUSE_SCALAR);
-		lineVision(x, y - 1, 0, -1, visionRng);
-		lineVision(x + 1, y + 1, 1, 1, visionRng * HYPOTENUSE_SCALAR);*/
+		LineVision(x + 1, y, 1, 0, visionRng - 1);
+		LineVision(x + 1, y + 1, 1, 1, (visionRng - 1) * HYPOTENUSE_SCALAR);
+		LineVision(x, y + 1, 0, 1, visionRng - 1);
+		LineVision(x - 1, y + 1, -1, 1, (visionRng - 1) * HYPOTENUSE_SCALAR);
+		LineVision(x - 1, y, -1, 0, visionRng - 1);
+		LineVision(x + 1, y + 1, 1, 1, (visionRng - 1) * HYPOTENUSE_SCALAR);
+		LineVision(x, y - 1, 0, -1, visionRng - 1);
+		LineVision(x + 1, y + 1, 1, 1, (visionRng - 1) * HYPOTENUSE_SCALAR);
 
 		// Fill the rest of the vision circle with 90 deg lines
 		for (int i = 1; i < visionRng * HYPOTENUSE_SCALAR; i ++) {
@@ -128,14 +128,17 @@ void Vision::UpdateVisionForUnit(Unit* unit0) {
 	}
 }
 
-void Vision::LineVision(long double x, long double y, unsigned int xSpd, unsigned int ySpd, long double rng) {
-	for (int i = 1; i <= rng; i++) {
+void Vision::PointVision(int x, int y) {
+	if (IsLegalCell(x, y)) {
+		visionMap.at(x).at(y) = VisionStatus::VISIBLE;
+	}
+}
+
+void Vision::LineVision(long double x, long double y, int xSpd, int ySpd, long double rng) {
+	for (int i = 0; i <= rng; i++) {
 		if (IsLegalCell(x + i * xSpd, y + i * ySpd)) {
-			cout << mapWidth << " " << mapHeight << endl;
-			if (pCellStatusArray->at(x + i * xSpd).at(y + i * ySpd) == Map::OPEN) {
-				visionMap.at(x + i * xSpd).at(y + i * ySpd) = VisionStatus::VISIBLE;
-			}
-			else {
+			visionMap.at(x + i * xSpd).at(y + i * ySpd) = VisionStatus::VISIBLE;
+			if (pCellStatusArray->at(x + i * xSpd).at(y + i * ySpd) != Map::OPEN) {
 				break;
 			}
 		}
@@ -146,7 +149,7 @@ void Vision::LineVision(long double x, long double y, unsigned int xSpd, unsigne
 }
 
 bool Vision::IsLegalCell(int x, int y) {
-	return x >= 0 && x < mapWidth && y >= 0 && y < mapHeight;
+	return x >= 0 && x < pCellStatusArray->size() && y >= 0 && y < pCellStatusArray->at(0).size();
 }
 
 void Vision::ResetVisionMap(unsigned int widthArg, unsigned int heightArg, VisionStatus statusArg) {

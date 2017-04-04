@@ -16,8 +16,9 @@ public:
 	~Vision();
 	void Init(std::vector<std::vector<Map::CellStatus>>* pCellStatusArrayArg);
 	void FullUpdate(std::vector<class Unit>* pUnitsArg);
-	void UpdateVisionForUnit(Unit* unit0);
-	void LineVision(long double x, long double y, unsigned int xSpd, unsigned int ySpd, long double visionRng);
+	void UpdateVisionForUnit(Unit* unitArg);
+	void PointVision(int x, int y);
+	void LineVision(long double x, long double y, int xSpd, int ySpd, long double visionRng);
 	bool IsLegalCell(int x, int y);
 
 	void setVisionMapSize(signed int width0, signed int height0);
@@ -26,7 +27,5 @@ public:
 
 private:
 	std::vector<std::vector<VisionStatus>> visionMap;
-	unsigned int mapWidth;
-	unsigned int mapHeight;
 	std::vector<std::vector<Map::CellStatus>>* pCellStatusArray;
 };

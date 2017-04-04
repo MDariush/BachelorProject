@@ -29,7 +29,7 @@ void Unit::Init(signed int player0, long double x0, long double y0) {
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
-	setVisionRng(2.0 + 0.5);
+	setVisionRng(4.0 + 0.5);
 	
 	commandQueue.push(command());
 	commandQueue.back().commandType = MOVE;
