@@ -32,25 +32,17 @@ void Map::LoadMapImage() {
 	}
 	else {
 		// Set cell status array size
-		cellStatusArray.resize(width);
-		for (int i = 0; i < width; i++) {
-			cellStatusArray[i].resize(height);
-		}
+		cellStatusArray.resize(width, std::vector<CellStatus>(height, CellStatus::OPEN));
 
 		// Set cell status array values
 		for (int i = 0; i < width; i++) {
-			cellStatusArray.push_back(vector<CellStatus>());
 			for (int j = 0; j < height; j++) {
 				if (mapVector.at((width*(j)+i) * 4) == 0 && mapVector.at((width*(j)+i) * 4 + 1) == 0 && mapVector.at((width*(j)+i) * 4 + 2) == 0) {
 					cellStatusArray[i][j] = CellStatus::CLOSED;
 				}
-				else {
-					cellStatusArray[i][j] = CellStatus::OPEN;
-				}
 			}
 		}
-
-		cout << "Map image loaded.\n";
+		cout << "Map image (" << cellStatusArray.size() << "x" << cellStatusArray.at(0).size() << ") loaded.\n";
 	}
 }
 
@@ -70,6 +62,6 @@ Map::CellStatus Map::getCellStatus(signed int i, signed int j) {
 	return cellStatusArray[i][j];
 }
 
-std::vector<std::vector<Map::CellStatus>> Map::getCellStatusArray() {
-	return cellStatusArray;
+std::vector<std::vector<Map::CellStatus>>* Map::getCellStatusArrayPtr() {
+	return &cellStatusArray;
 }

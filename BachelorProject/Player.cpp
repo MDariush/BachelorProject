@@ -14,9 +14,10 @@ Player::Player() {
 Player::~Player() {
 }
 
-void Player::Init(int playerNumberArg, unsigned int mapWidthArg, unsigned int mapHeightArg) {
+void Player::Init(int playerNumberArg, std::vector<std::vector<Map::CellStatus>>* pCellStatusArray, unsigned int mapWidthArg, unsigned int mapHeightArg) {
 	playerNumber = playerNumberArg;
-	vision.Init(mapWidthArg, mapHeightArg);
+	cout << pCellStatusArray->size() << endl;
+	vision.Init(pCellStatusArray);
 }
 
 void Player::Step() {

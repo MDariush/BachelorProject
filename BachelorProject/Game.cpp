@@ -59,7 +59,7 @@ void Game::Step() {
 
 void Game::CreatePlayer() {
 	players.push_back(Player());
-	players.at(players.size() - 1).Init(players.size() - 1, pMap->getWidth(), pMap->getHeight());
+	players.at(players.size() - 1).Init(players.size() - 1, pMap->getCellStatusArrayPtr(), pMap->getWidth(), pMap->getHeight());
 	cout << "Player " << players.size() - 1 << " created.\n";
 }
 
