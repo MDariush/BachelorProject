@@ -29,7 +29,7 @@ void Unit::Init(signed int player0, long double x0, long double y0) {
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
-	setVisionRng(4.0 + 0.5);
+	setVisionRng(32.0 + 0.5);
 	
 	commandQueue.push(command());
 	commandQueue.back().commandType = MOVE;
@@ -146,11 +146,9 @@ void Unit::UpdateMovement() {
 		float rest = fmod(orientation - direction + PI_X2, PI_X2) - PI;
 		if (rest > 0) {
 			orientation += orientationAcc;
-			cout << rest << " Turn+\n";
 		}
 		else {
 			orientation -= orientationAcc;
-			cout << rest << " Turn-\n";
 		}
 	}
 	

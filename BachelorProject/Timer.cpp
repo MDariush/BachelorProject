@@ -68,7 +68,9 @@ void Timer::UpdateSteps() {
 	if (timeLoopRuns > 0) {
 		timeLoopRuns--;
 	}
-	//cout << "Step " << programSteps << ", " << timeSincePreviousStep.count() << " ms.\n";
+	if (timeSincePreviousStep.count() >= STEP_DURATION_WARNING) {
+		cout << "Program running slow. Step " << programSteps << ", " << timeSincePreviousStep.count() << "ms" << endl;
+	}
 }
 
 void Timer::RecordFrameTime() {
