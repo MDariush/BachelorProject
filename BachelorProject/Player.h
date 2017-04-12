@@ -15,8 +15,10 @@ public:
 	~Player();
 	void Init(int playerNumberArg, std::vector<std::vector<Map::CellStatus>>* pCellStatusArray, unsigned int mapWidthArg, unsigned int mapHeightArg);
 	void Step();
-	void CreateUnit(long double xArg, long double yArg);
-	void UpdateUnitMovement();
+	void CreateUnit(double xArg, double yArg, class Map* pMapArg);
+	void RemoveUnit(int indexArg);
+	void UpdateUnits();
+	void RemoveDeadUnits();
 	std::vector<class Unit>* getUnitsPtr();
 	std::vector<std::vector<Vision::VisionStatus>>* getVisionArrayPtr();
 

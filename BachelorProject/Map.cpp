@@ -21,6 +21,7 @@ void Map::Init(const char* mapName0) {
 	LoadMapImage();
 
 	initialized = true;
+	mapUpdated = true;
 }
 
 void Map::LoadMapImage() {
@@ -46,6 +47,13 @@ void Map::LoadMapImage() {
 	}
 }
 
+bool Map::CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg) {
+	return (xArg > 0 && getCellStatus(xArg - 1, yArg) == typeArg)
+		|| (xArg < getWidth() - 1 && getCellStatus(xArg + 1, yArg) == typeArg)
+		|| (yArg > 0 && getCellStatus(xArg, yArg - 1) == typeArg)
+		|| (yArg < getHeight() - 1 && getCellStatus(xArg, yArg + 1) == typeArg);
+}
+
 bool Map::getInitialized() {
 	return initialized;
 }
@@ -58,8 +66,21 @@ unsigned int Map::getHeight() {
 	return height;
 }
 
-Map::CellStatus Map::getCellStatus(signed int i, signed int j) {
-	return cellStatusArray[i][j];
+Map::CellStatus Map::getCellStatus(int xArg, int yArg) {
+	return cellStatusArray[xArg][yArg];
+}
+
+void Map::setCellStatus(CellStatus cellStatusArg, int xArg, int yArg) {
+	cellStatusArray[xArg][yArg] = cellStatusArg;
+	mapUpdated = true;
+}
+
+bool Map::getMapUpdated() {
+	return mapUpdated;
+}
+
+void Map::setMapUpdated(bool mapUpdatedArg) {
+	mapUpdated = mapUpdatedArg;
 }
 
 std::vector<std::vector<Map::CellStatus>>* Map::getCellStatusArrayPtr() {

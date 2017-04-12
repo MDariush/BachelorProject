@@ -39,11 +39,11 @@ void Vision::FullUpdate(std::vector<class Unit>* pUnitsArg) {
 }
 
 void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionStatus>> visionMapTempArg) {
-	long double visionRng = unitArg->getVisionRng();
+	double visionRng = unitArg->getVisionRng();
 	
 	if (visionRng > 0) {
-		long double x = unitArg->getX();
-		long double y = unitArg->getY();
+		double x = unitArg->getX();
+		double y = unitArg->getY();
 
 		// Skip vision outside map
 		/*int iMin = x - visionRng;
@@ -163,7 +163,7 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 	}
 }*/
 
-/*void Vision::LineVision(long double unitX, long double unitY, int xSpd, int ySpd, long double rng) {
+/*void Vision::LineVision(double unitX, double unitY, int xSpd, int ySpd, double rng) {
 	for (int i = 0; i <= rng; i++) {
 		if (IsLegalCell(unitX + i * xSpd, unitY + i * ySpd)) {
 			visionMap.at(unitX + i * xSpd).at(unitY + i * ySpd) = VisionStatus::VISIBLE;
@@ -177,8 +177,8 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 	}
 }*/
 
-void Vision::GenerateVisionForCell(long double unitX, long double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
-	if (IsLegalCell(originX, originY)) {
+void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
+	if (IsLegalCell(unitX, unitY) && IsLegalCell(originX, originY)) {
 		if (CanSeeCellEasily(unitX, unitY, originX, originY, visionMapTempPtrArg)
 			|| CanSeeCellPrecisely(unitX, unitY, originX, originY, visionMapTempPtrArg)) {
 
@@ -188,7 +188,7 @@ void Vision::GenerateVisionForCell(long double unitX, long double unitY, double 
 	}
 }
 
-/*void Vision::FillVision(long double unitX, long double unitY, double originX, double originY, int xSpd, int ySpd, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
+/*void Vision::FillVision(double unitX, double unitY, double originX, double originY, int xSpd, int ySpd, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
 	for (int i = 1; i < (originX - unitX) * xSpd + (originY - unitY) * ySpd; i++) {
 		if (IsLegalCell(unitX + i * xSpd, unitY + i * ySpd)) {
 			if (CanSeeCellEasily(unitX, unitY, originX, originY, visionMapTempPtrArg)
@@ -250,7 +250,7 @@ bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, st
 	return result;
 }
 
-bool Vision::CanSeeCellPrecisely(long double unitX, long double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
+bool Vision::CanSeeCellPrecisely(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
 	
 	// Calculate distances
 	double xDistance = unitX - originX;

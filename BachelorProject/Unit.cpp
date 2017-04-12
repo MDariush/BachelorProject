@@ -3,7 +3,9 @@ Unit.cpp
 Created by Martin Dariush Hansen, 2017-03-17
 */
 
+#include "Configurations.h"
 #include "Constants.h"
+#include "Map.h"
 #include "Unit.h"
 #include <iostream>
 #include <math.h>
@@ -16,139 +18,136 @@ Unit::Unit() {
 Unit::~Unit() {
 }
 
-void Unit::Init(signed int player0, long double x0, long double y0) {
-	player = player0;
-	x = x0;
-	y = y0;
+void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg) {
+	pMap = pMapArg;
+	player = playerArg;
+	x = xArg;
+	y = yArg;
+	commandIssued = false;
+	moving = false;
 
 	// #TODO
 	direction = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_X2));
 	orientation = 0.0;
 	orientationAcc = (PI_X2 / STEPS_PER_SECOND) / 0.5;
-	spdMax = 1.0 / STEPS_PER_SECOND;
+	spdMax = 6.0 / STEPS_PER_SECOND;
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
-	setVisionRng(32.0 + 0.5);
-	
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 9.5;
-	commandQueue.back().y = 4.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 8.5;
-	commandQueue.back().y = 3.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 7.5;
-	commandQueue.back().y = 4.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 6.5;
-	commandQueue.back().y = 3.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 5.5;
-	commandQueue.back().y = 4.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 4.5;
-	commandQueue.back().y = 4.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 4.5;
-	commandQueue.back().y = 5.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 5.5;
-	commandQueue.back().y = 5.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 5.5;
-	commandQueue.back().y = 4.5;
-	commandQueue.push(command());
-	/*
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 20.5;
-	commandQueue.back().y = 4.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 80.5;
-	commandQueue.back().y = 9.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 60.5;
-	commandQueue.back().y = 90.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 30.5;
-	commandQueue.back().y = 70.5;
-	commandQueue.push(command());
-	commandQueue.back().commandType = MOVE;
-	commandQueue.back().x = 10.5;
-	commandQueue.back().y = 10.5;
-	*/
+	setVisionRng(8.0 + 0.5);
+	hpMax = 100;
+	hp = hpMax;
+
+	// Queue move commands and suicide command
+	for (int i = 0; i < UNIT_DESTINATIONS; i++) {
+
+		double randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+		double randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+
+		while (pMap->getCellStatus(randomX, randomY) != Map::OPEN) {
+			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+		}
+		IssueCommand(MOVE, randomX, randomY);
+	}
+	IssueCommand(SUICIDE, 0.0, 0.0);
 }
 
-void Unit::UpdateMovement() {
+void Unit::Step() {
+	ProcessCommands();
+	Act();
+}
 
+void Unit::IssueCommand(Unit::CommandType commandTypeArg, double xArg, double yArg) {
+	commandQueue.push(command());
+	commandQueue.back().commandType = commandTypeArg;
+	commandQueue.back().x = xArg;
+	commandQueue.back().y = yArg;
+}
 
+void Unit::ProcessCommands() {
 	if (commandQueue.size() > 0) {
 		switch (commandQueue.front().commandType) {
 		case MOVE:
+			if (commandIssued) {
+				if (IsInRect(commandQueue.front().x - spdMax / 2,
+					commandQueue.front().x + spdMax / 2,
+					commandQueue.front().y - spdMax / 2,
+					commandQueue.front().y + spdMax / 2)) {
 
-			// Set direction towards target
-			direction = atan2(y - commandQueue.front().y, x - commandQueue.front().x) - PI;
-
-			// Accelerate
-			if (spd < spdMax) {
-				spd += spdAcc;
-				if (spd > spdMax) {
-					spd = spdMax;
+					commandIssued = false;
+					moving = false;
+					commandQueue.pop();
 				}
 			}
-
-			// Command completed
-			if (x < commandQueue.front().x + spdMax / 2
-				&& x > commandQueue.front().x - spdMax / 2
-				&& y < commandQueue.front().y + spdMax / 2
-				&& y > commandQueue.front().y - spdMax / 2) {
-				commandQueue.pop();
+			else {
+				commandIssued = true;
+				moving = true;
 			}
+			break;
 
+		case SUICIDE:
+			hp = 0;
 			break;
 		default:
 			break;
 		}
 	}
+}
+
+void Unit::Act() {
+
+	// Set direction towards target
+	if (moving) {
+		direction = atan2(y - commandQueue.front().y, x - commandQueue.front().x) - PI;
+	}
 
 	// Set direction between -180 and 180 deg
-	while (direction < -PI) {
-	direction += PI_X2;
-	}
-	while (direction > PI) {
-	direction -= PI_X2;
-	}
-	while (orientation < -PI) {
-	orientation += PI_X2;
-	}
-	while (orientation > PI) {
-	orientation -= PI_X2;
-	}
-
-	// Slowly rotate orientation towards direction
-	if (!((orientation > direction - orientationAcc / 2 && orientation < direction + orientationAcc / 2) 
-		|| (orientation > direction - orientationAcc / 2 + PI_X2 && orientation < direction + orientationAcc / 2 + PI_X2) 
-		|| (orientation > direction - orientationAcc / 2 - PI_X2 && orientation < direction + orientationAcc / 2 - PI_X2))) {
-
-		float rest = fmod(orientation - direction + PI_X2, PI_X2) - PI;
-		if (rest > 0) {
-			orientation += orientationAcc;
+	if (orientation != direction) {
+		while (direction < -PI) {
+			direction += PI_X2;
 		}
-		else {
-			orientation -= orientationAcc;
+		while (direction > PI) {
+			direction -= PI_X2;
+		}
+		while (orientation < -PI) {
+			orientation += PI_X2;
+		}
+		while (orientation > PI) {
+			orientation -= PI_X2;
+		}
+
+		// Slowly rotate orientation towards direction
+		if (!((orientation > direction - orientationAcc / 2 && orientation < direction + orientationAcc / 2)
+			|| (orientation > direction - orientationAcc / 2 + PI_X2 && orientation < direction + orientationAcc / 2 + PI_X2)
+			|| (orientation > direction - orientationAcc / 2 - PI_X2 && orientation < direction + orientationAcc / 2 - PI_X2))) {
+
+			if (fmod(orientation - direction + PI_X2, PI_X2) - PI > 0.0) {
+				orientation += orientationAcc;
+			}
+			else {
+				orientation -= orientationAcc;
+			}
+		}
+	}
+	
+	// Accelerate
+	if (moving) {
+		if (spd < spdMax) {
+			spd += spdAcc;
+			if (spd > spdMax) {
+				spd = spdMax;
+			}
+		}
+	}
+
+	// Break
+	else {
+		if(spd > 0) {
+			spd -= spdBrk;
+			if (spd < 0) {
+				spd = 0;
+			}
 		}
 	}
 	
@@ -159,31 +158,39 @@ void Unit::UpdateMovement() {
 	}
 }
 
-long double Unit::getX() {
+bool Unit::IsInRect(double x1, double x2, double y1, double y2) {
+	return (x >= x1 && x < x2 && y >= y1 && y < y2);
+}
+
+double Unit::getX() {
 	return x;
 }
 
-long double Unit::getY() {
+double Unit::getY() {
 	return y;
 }
 
-long double Unit::getOrientation() {
+double Unit::getOrientation() {
 	return orientation;
 }
 
-long double Unit::getOrientationDeg() {
+double Unit::getOrientationDeg() {
 	return orientation * PI_X2_TO_DEG;
 }
 
-long double Unit::getVisionRng() {
+double Unit::getVisionRng() {
 	return visionRng;
 }
 
-long double Unit::getVisionRngSquared() {
+double Unit::getVisionRngSquared() {
 	return visionRngSquared;
 }
 
-void Unit::setVisionRng(long double visionRng0) {
-	visionRng = visionRng0;
+int Unit::getHp() {
+	return hp;
+}
+
+void Unit::setVisionRng(double visionRngArg) {
+	visionRng = visionRngArg;
 	visionRngSquared = visionRng * visionRng;
 }

@@ -15,10 +15,14 @@ public:
 	~Map();
 	void Init(const char* mapName);
 	void LoadMapImage();
+	bool CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg);
 	bool getInitialized();
 	unsigned int getWidth();
 	unsigned int getHeight();
-	CellStatus getCellStatus(signed int i, signed int j);
+	CellStatus getCellStatus(int xArg, int yArg);
+	void setCellStatus(CellStatus cellStatusArg, int xArg, int yArg);
+	bool getMapUpdated();
+	void setMapUpdated(bool mapUpdatedArg);
 	std::vector<std::vector<CellStatus>>* getCellStatusArrayPtr();
 
 private:
@@ -28,5 +32,6 @@ private:
 	unsigned int height;
 	std::vector<std::vector<CellStatus>> cellStatusArray;
 	bool initialized;
+	bool mapUpdated;
 };
 

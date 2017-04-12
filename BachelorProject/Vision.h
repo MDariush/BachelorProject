@@ -18,12 +18,12 @@ public:
 	void FullUpdate(std::vector<class Unit>* pUnitsArg);
 	void UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionStatus>> visionMapTempArg);
 	//void PointVision(int x, int y);
-	//void LineVision(long double unitX, long double unitY, int xSpd, int ySpd, long double rng);
-	void GenerateVisionForCell(long double unitX, long double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
-	//void FillVision(long double unitX, long double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
+	//void LineVision(double unitX, double unitY, int xSpd, int ySpd, double rng);
+	void GenerateVisionForCell(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
+	//void FillVision(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 	bool IsLegalCell(int x, int y);
 	bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
-	bool Vision::CanSeeCellPrecisely(long double unitX, long double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
+	bool Vision::CanSeeCellPrecisely(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 
 	void setVisionMapSize(signed int width0, signed int height0);
 	std::vector<std::vector<VisionStatus>>* getVisionMapPtr();

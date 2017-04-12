@@ -6,42 +6,51 @@ Created by Martin Dariush Hansen, 2017-03-17
 #pragma once
 #include <queue>
 
-
-
 class Unit
 {
 public:
 	enum CommandType {
-		MOVE
+		MOVE,
+		SUICIDE
 	};
 	struct command {
 		CommandType commandType;
-		long double x;
-		long double y;
+		double x;
+		double y;
 	};
 	Unit();
 	~Unit();
-	void Init(signed int player0, long double x0, long double y0);
-	void UpdateMovement();
-	long double getX();
-	long double getY();
-	long double getOrientation();
-	long double getOrientationDeg();
-	long double getVisionRng();
-	long double getVisionRngSquared();
-	void setVisionRng(long double visionRng0);
+	void Init(int playerArg, double xArg, double yArg, class Map* pMapArg);
+	void Step();
+	void IssueCommand(Unit::CommandType commandTypeArg, double xArg, double yArg);
+	void ProcessCommands();
+	void Act();
+	bool IsInRect(double x1, double x2, double y1, double y2);
+	double getX();
+	double getY();
+	double getOrientation();
+	double getOrientationDeg();
+	double getVisionRng();
+	double getVisionRngSquared();
+	int getHp();
+	void setVisionRng(double visionRngArg);
 
 private:
-	signed int player;
-	long double x, y;
-	long double direction;
-	long double orientation;
-	long double orientationAcc;
-	long double spd;
-	long double spdAcc;
-	long double spdBrk;
-	long double spdMax;
-	long double visionRng;
-	long double visionRngSquared;
+	class Map* pMap;
+	int player;
+	double x, y;
+	double direction;
+	double orientation;
+	double orientationAcc;
+	double spd;
+	double spdAcc;
+	double spdBrk;
+	double spdMax;
+	double visionRng;
+	double visionRngSquared;
+	int hp;
+	int hpMax;
 	std::queue<command> commandQueue;
+	bool commandIssued;
+	bool moving;
 };

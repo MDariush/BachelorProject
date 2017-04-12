@@ -39,7 +39,7 @@ private:
 	sf::Texture textureTile;
 	sf::Texture textureUnit;
 
-	long double scaling;
+	double scaling;
 	unsigned int mapWidth;
 	unsigned int mapHeight;
 	std::vector<class Player>* pPlayers;

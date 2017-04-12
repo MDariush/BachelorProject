@@ -20,11 +20,11 @@ public:
 
 private:
 	std::vector<class Player> players;
-	
-	unsigned int unitsCreated;
-
 	class Map* pMap;
 
 	bool initialized;
+	int unitsCreated;
+	int terrainChangeTimer;
+	int terrainChangeTime;
 };
 

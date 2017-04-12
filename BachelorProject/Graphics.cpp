@@ -44,6 +44,11 @@ void Graphics::RenderGraphics() {
 	window.clear();
 
 	// Draw terrain
+	if (pMap->getMapUpdated()) {
+		GenerateBackgroundTexture();
+		pMap->setMapUpdated(false);
+	}
+
 	if (pModel->getStatus() == Model::Status::IN_MAP) {
 		window.draw(spriteBackground);
 

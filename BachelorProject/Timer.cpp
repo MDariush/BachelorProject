@@ -4,6 +4,8 @@ Created by Martin Dariush Hansen, 2017-03-01
 */
 
 #include "catch.hpp"
+#include "Configurations.h"
+#include "Constants.h"
 #include "Timer.h"
 #include <iostream>
 using namespace std;
@@ -68,7 +70,7 @@ void Timer::UpdateSteps() {
 	if (timeLoopRuns > 0) {
 		timeLoopRuns--;
 	}
-	if (timeSincePreviousStep.count() >= STEP_DURATION_WARNING) {
+	if (WARNINGS && timeSincePreviousStep.count() >= STEP_DURATION_WARNING) {
 		cout << "Program running slow. Step " << programSteps << ", " << timeSincePreviousStep.count() << "ms" << endl;
 	}
 }

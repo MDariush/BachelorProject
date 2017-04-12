@@ -4,7 +4,6 @@ Created by Martin Dariush Hansen, 2017-03-01
 */
 
 #pragma once
-#include "Constants.h"
 #include "Controls.h"
 #include "Graphics.h"
 #include "Model.h"
