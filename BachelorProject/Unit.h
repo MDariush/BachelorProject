@@ -17,14 +17,16 @@ public:
 		CommandType commandType;
 		double x;
 		double y;
+		std::queue<std::pair<double, double>> path;
 	};
 	Unit();
 	~Unit();
-	void Init(int playerArg, double xArg, double yArg, class Map* pMapArg);
+	void Init(int playerArg, double xArg, double yArg, class Map* pMapArg, class Pathfinder* pPathfinderArg);
 	void Step();
 	void IssueCommand(Unit::CommandType commandTypeArg, double xArg, double yArg);
 	void ProcessCommands();
 	void Act();
+	std::queue<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	bool IsInRect(double x1, double x2, double y1, double y2);
 	double getX();
 	double getY();
@@ -37,6 +39,8 @@ public:
 
 private:
 	class Map* pMap;
+	class Pathfinder* pPathfinder;
+
 	int player;
 	double x, y;
 	double direction;

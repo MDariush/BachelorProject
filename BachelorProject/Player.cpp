@@ -14,10 +14,10 @@ Player::Player() {
 Player::~Player() {
 }
 
-void Player::Init(int playerNumberArg, std::vector<std::vector<Map::CellStatus>>* pCellStatusArray, unsigned int mapWidthArg, unsigned int mapHeightArg) {
+void Player::Init(int playerNumberArg, class Map* pMapArg) {
 	playerNumber = playerNumberArg;
-	cout << pCellStatusArray->size() << endl;
-	vision.Init(pCellStatusArray);
+	cout << pMapArg->getCellStatusArrayPtr()->size() << endl;
+	vision.Init(pMapArg);
 }
 
 void Player::Step() {
@@ -26,7 +26,7 @@ void Player::Step() {
 
 void Player::CreateUnit(double xArg, double yArg, class Map* pMapArg) {
 	units.push_back(Unit());
-	units.at(units.size() - 1).Init(playerNumber, xArg, yArg, pMapArg);
+	units.at(units.size() - 1).Init(playerNumber, xArg, yArg, pMapArg, &pathfinder);
 	cout << "Unit created for Player " << playerNumber << " at (" << units.at(units.size() - 1).getX() << ", " << units.at(units.size() - 1).getY() << ").\n";
 }
 
@@ -36,7 +36,7 @@ void Player::RemoveUnit(int indexArg) {
 }
 
 void Player::UpdateUnits() {
-	for (unsigned int i = 0; i < units.size(); i++) {
+	for (int i = 0; i < units.size(); i++) {
 		units.at(i).Step();
 	}
 }

@@ -95,7 +95,7 @@ int Timer::getTimeLoopRuns() {
 	return timeLoopRuns;
 }
 
-unsigned int Timer::getProgramSteps() {
+int Timer::getProgramSteps() {
 	return programSteps;
 }
 

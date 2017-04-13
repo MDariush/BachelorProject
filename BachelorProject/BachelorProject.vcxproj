@@ -144,6 +144,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Timer_Test.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="Mathematics.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Graphics.h" />

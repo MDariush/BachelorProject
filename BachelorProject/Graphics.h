@@ -16,7 +16,7 @@ public:
 	void RenderGraphics();
 	bool getWindowOpen();
 	sf::RenderWindow* getWindow();
-	void setMapDimensions(unsigned int mapWidth0, unsigned int mapHeight0);
+	void setMapDimensions(int mapWidth0, int mapHeight0);
 	void ComputeScaling();
 	void GenerateBackgroundTexture();
 	void GenerateFogTexture();
@@ -40,7 +40,7 @@ private:
 	sf::Texture textureUnit;
 
 	double scaling;
-	unsigned int mapWidth;
-	unsigned int mapHeight;
+	int mapWidth;
+	int mapHeight;
 	std::vector<class Player>* pPlayers;
 };

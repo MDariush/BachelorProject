@@ -16,7 +16,7 @@ public:
 	~Timer();
 	void Init(int timeLoopRuns0);
 	int getTimeLoopRuns();
-	unsigned int getProgramSteps();
+	int getProgramSteps();
 	double getProgramTime();
 
 private:
@@ -40,6 +40,6 @@ private:
 	std::chrono::steady_clock::time_point previousFrameTime;
 	std::chrono::duration<double, std::milli> timeSincePreviousStep;
 	std::chrono::duration<double, std::milli> timeSincePreviousFrame;
-	unsigned int programSteps;
-	unsigned int programFrames;
+	int programSteps;
+	int programFrames;
 };

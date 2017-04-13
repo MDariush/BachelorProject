@@ -14,23 +14,22 @@ public:
 
 	Vision();
 	~Vision();
-	void Init(std::vector<std::vector<Map::CellStatus>>* pCellStatusArrayArg);
+	void Init(class Map* pMapArg);
 	void FullUpdate(std::vector<class Unit>* pUnitsArg);
 	void UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionStatus>> visionMapTempArg);
 	//void PointVision(int x, int y);
 	//void LineVision(double unitX, double unitY, int xSpd, int ySpd, double rng);
 	void GenerateVisionForCell(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 	//void FillVision(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
-	bool IsLegalCell(int x, int y);
 	bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 	bool Vision::CanSeeCellPrecisely(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 
-	void setVisionMapSize(signed int width0, signed int height0);
+	void setVisionMapSize(int width0, int height0);
 	std::vector<std::vector<VisionStatus>>* getVisionMapPtr();
-	void ResetVisionMap(unsigned int widthArg, unsigned int heightArg, VisionStatus statusArg);
+	void ResetVisionMap(int widthArg, int heightArg, VisionStatus statusArg);
 
 private:
 	std::vector<std::vector<VisionStatus>> visionMap;
 	std::vector<std::vector<VisionStatus>> visionMapTemp;
-	std::vector<std::vector<Map::CellStatus>>* pCellStatusArray;
+	class Map* pMap;
 };

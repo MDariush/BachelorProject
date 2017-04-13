@@ -15,10 +15,11 @@ public:
 	~Map();
 	void Init(const char* mapName);
 	void LoadMapImage();
+	bool IsLegalCell(int x, int y);
 	bool CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg);
 	bool getInitialized();
-	unsigned int getWidth();
-	unsigned int getHeight();
+	int getWidth();
+	int getHeight();
 	CellStatus getCellStatus(int xArg, int yArg);
 	void setCellStatus(CellStatus cellStatusArg, int xArg, int yArg);
 	bool getMapUpdated();

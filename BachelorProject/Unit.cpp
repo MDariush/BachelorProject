@@ -6,10 +6,12 @@ Created by Martin Dariush Hansen, 2017-03-17
 #include "Configurations.h"
 #include "Constants.h"
 #include "Map.h"
+#include "Pathfinder.h"
 #include "Unit.h"
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
+#include <vector>                                                             
 using namespace std;
 
 Unit::Unit() {
@@ -18,11 +20,13 @@ Unit::Unit() {
 Unit::~Unit() {
 }
 
-void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg) {
+void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, class Pathfinder* pPathfinderArg) {
 	pMap = pMapArg;
+	pPathfinder = pPathfinderArg;
 	player = playerArg;
 	x = xArg;
 	y = yArg;
+
 	commandIssued = false;
 	moving = false;
 
@@ -81,6 +85,7 @@ void Unit::ProcessCommands() {
 				}
 			}
 			else {
+				//commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
 				commandIssued = true;
 				moving = true;
 			}
@@ -156,6 +161,10 @@ void Unit::Act() {
 		x += spd * cos(direction);
 		y += spd * sin(direction);
 	}
+}
+
+queue<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {
+	return pPathfinder->AStar(unitXArg, unitYArg, destXArg, destYArg);
 }
 
 bool Unit::IsInRect(double x1, double x2, double y1, double y2) {

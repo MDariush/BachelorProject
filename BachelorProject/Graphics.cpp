@@ -77,7 +77,7 @@ sf::RenderWindow * Graphics::getWindow() {
 	return &window;
 }
 
-void Graphics::setMapDimensions(unsigned int mapWidth0, unsigned int mapHeight0) {
+void Graphics::setMapDimensions(int mapWidth0, int mapHeight0) {
 	mapWidth = mapWidth0;
 	mapHeight = mapHeight0;
 }
@@ -106,8 +106,8 @@ void Graphics::GenerateFogTexture() {
 void Graphics::UpdateEntireFogTexture() {
 	renderTextureFog.clear(sf::Color(0, 0, 0, 0));
 
-	for (signed int i = 0; i < mapWidth; i++) {
-		for (signed int j = 0; j < mapHeight; j++) {
+	for (int i = 0; i < mapWidth; i++) {
+		for (int j = 0; j < mapHeight; j++) {
 			switch (pPlayers->at(0).getVisionArrayPtr()->at(i).at(j)) {
 			case Vision::UNEXPLORED:
 				shapeUnexploredPixel.setPosition(sf::Vector2f(i, j));
@@ -130,8 +130,8 @@ void Graphics::GenerateBackgroundTexture() {
 	renderTextureBackground.create(mapWidth * scaling, mapHeight * scaling);
 	renderTextureBackground.clear();
 
-	for (signed int i = 0; i < mapWidth; i++) {
-		for (signed int j = 0; j < mapHeight; j++) {
+	for (int i = 0; i < mapWidth; i++) {
+		for (int j = 0; j < mapHeight; j++) {
 			switch (pMap->getCellStatus(i, j)) {
 			case Map::CellStatus::CLOSED:
 				spriteTileClosed.setPosition(sf::Vector2f(i * scaling, j * scaling));

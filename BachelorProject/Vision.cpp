@@ -17,14 +17,14 @@ Vision::Vision() {
 Vision::~Vision() {
 }
 
-void Vision::Init(std::vector<std::vector<Map::CellStatus>>* pCellStatusArrayArg) {
-	pCellStatusArray = pCellStatusArrayArg;
-	ResetVisionMap(pCellStatusArray->size(), pCellStatusArray->at(0).size(), VisionStatus::UNEXPLORED);
+void Vision::Init(class Map* pMapArg) {
+	pMap = pMapArg;
+	ResetVisionMap(pMap->getCellStatusArrayPtr()->size(), pMap->getCellStatusArrayPtr()->at(0).size(), VisionStatus::UNEXPLORED);
 }
 
 void Vision::FullUpdate(std::vector<class Unit>* pUnitsArg) {
-	for (int i = 0; i < pCellStatusArray->size(); i++) {
-		for (int j = 0; j < pCellStatusArray->at(0).size(); j++) {
+	for (int i = 0; i < pMap->getCellStatusArrayPtr()->size(); i++) {
+		for (int j = 0; j < pMap->getCellStatusArrayPtr()->at(0).size(); j++) {
 			if (visionMap[i][j] == VisionStatus::VISIBLE)
 			visionMap[i][j] = VisionStatus::EXPLORED;
 		}
@@ -64,7 +64,7 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 		}*/
 
 		// Vision on unit position
-		if (IsLegalCell(x, y)) {
+		if (pMap->IsLegalCell(x, y)) {
 			visionMapTempArg.at(x).at(y) = VisionStatus::VISIBLE;
 			visionMap.at(x).at(y) = VisionStatus::VISIBLE;
 		}
@@ -178,7 +178,7 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 }*/
 
 void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
-	if (IsLegalCell(unitX, unitY) && IsLegalCell(originX, originY)) {
+	if (pMap->IsLegalCell(unitX, unitY) && pMap->IsLegalCell(originX, originY)) {
 		if (CanSeeCellEasily(unitX, unitY, originX, originY, visionMapTempPtrArg)
 			|| CanSeeCellPrecisely(unitX, unitY, originX, originY, visionMapTempPtrArg)) {
 
@@ -199,10 +199,6 @@ void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, d
 		}
 	}
 }*/
-
-bool Vision::IsLegalCell(int x, int y) {
-	return x >= 0 && x < pCellStatusArray->size() && y >= 0 && y < pCellStatusArray->at(0).size();
-}
 
 bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
 	bool result = false;
@@ -226,7 +222,7 @@ bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, st
 	}
 
 	if (visionMapTempPtrArg->at(originX + xSpd).at(originY + ySpd) == VisionStatus::VISIBLE
-		&& pCellStatusArray->at(originX + xSpd).at(originY + ySpd) == Map::OPEN) {
+		&& pMap->getCellStatusArrayPtr()->at(originX + xSpd).at(originY + ySpd) == Map::OPEN) {
 
 		result = true;
 
@@ -243,7 +239,7 @@ bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, st
 			}
 
 			result = visionMapTempPtrArg->at(originX + xSpd).at(originY + ySpd) == VisionStatus::VISIBLE
-				&& pCellStatusArray->at(originX + xSpd).at(originY + ySpd) == Map::OPEN;
+				&& pMap->getCellStatusArrayPtr()->at(originX + xSpd).at(originY + ySpd) == Map::OPEN;
 		}
 	}
 
@@ -304,7 +300,7 @@ bool Vision::CanSeeCellPrecisely(double unitX, double unitY, double originX, dou
 	for (int i = 0; i < distanceAlongAxis; i++) {
 		originX += xSpd;
 		originY += ySpd;
-		if (pCellStatusArray->at(originX).at(originY) != Map::OPEN) {
+		if (pMap->getCellStatusArrayPtr()->at(originX).at(originY) != Map::OPEN) {
 			return false;
 		}
 		/*if (visionMapTempPtrArg->at(originX).at(originY) == VisionStatus::VISIBLE) {
@@ -314,12 +310,12 @@ bool Vision::CanSeeCellPrecisely(double unitX, double unitY, double originX, dou
 	return true;
 }
 
-void Vision::ResetVisionMap(unsigned int widthArg, unsigned int heightArg, VisionStatus statusArg) {
+void Vision::ResetVisionMap(int widthArg, int heightArg, VisionStatus statusArg) {
 	visionMap.clear();
 	visionMap.resize(widthArg, std::vector<VisionStatus>(heightArg, statusArg));
 }
 
-void Vision::setVisionMapSize(signed int width0, signed int height0) {
+void Vision::setVisionMapSize(int width0, int height0) {
 	visionMap.resize(width0);
 	for (int i = 0; i < width0; i++) {
 		visionMap[i].resize(height0);

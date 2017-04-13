@@ -47,6 +47,10 @@ void Map::LoadMapImage() {
 	}
 }
 
+bool Map::IsLegalCell(int x, int y) {
+	return x >= 0 && x < cellStatusArray.size() && y >= 0 && y < cellStatusArray.at(0).size();
+}
+
 bool Map::CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg) {
 	return (xArg > 0 && getCellStatus(xArg - 1, yArg) == typeArg)
 		|| (xArg < getWidth() - 1 && getCellStatus(xArg + 1, yArg) == typeArg)
@@ -58,11 +62,11 @@ bool Map::getInitialized() {
 	return initialized;
 }
 
-unsigned int Map::getWidth() {
+int Map::getWidth() {
 	return width;
 }
 
-unsigned int Map::getHeight() {
+int Map::getHeight() {
 	return height;
 }
 
