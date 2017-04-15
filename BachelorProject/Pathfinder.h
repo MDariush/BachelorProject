@@ -12,12 +12,11 @@ public:
 	void Init(Map* pMapArg);
 	std::queue<std::pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	void CreateGridGraph();
-	void ResetClosedSet();
+	void ResetPath();
 	void ReconstructPath();
 
 private:
 	struct Node {
-		double cost;
 		std::vector<std::pair<double, std::pair<int, int>>> neighbors;
 	};
 
@@ -38,11 +37,11 @@ private:
 	};
 
 	std::vector<std::vector<Node>> nodes;
-	std::vector<std::vector<VisitedNode>> closedSet;
+	std::vector<std::vector<VisitedNode>> visitedNodes;
+	std::vector<std::vector<bool>> exploredNodesMap;
+	std::priority_queue<ExploredNode, std::vector<ExploredNode>, CompareCost> exploredNodesQueue;
 
 	class Map* pMap;
 	int mapWidth;
 	int mapHeight;
 };
-
-
