@@ -18,6 +18,7 @@ void Player::Init(int playerNumberArg, class Map* pMapArg) {
 	playerNumber = playerNumberArg;
 	cout << pMapArg->getCellStatusArrayPtr()->size() << endl;
 	vision.Init(pMapArg);
+	pathfinder.Init(pMapArg);
 }
 
 void Player::Step() {
@@ -56,4 +57,8 @@ std::vector<class Unit>* Player::getUnitsPtr() {
 
 std::vector<std::vector<Vision::VisionStatus>> * Player::getVisionArrayPtr() {
 	return vision.getVisionMapPtr();
+}
+
+class Pathfinder* Player::getPathfinderPtr() {
+	return &pathfinder;
 }

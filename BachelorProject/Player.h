@@ -22,6 +22,7 @@ public:
 	void RemoveDeadUnits();
 	std::vector<class Unit>* getUnitsPtr();
 	std::vector<std::vector<Vision::VisionStatus>>* getVisionArrayPtr();
+	Pathfinder * getPathfinderPtr();
 
 private:
 	Pathfinder pathfinder;

@@ -34,7 +34,7 @@ void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, cla
 	direction = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_X2));
 	orientation = 0.0;
 	orientationAcc = (PI_X2 / STEPS_PER_SECOND) / 0.5;
-	spdMax = 6.0 / STEPS_PER_SECOND;
+	spdMax = 2.0 / STEPS_PER_SECOND;
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
@@ -42,15 +42,15 @@ void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, cla
 	hpMax = 100;
 	hp = hpMax;
 
-	// Queue move commands and suicide command
+	// Queue initial commands
 	for (int i = 0; i < UNIT_DESTINATIONS; i++) {
 
-		double randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
-		double randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+		double randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0)) + 0.5;
+		double randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0)) + 0.5;
 
 		while (pMap->getCellStatus(randomX, randomY) != Map::OPEN) {
-			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
-			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0)) + 0.5;
+			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0)) + 0.5;
 		}
 		IssueCommand(MOVE, randomX, randomY);
 	}
@@ -74,18 +74,19 @@ void Unit::ProcessCommands() {
 		switch (commandQueue.front().commandType) {
 		case MOVE:
 			if (commandIssued) {
-				if (IsInRect(commandQueue.front().x - spdMax / 2,
-					commandQueue.front().x + spdMax / 2,
-					commandQueue.front().y - spdMax / 2,
-					commandQueue.front().y + spdMax / 2)) {
-
+				if (IsInSquare(commandQueue.front().x, commandQueue.front().y, spd * 2) || commandQueue.front().path.size() == 0) {
 					commandIssued = false;
 					moving = false;
 					commandQueue.pop();
+					cout << "Move command completed" << endl;
+				}
+				else if (IsInSquare(commandQueue.front().path.top().first, commandQueue.front().path.top().second, spd * 2)) {
+					commandQueue.front().path.pop();
+					cout << "Path waypoint reached" << endl;
 				}
 			}
 			else {
-				//commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
+				commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
 				commandIssued = true;
 				moving = true;
 			}
@@ -103,8 +104,9 @@ void Unit::ProcessCommands() {
 void Unit::Act() {
 
 	// Set direction towards target
-	if (moving) {
-		direction = atan2(y - commandQueue.front().y, x - commandQueue.front().x) - PI;
+	if (moving && commandQueue.front().path.size() != 0) {
+		//direction = atan2(y - commandQueue.front().y, x - commandQueue.front().x) - PI;
+		direction = atan2(y - commandQueue.front().path.top().second, x - commandQueue.front().path.top().first) - PI;
 	}
 
 	// Set direction between -180 and 180 deg
@@ -163,12 +165,19 @@ void Unit::Act() {
 	}
 }
 
-queue<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {
+stack<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {
 	return pPathfinder->AStar(unitXArg, unitYArg, destXArg, destYArg);
 }
 
-bool Unit::IsInRect(double x1, double x2, double y1, double y2) {
-	return (x >= x1 && x < x2 && y >= y1 && y < y2);
+bool Unit::IsInSquare(double xArg, double yArg, double diameterArg) {
+	return x >= xArg - diameterArg / 2
+		&& x < xArg + diameterArg / 2
+		&& y >= yArg - diameterArg / 2
+		&& y < yArg + diameterArg / 2;
+}
+
+bool Unit::IsInRect(double x1Arg, double x2Arg, double y1Arg, double y2Arg) {
+	return x >= x1Arg && x < x2Arg && y >= y1Arg && y < y2Arg;
 }
 
 double Unit::getX() {
@@ -193,6 +202,10 @@ double Unit::getVisionRng() {
 
 double Unit::getVisionRngSquared() {
 	return visionRngSquared;
+}
+
+Unit::command Unit::getCurrentCommand() {
+	return commandQueue.front();
 }
 
 int Unit::getHp() {

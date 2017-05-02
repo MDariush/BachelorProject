@@ -4,6 +4,7 @@ Created by Martin Dariush Hansen, 2017-03-17
 */
 
 #pragma once
+#include <stack>
 #include <queue>
 
 class Unit
@@ -17,7 +18,7 @@ public:
 		CommandType commandType;
 		double x;
 		double y;
-		std::queue<std::pair<double, double>> path;
+		std::stack<std::pair<double, double>> path;
 	};
 	Unit();
 	~Unit();
@@ -26,14 +27,16 @@ public:
 	void IssueCommand(Unit::CommandType commandTypeArg, double xArg, double yArg);
 	void ProcessCommands();
 	void Act();
-	std::queue<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg);
-	bool IsInRect(double x1, double x2, double y1, double y2);
+	std::stack<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg);
+	bool IsInSquare(double xArg, double yArg, double diameterArg);
+	bool IsInRect(double x1Arg, double x2Arg, double y1Arg, double y2Arg);
 	double getX();
 	double getY();
 	double getOrientation();
 	double getOrientationDeg();
 	double getVisionRng();
 	double getVisionRngSquared();
+	command getCurrentCommand();
 	int getHp();
 	void setVisionRng(double visionRngArg);
 

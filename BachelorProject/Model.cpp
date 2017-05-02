@@ -31,6 +31,7 @@ void Model::Step() {
 			else if (!game.getInitialized()) {
 				game.Init(&map);
 				pGraphics->GenerateFogTexture();
+				pGraphics->GenerateGraphTexture();
 			}
 			else {
 				status = Status::IN_MAP;

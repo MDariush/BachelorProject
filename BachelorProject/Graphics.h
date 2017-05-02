@@ -20,6 +20,8 @@ public:
 	void ComputeScaling();
 	void GenerateBackgroundTexture();
 	void GenerateFogTexture();
+	void GenerateGraphTexture();
+	void UpdateEntireGraphTexture();
 	void UpdateEntireFogTexture();
 
 private:
@@ -31,8 +33,10 @@ private:
 	sf::RenderWindow window;
 	sf::RenderTexture renderTextureBackground;
 	sf::RenderTexture renderTextureFog;
+	sf::RenderTexture renderTextureGraph;
 	sf::Sprite spriteBackground;
 	sf::Sprite spriteFog;
+	sf::Sprite spriteGraph;
 	sf::Sprite spriteTileOpen;
 	sf::Sprite spriteTileClosed;
 	sf::Sprite spriteUnit;

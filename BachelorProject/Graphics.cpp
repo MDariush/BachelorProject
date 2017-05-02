@@ -64,6 +64,32 @@ void Graphics::RenderGraphics() {
 		// Draw fog
 		UpdateEntireFogTexture();
 		window.draw(spriteFog);
+
+		// Draw graph
+		UpdateEntireGraphTexture();
+		window.draw(spriteGraph);
+
+		// Draw paths
+		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
+			for (int j = 0; j < pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->size(); j++) {
+				stack<std::pair<double, double>> path = pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getCurrentCommand().path;
+				if (path.size() > 1) {
+					for (int k = 0; k < path.size() - 1; k) {
+						int x1 = path.top().first * scaling;
+						int y1 = path.top().second * scaling;
+						path.pop();
+						int x2 = path.top().first * scaling;
+						int y2 = path.top().second * scaling;
+						sf::Vertex line[] = {
+							sf::Vertex(sf::Vector2f(x1, y1)),
+							sf::Vertex(sf::Vector2f(x2, y2))
+						};
+
+						window.draw(line, 2, sf::Lines);
+					}
+				}
+			}
+		}
 	}
 
 	window.display();
@@ -94,6 +120,7 @@ void Graphics::ComputeScaling() {
 
 	cout << "Scaling set to: " << scaling << ".\n";
 }
+
 void Graphics::GenerateFogTexture() {
 	renderTextureFog.create(mapWidth, mapHeight);
 	renderTextureFog.clear(sf::Color(0, 0, 0, 255));
@@ -101,6 +128,14 @@ void Graphics::GenerateFogTexture() {
 	renderTextureFog.display();
 	spriteFog.setTexture(renderTextureFog.getTexture());
 	spriteFog.scale(sf::Vector2f(scaling, scaling));
+}
+
+void Graphics::GenerateGraphTexture() {
+	renderTextureGraph.create(mapWidth * scaling, mapHeight * scaling);
+	renderTextureGraph.clear(sf::Color(0, 0, 0, 0));
+
+	renderTextureGraph.display();
+	spriteGraph.setTexture(renderTextureGraph.getTexture());
 }
 
 void Graphics::UpdateEntireFogTexture() {
@@ -126,9 +161,39 @@ void Graphics::UpdateEntireFogTexture() {
 	spriteFog.setTexture(renderTextureFog.getTexture());
 }
 
+void Graphics::UpdateEntireGraphTexture() {
+	renderTextureGraph.clear(sf::Color(0, 0, 0, 0));
+
+	for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
+		for (int j = 0; j < mapWidth; j++) {
+			for (int k = 0; k < mapHeight; k++) {
+				std::vector<std::vector<Pathfinder::Node>>* nodes = pModel->getGamePtr()->getPlayersPtr()->at(i).getPathfinderPtr()->getNodesPtr();
+				
+				int x1 = (j + 0.5) * scaling;
+				int y1 = (k + 0.5) * scaling;
+
+				for (int l = 0; l < nodes->at(j).at(k).neighbors.size(); l++) {
+					int x2 = (nodes->at(j).at(k).neighbors.at(l).second.first + 0.5) * scaling;
+					int y2 = (nodes->at(j).at(k).neighbors.at(l).second.second + 0.5) * scaling;
+					
+					sf::Vertex line[] = {
+						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(128, 255, 128, 128)),
+						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(128, 255, 128, 128))
+					};
+
+					renderTextureGraph.draw(line, 2, sf::Lines);
+				}
+			}
+		}
+	}
+
+	renderTextureGraph.display();
+	spriteGraph.setTexture(renderTextureGraph.getTexture());
+}
+
 void Graphics::GenerateBackgroundTexture() {
 	renderTextureBackground.create(mapWidth * scaling, mapHeight * scaling);
-	renderTextureBackground.clear();
+	renderTextureBackground.clear(sf::Color(0, 0, 0, 255));
 
 	for (int i = 0; i < mapWidth; i++) {
 		for (int j = 0; j < mapHeight; j++) {

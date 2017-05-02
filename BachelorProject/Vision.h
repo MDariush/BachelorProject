@@ -4,7 +4,7 @@ Created by Martin Dariush Hansen, 2017-03-22
 */
 
 #pragma once
-#include "Map.h"
+#include "Mathematics.h"
 #include <vector>
 
 class Vision
@@ -31,5 +31,6 @@ public:
 private:
 	std::vector<std::vector<VisionStatus>> visionMap;
 	std::vector<std::vector<VisionStatus>> visionMapTemp;
+	Mathematics math;
 	class Map* pMap;
 };
