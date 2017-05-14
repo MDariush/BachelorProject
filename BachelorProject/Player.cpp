@@ -16,9 +16,8 @@ Player::~Player() {
 
 void Player::Init(int playerNumberArg, class Map* pMapArg) {
 	playerNumber = playerNumberArg;
-	cout << pMapArg->getCellStatusArrayPtr()->size() << endl;
-	vision.Init(pMapArg);
-	pathfinder.Init(pMapArg);
+	vision.Init(pMapArg, &pathfinder);
+	pathfinder.Init(&vision);
 }
 
 void Player::Step() {

@@ -36,9 +36,17 @@ void Map::LoadMapImage() {
 		cellStatusArray.resize(width, std::vector<CellStatus>(height, CellStatus::OPEN));
 
 		// Set cell status array values
+		int offsetPerPixel = 4;
+		int offsetRed = 0;
+		int offsetGreen = 1;
+		int offsetBlue = 2;
+
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				if (mapVector.at((width*(j)+i) * 4) == 0 && mapVector.at((width*(j)+i) * 4 + 1) == 0 && mapVector.at((width*(j)+i) * 4 + 2) == 0) {
+				if (mapVector.at((width * j + i) * offsetPerPixel + offsetRed) == 0 
+					&& mapVector.at((width * j + i) * offsetPerPixel + offsetGreen) == 0
+					&& mapVector.at((width * j + i) * offsetPerPixel + offsetBlue) == 0) {
+
 					cellStatusArray[i][j] = CellStatus::CLOSED;
 				}
 			}
@@ -56,6 +64,21 @@ bool Map::CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg) {
 		|| (xArg < getWidth() - 1 && getCellStatus(xArg + 1, yArg) == typeArg)
 		|| (yArg > 0 && getCellStatus(xArg, yArg - 1) == typeArg)
 		|| (yArg < getHeight() - 1 && getCellStatus(xArg, yArg + 1) == typeArg);
+}
+
+void Map::Clear(CellStatus cellStatusArg) {
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			cellStatusArray[i][j] = cellStatusArg;
+		}
+	}	
+	mapUpdated = true;
+}
+
+// #TODO: Unused?
+void Map::Reset(int widthArg, int heightArg, CellStatus statusArg) {
+	cellStatusArray.clear();
+	cellStatusArray.resize(widthArg, std::vector<CellStatus>(heightArg, statusArg));
 }
 
 bool Map::getInitialized() {

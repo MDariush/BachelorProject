@@ -17,6 +17,8 @@ public:
 	void LoadMapImage();
 	bool IsLegalCell(int x, int y);
 	bool CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg);
+	void Clear(CellStatus cellStatusArg);
+	void Reset(int widthArg, int heightArg, CellStatus statusArg);
 	bool getInitialized();
 	int getWidth();
 	int getHeight();
