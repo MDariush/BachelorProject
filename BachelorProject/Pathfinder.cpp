@@ -130,6 +130,8 @@ void Pathfinder::CreateGridGraph() {
 			UpdateGridGraphNode(i, j);
 		}
 	}
+
+	graphUpdated = true;
 }
 
 void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
@@ -229,4 +231,12 @@ void Pathfinder::ResetExploration() {
 			}
 		}
 	}
+}
+
+bool Pathfinder::getGraphUpdated() {
+	return graphUpdated;
+}
+
+void Pathfinder::setGraphUpdated(bool graphUpdatedArg) {
+	graphUpdated = graphUpdatedArg;
 }

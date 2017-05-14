@@ -66,7 +66,10 @@ void Graphics::RenderGraphics() {
 		window.draw(spriteFog);
 
 		// Draw graph
-		UpdateEntireGraphTexture(); // TODO: Avoid recomputation
+		if (pPlayers->at(0).getPathfinderPtr()->getGraphUpdated()) {
+			UpdateEntireGraphTexture();
+			pPlayers->at(0).getPathfinderPtr()->setGraphUpdated(false);
+		}
 		window.draw(spriteGraph);
 
 		// Draw paths

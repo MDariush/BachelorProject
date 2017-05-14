@@ -99,17 +99,20 @@ void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, d
 void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
 	visionMapTempPtrArg->at(xArg).at(yArg) = VisionStatus::VISIBLE;
 	visionMap.at(xArg).at(yArg) = VisionStatus::VISIBLE;
+	Map::CellStatus originalCellStatus = map.getCellStatus(xArg, yArg);
 	map.setCellStatus(pActualMap->getCellStatus(xArg, yArg), xArg, yArg);
 
-	// For all 8 cells around the cell
-	for (int a = -1; a <= 1; a++) {
-		for (int b = -1; b <= 1; b++) {
-			if (map.IsLegalCell(xArg + a, yArg + b)) {
-				pPathfinder->UpdateGridGraphNode(xArg + a, yArg + b);
+	if (map.getCellStatus(xArg, yArg) != originalCellStatus) {
+		for (int a = -1; a <= 1; a++) {
+			for (int b = -1; b <= 1; b++) {
+				if (map.IsLegalCell(xArg + a, yArg + b)) {
+					pPathfinder->UpdateGridGraphNode(xArg + a, yArg + b);
+				}
 			}
 		}
+		
+		pPathfinder->setGraphUpdated(true);
 	}
-	
 }
 
 bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
