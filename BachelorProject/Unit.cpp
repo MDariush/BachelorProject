@@ -43,6 +43,8 @@ void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, cla
 	hp = hpMax;
 
 	// Queue initial commands
+	IssueCommand(MOVE, x, y);
+
 	for (int i = 0; i < UNIT_DESTINATIONS; i++) {
 
 		double randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0)) + 0.5;

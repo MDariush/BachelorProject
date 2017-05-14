@@ -100,7 +100,16 @@ void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<Visi
 	visionMapTempPtrArg->at(xArg).at(yArg) = VisionStatus::VISIBLE;
 	visionMap.at(xArg).at(yArg) = VisionStatus::VISIBLE;
 	map.setCellStatus(pActualMap->getCellStatus(xArg, yArg), xArg, yArg);
-	pPathfinder->UpdateGridGraphNode(xArg, yArg);
+
+	// For all 8 cells around the cell
+	for (int a = -1; a <= 1; a++) {
+		for (int b = -1; b <= 1; b++) {
+			if (map.IsLegalCell(xArg + a, yArg + b)) {
+				pPathfinder->UpdateGridGraphNode(xArg + a, yArg + b);
+			}
+		}
+	}
+	
 }
 
 bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {

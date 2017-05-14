@@ -125,7 +125,6 @@ std::vector<std::vector<Pathfinder::Node>>* Pathfinder::getNodesPtr() {
 void Pathfinder::CreateGridGraph() {
 	nodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));
 
-	// For every node in the grid
 	for (int i = 0; i < nodes.size(); i++) {
 		for (int j = 0; j < nodes.at(0).size(); j++) {
 			UpdateGridGraphNode(i, j);
@@ -156,20 +155,21 @@ void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
 				// If cell and neighbor is open and neighbor is horizontal/vertical or diagonal with open space in between
 				if (pMap->getCellStatus(xArg, yArg) == pMap->OPEN
 					&& pMap->getCellStatus(xArg + a, yArg + b) == pMap->OPEN
-					&& ((a == 0 || b == 0)
-					|| (pMap->getCellStatus(xArg + a, yArg) == pMap->OPEN
-					&& pMap->getCellStatus(xArg, yArg + b) == pMap->OPEN))) {
+					&& pMap->getCellStatus(xArg + a, yArg) == pMap->OPEN
+					&& pMap->getCellStatus(xArg, yArg + b) == pMap->OPEN) {
 
 					// Add neighbor to cell
 					nodes[xArg][yArg].neighbors.insert_after(nodes[xArg][yArg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg + a, yArg + b)));
 
 					// Add cell to neighbor's neighbor list
-					nodes[xArg + a][yArg + b].neighbors.insert_after(nodes[xArg][yArg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
+					nodes[xArg + a][yArg + b].neighbors.insert_after(nodes[xArg + a][yArg + b].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
 				}
 			}
 		}
 	}
 }
+
+
 
 void Pathfinder::CreateVisibilityGraph() {
 	nodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));

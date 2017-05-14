@@ -181,8 +181,8 @@ void Graphics::UpdateEntireGraphTexture() {
 					int y2 = (it->second.second + 0.5) * scaling;
 
 					sf::Vertex line[] = {
-						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(128, 255, 128, 128)),
-						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(128, 255, 128, 128))
+						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(128, 255, 128, 255)),
+						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(128, 255, 128, 255))
 					};
 
 					renderTextureGraph.draw(line, 2, sf::Lines);
