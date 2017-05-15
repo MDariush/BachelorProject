@@ -99,10 +99,9 @@ void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, d
 void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
 	visionMapTempPtrArg->at(xArg).at(yArg) = VisionStatus::VISIBLE;
 	visionMap.at(xArg).at(yArg) = VisionStatus::VISIBLE;
-	Map::CellStatus originalCellStatus = map.getCellStatus(xArg, yArg);
-	map.setCellStatus(pActualMap->getCellStatus(xArg, yArg), xArg, yArg);
 
-	if (map.getCellStatus(xArg, yArg) != originalCellStatus) {
+	if (map.getCellStatus(xArg, yArg) != (pActualMap->getCellStatus(xArg, yArg))) {
+		map.setCellStatus(pActualMap->getCellStatus(xArg, yArg), xArg, yArg);
 		for (int a = -1; a <= 1; a++) {
 			for (int b = -1; b <= 1; b++) {
 				if (map.IsLegalCell(xArg + a, yArg + b)) {
@@ -110,8 +109,6 @@ void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<Visi
 				}
 			}
 		}
-		
-		pPathfinder->setGraphUpdated(true);
 	}
 }
 

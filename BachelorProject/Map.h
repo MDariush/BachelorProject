@@ -16,6 +16,7 @@ public:
 	void Init(const char* mapName);
 	void LoadMapImage();
 	bool IsLegalCell(int x, int y);
+	bool CellBlocking(int xArg, int yArg);
 	bool CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg);
 	void Clear(CellStatus cellStatusArg);
 	void Reset(int widthArg, int heightArg, CellStatus statusArg);
@@ -24,8 +25,8 @@ public:
 	int getHeight();
 	CellStatus getCellStatus(int xArg, int yArg);
 	void setCellStatus(CellStatus cellStatusArg, int xArg, int yArg);
-	bool getMapUpdated();
-	void setMapUpdated(bool mapUpdatedArg);
+	int getGeneration();
+	void IncrementGeneration();
 	std::vector<std::vector<CellStatus>>* getCellStatusArrayPtr();
 
 private:
@@ -35,6 +36,7 @@ private:
 	unsigned int height;
 	std::vector<std::vector<CellStatus>> cellStatusArray;
 	bool initialized;
-	bool mapUpdated;
+	int generation;
+	const static std::vector<std::pair <int, int>> cellSurroundChecking;
 };
 

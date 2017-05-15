@@ -8,8 +8,20 @@ Created by Martin Dariush Hansen, 2017-03-14
 #include <iostream>
 using namespace std;
 
+const vector<pair<int, int>> Map::cellSurroundChecking = {
+	std::make_pair(1, 0),
+	std::make_pair(1, 1),
+	std::make_pair(0, 1),
+	std::make_pair(-1, 1),
+	std::make_pair(-1, 0),
+	std::make_pair(-1, -1),
+	std::make_pair(0, -1),
+	std::make_pair(1, -1)
+};
+
 Map::Map() {
 	initialized = false;
+	
 }
 
 Map::~Map() {
@@ -21,7 +33,7 @@ void Map::Init(const char* mapName0) {
 	LoadMapImage();
 
 	initialized = true;
-	mapUpdated = true;
+	generation = 0;
 }
 
 void Map::LoadMapImage() {
@@ -59,6 +71,27 @@ bool Map::IsLegalCell(int x, int y) {
 	return x >= 0 && x < cellStatusArray.size() && y >= 0 && y < cellStatusArray.at(0).size();
 }
 
+bool Map::CellBlocking(int xArg, int yArg) {
+	bool openCell = false;
+	bool closedAfterOpenCell = false;
+
+	for (int i = 0; i < cellSurroundChecking.size(); i++) {
+		if (IsLegalCell(cellSurroundChecking.at(i).first, cellSurroundChecking.at(i).second)
+			&& cellStatusArray[cellSurroundChecking.at(i).first][cellSurroundChecking.at(i).second] == Map::OPEN) {
+
+			if (closedAfterOpenCell) {
+				return true;
+			}
+			openCell = true;
+		}
+		else if (openCell) {
+			closedAfterOpenCell = true;
+		}
+	}
+
+	return false;
+}
+
 bool Map::CellTouchingCellOfType(CellStatus typeArg, int xArg, int yArg) {
 	return (xArg > 0 && getCellStatus(xArg - 1, yArg) == typeArg)
 		|| (xArg < getWidth() - 1 && getCellStatus(xArg + 1, yArg) == typeArg)
@@ -71,8 +104,11 @@ void Map::Clear(CellStatus cellStatusArg) {
 		for (int j = 0; j < height; j++) {
 			cellStatusArray[i][j] = cellStatusArg;
 		}
-	}	
-	mapUpdated = true;
+	}
+
+	cout << "Map cleared" << endl;
+
+	generation++;
 }
 
 // #TODO: Unused?
@@ -99,15 +135,15 @@ Map::CellStatus Map::getCellStatus(int xArg, int yArg) {
 
 void Map::setCellStatus(CellStatus cellStatusArg, int xArg, int yArg) {
 	cellStatusArray[xArg][yArg] = cellStatusArg;
-	mapUpdated = true;
+	generation++;
 }
 
-bool Map::getMapUpdated() {
-	return mapUpdated;
+int Map::getGeneration() {
+	return generation;
 }
 
-void Map::setMapUpdated(bool mapUpdatedArg) {
-	mapUpdated = mapUpdatedArg;
+void Map::IncrementGeneration() {
+	generation++;
 }
 
 std::vector<std::vector<Map::CellStatus>>* Map::getCellStatusArrayPtr() {

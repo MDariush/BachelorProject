@@ -18,11 +18,14 @@ Graphics::Graphics() : window(sf::VideoMode(DEFAULT_RESOLUTION_X, DEFAULT_RESOLU
 Graphics::~Graphics() {
 }
 
-void Graphics::Init(Model* pModel0, Map* pMap0, std::vector<class Player>* pPlayers0) {
-	pModel = pModel0;
-	pMap = pMap0;
-	pPlayers = pPlayers0;
+void Graphics::Init(Model* pModelArg) {
+	pModel = pModelArg;
+	pPlayers = pModel->getGamePtr()->getPlayersPtr();
+	//pMap = pPlayers->at(0).getVisionPtr()->getMapPtr();
 
+	drawnMapGeneration = 0;
+
+	// TODO: Move definitions
 	shapeUnexploredPixel.setSize(sf::Vector2f(1, 1));
 	shapeUnexploredPixel.setFillColor(sf::Color(0, 0, 0, 255));
 	shapeExploredPixel.setSize(sf::Vector2f(1, 1));
@@ -30,9 +33,9 @@ void Graphics::Init(Model* pModel0, Map* pMap0, std::vector<class Player>* pPlay
 
 	textureTile.loadFromFile("Tile10x10.png");
 	spriteTileOpen.setTexture(textureTile);
-	spriteTileOpen.setColor(sf::Color(191, 191, 127));
+	spriteTileOpen.setColor(sf::Color(160, 160, 80));
 	spriteTileClosed.setTexture(textureTile);
-	spriteTileClosed.setColor(sf::Color(127, 63, 31));
+	spriteTileClosed.setColor(sf::Color(128, 64, 32));
 
 	textureUnit.loadFromFile("Robot10x10.png");
 	spriteUnit.setTexture(textureUnit);
@@ -44,16 +47,15 @@ void Graphics::RenderGraphics() {
 	window.clear();
 
 	// Draw terrain
-	if (pMap->getMapUpdated()) {
-		GenerateBackgroundTexture();
-		pMap->setMapUpdated(false);
-	}
-
-	if (pModel->getStatus() == Model::Status::IN_MAP) {
+	if (pModel->getStatus() == Model::IN_MAP) {
+		if (pMap->getGeneration() != drawnMapGeneration) {
+			GenerateBackgroundTexture();
+			drawnMapGeneration = pMap->getGeneration();
+		}
 		window.draw(spriteBackground);
 
 		// Draw units
-		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size() ; i++) {
+		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
 			for (int j = 0; j < pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->size(); j++) {
 				spriteUnit.setPosition(sf::Vector2f(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getX() * scaling, pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getY() * scaling));
 				spriteUnit.setRotation(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getOrientationDeg());
@@ -62,13 +64,13 @@ void Graphics::RenderGraphics() {
 		}
 
 		// Draw fog
-		UpdateEntireFogTexture();
+		UpdateEntireFogTexture(); // #TODO: Avoid recomputation
 		window.draw(spriteFog);
 
 		// Draw graph
-		if (pPlayers->at(0).getPathfinderPtr()->getGraphUpdated()) {
+		if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
 			UpdateEntireGraphTexture();
-			pPlayers->at(0).getPathfinderPtr()->setGraphUpdated(false);
+			drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
 		}
 		window.draw(spriteGraph);
 
@@ -109,6 +111,10 @@ sf::RenderWindow * Graphics::getWindow() {
 void Graphics::setMapDimensions(int mapWidth0, int mapHeight0) {
 	mapWidth = mapWidth0;
 	mapHeight = mapHeight0;
+}
+
+void Graphics::setMapPtr(Map* pMapArg) {
+	pMap = pMapArg;
 }
 
 void Graphics::ComputeScaling() {
@@ -184,8 +190,8 @@ void Graphics::UpdateEntireGraphTexture() {
 					int y2 = (it->second.second + 0.5) * scaling;
 
 					sf::Vertex line[] = {
-						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(128, 255, 128, 255)),
-						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(128, 255, 128, 255))
+						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(128, 255, 128, 128)),
+						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(128, 255, 128, 128))
 					};
 
 					renderTextureGraph.draw(line, 2, sf::Lines);

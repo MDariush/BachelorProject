@@ -18,8 +18,8 @@ public:
 	void UpdateGridGraphNode(int xArg, int yArg);
 	std::stack<std::pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	std::vector<std::vector<Node>>* getNodesPtr();
-	bool getGraphUpdated();
-	void setGraphUpdated(bool graphUpdatedArg);
+	int getGeneration();
+	void setGeneration(int generationArg);
 
 private:
 	struct ExploredNode {
@@ -54,5 +54,5 @@ private:
 	class Vision* pVision;
 	int mapWidth;
 	int mapHeight;
-	bool graphUpdated;
+	int generation;
 };

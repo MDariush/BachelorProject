@@ -6,6 +6,7 @@ Created by Martin Dariush Hansen, 2017-03-14
 #include "Game.h"
 #include "Graphics.h"
 #include "Model.h"
+#include "Player.h"
 
 Model::Model() {
 }
@@ -23,15 +24,15 @@ void Model::Step() {
 	switch (status) {
 		case Model::LOADING_MAP:
 			if (!map.getInitialized()) {
-				map.Init("TestMapRandom100x100.png");
+				map.Init("TestMapRandom10x10.png");
 				pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
 				pGraphics->ComputeScaling();
-				pGraphics->GenerateBackgroundTexture();
 			}
 			else if (!game.getInitialized()) {
 				game.Init(&map);
 				pGraphics->GenerateFogTexture();
 				pGraphics->GenerateGraphTexture();
+				pGraphics->setMapPtr(game.getPlayersPtr()->at(0).getVisionPtr()->getMapPtr());
 			}
 			else {
 				status = Status::IN_MAP;

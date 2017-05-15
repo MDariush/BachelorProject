@@ -29,16 +29,17 @@ void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, cla
 
 	commandIssued = false;
 	moving = false;
+	pathGeneration = -1;
 
 	// #TODO
 	direction = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_X2));
 	orientation = 0.0;
 	orientationAcc = (PI_X2 / STEPS_PER_SECOND) / 0.5;
-	spdMax = 16.0 / STEPS_PER_SECOND;
+	spdMax = 1.0 / STEPS_PER_SECOND;
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
-	setVisionRng(8.0 + 0.5);
+	setVisionRng(3.0 + 0.5);
 	hpMax = 100;
 	hp = hpMax;
 
@@ -84,14 +85,15 @@ void Unit::ProcessCommands() {
 				}
 				else if (IsInSquare(commandQueue.front().path.top().first, commandQueue.front().path.top().second, spd * 2)) {
 					commandQueue.front().path.pop();
-					cout << "Path waypoint reached" << endl;
 				}
-				else if (pPathfinder->getGraphUpdated()) {
+				else if (pPathfinder->getGeneration() != pathGeneration) {
 					commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
+					pathGeneration = pPathfinder->getGeneration();
 				}
 			}
 			else {
 				commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
+				pathGeneration = pPathfinder->getGeneration();
 				commandIssued = true;
 				moving = true;
 			}

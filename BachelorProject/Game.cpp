@@ -47,24 +47,40 @@ void Game::Step() {
 		unitsCreated++;
 	}
 
-	// Create obstacle next to other obstacles
+	// Change terrain
 	if (DYNAMIC_TERRAIN && terrainChangeTimer >= terrainChangeTime) {
+		int randomX, randomY;
+		
+		// 50% chance to create obstacle whithout blocking areas
+		if ((float) rand() / RAND_MAX < 0.5) {
+			for (int i = 0; i < DYNAMIC_TERRAIN_CLUSTER_RETRIES; i++) {
+				randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+				randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
 
-		int randomX = 0;
-		int randomY = 0;
+				if (pMap->getCellStatus(randomX, randomY) == Map::OPEN
+					&& !pMap->CellBlocking(randomX, randomY)) {
 
-		for (int i = 0; i < DYNAMIC_TERRAIN_CLUSTER_RETRIES + 1; i++) {
-			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
-			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
-
-			if (pMap->getCellStatus(randomX, randomY) == Map::OPEN
-				&& pMap->CellTouchingCellOfType(Map::CLOSED, randomX, randomY)) {
-
-				break;
+					pMap->setCellStatus(Map::CLOSED, randomX, randomY);
+					break;
+				}
 			}
 		}
 
-		pMap->setCellStatus(Map::CLOSED, randomX, randomY);
+		// 50% chance to remove obstacle near open space
+		else {
+			for (int i = 0; i < DYNAMIC_TERRAIN_CLUSTER_RETRIES; i++) {
+				randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+				randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+
+				if (pMap->getCellStatus(randomX, randomY) == Map::CLOSED
+					&& pMap->CellTouchingCellOfType(Map::OPEN, randomX, randomY)) {
+
+					pMap->setCellStatus(Map::OPEN, randomX, randomY);
+					break;
+				}
+			}
+		}
+
 		terrainChangeTimer = 0;
 		terrainChangeTime = floor(((TERRAIN_TIMER_MAX - TERRAIN_TIMER_MIN) * rand()) / (RAND_MAX + 1.0)) + TERRAIN_TIMER_MIN;
 	}

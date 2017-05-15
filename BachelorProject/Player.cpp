@@ -61,3 +61,7 @@ std::vector<std::vector<Vision::VisionStatus>> * Player::getVisionArrayPtr() {
 class Pathfinder* Player::getPathfinderPtr() {
 	return &pathfinder;
 }
+
+class Vision * Player::getVisionPtr() {
+	return &vision;
+}

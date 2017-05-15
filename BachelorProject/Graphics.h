@@ -12,17 +12,18 @@ class Graphics
 public:
 	Graphics();
 	~Graphics();
-	void Init(class Model* pModel0, class Map* pMap0, std::vector<class Player>* pPlayers0);
+	void Init(class Model* pModelArg);
 	void RenderGraphics();
 	bool getWindowOpen();
 	sf::RenderWindow* getWindow();
-	void setMapDimensions(int mapWidth0, int mapHeight0);
 	void ComputeScaling();
 	void GenerateBackgroundTexture();
 	void GenerateFogTexture();
 	void GenerateGraphTexture();
 	void UpdateEntireGraphTexture();
 	void UpdateEntireFogTexture();
+	void setMapDimensions(int mapWidthArg, int mapHeightArg);
+	void setMapPtr(class Map* pMapArg);
 
 private:
 	class Model* pModel;
@@ -46,5 +47,7 @@ private:
 	double scaling;
 	int mapWidth;
 	int mapHeight;
+	int drawnMapGeneration;
+	int drawnGraphGeneration;
 	std::vector<class Player>* pPlayers;
 };

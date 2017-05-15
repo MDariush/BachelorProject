@@ -60,4 +60,5 @@ private:
 	std::queue<command> commandQueue;
 	bool commandIssued;
 	bool moving;
+	int pathGeneration;
 };

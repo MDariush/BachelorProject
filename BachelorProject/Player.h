@@ -23,6 +23,7 @@ public:
 	std::vector<class Unit>* getUnitsPtr();
 	std::vector<std::vector<Vision::VisionStatus>>* getVisionArrayPtr();
 	Pathfinder * getPathfinderPtr();
+	Vision * getVisionPtr();
 
 private:
 	Pathfinder pathfinder;
