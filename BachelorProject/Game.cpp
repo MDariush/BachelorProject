@@ -58,7 +58,8 @@ void Game::Step() {
 				randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
 
 				if (pMap->getCellStatus(randomX, randomY) == Map::OPEN
-					&& !pMap->CellBlocking(randomX, randomY)) {
+					&& !pMap->CellBlocking(randomX, randomY)
+					&& !UnitsExistAt(randomX, randomY)) {
 
 					pMap->setCellStatus(Map::CLOSED, randomX, randomY);
 					break;
@@ -108,6 +109,15 @@ void Game::CreatePlayer() {
 	players.push_back(Player());
 	players.at(players.size() - 1).Init(players.size() - 1, pMap);
 	cout << "Player " << players.size() - 1 << " created.\n";
+}
+
+bool Game::UnitsExistAt(int xArg, int yArg) {
+	for (int i = 0; i < players.size(); i++) {
+		if (players.at(i).HasUnitsAt(xArg, yArg)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool Game::getInitialized() {

@@ -85,10 +85,10 @@ void Unit::ProcessCommands() {
 				}
 				else if (IsInSquare(commandQueue.front().path.top().first, commandQueue.front().path.top().second, spd * 2)) {
 					commandQueue.front().path.pop();
-				}
-				else if (pPathfinder->getGeneration() != pathGeneration) {
-					commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
-					pathGeneration = pPathfinder->getGeneration();
+					if (pPathfinder->getGeneration() != pathGeneration) {
+						commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
+						pathGeneration = pPathfinder->getGeneration();
+					}
 				}
 			}
 			else {

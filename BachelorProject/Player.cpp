@@ -54,6 +54,15 @@ std::vector<class Unit>* Player::getUnitsPtr() {
 	return &units;
 }
 
+bool Player::HasUnitsAt(int xArg, int yArg) {
+	for (int i = 0; i < units.size(); i++) {
+		if (int(units.at(i).getX()) == xArg && int(units.at(i).getY()) == yArg) {
+			return true;
+		}
+	}
+	return false;
+}
+
 std::vector<std::vector<Vision::VisionStatus>> * Player::getVisionArrayPtr() {
 	return vision.getVisionMapPtr();
 }

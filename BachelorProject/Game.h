@@ -14,6 +14,7 @@ public:
 	void Init(class Map* pMap0);
 	void Step();
 	void CreatePlayer();
+	bool UnitsExistAt(int xArg, int yArg);
 	bool getInitialized();
 
 	std::vector<class Player>* getPlayersPtr();

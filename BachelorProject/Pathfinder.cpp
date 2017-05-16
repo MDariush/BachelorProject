@@ -44,7 +44,7 @@ std::stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitY
 	exploredNodesQueue.push(startNode);
 	exploredNodesMap[startNode.x][startNode.y] = true;
 
-	//cout << "A* from " << startNode.x << ", " << startNode.y << " to " << destCellX << ", " << destCellY << ". Euclidean distance: " << startNode.totalCost << endl;
+	cout << "Generating A* grid graph path from " << startNode.x << ", " << startNode.y << " to " << destCellX << ", " << destCellY << ". Euclidean distance: " << startNode.totalCost << endl;
 
 	// While there are still explored nodes
 	while (!exploredNodesQueue.empty()) {

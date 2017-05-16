@@ -21,6 +21,7 @@ public:
 	void UpdateUnits();
 	void RemoveDeadUnits();
 	std::vector<class Unit>* getUnitsPtr();
+	bool HasUnitsAt(int xArg, int yArg);
 	std::vector<std::vector<Vision::VisionStatus>>* getVisionArrayPtr();
 	Pathfinder * getPathfinderPtr();
 	Vision * getVisionPtr();

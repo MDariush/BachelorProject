@@ -15,7 +15,7 @@ const int MAX_UNITS_ON_MAP = 1;
 const int UNIT_DESTINATIONS = 3;
 
 // Terrain
-const bool DYNAMIC_TERRAIN = false;
+const bool DYNAMIC_TERRAIN = true;
 const int TERRAIN_TIMER_MIN = 10;
 const int TERRAIN_TIMER_MAX = 40;
 const int DYNAMIC_TERRAIN_CLUSTER_RETRIES = 4;
