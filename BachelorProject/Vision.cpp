@@ -100,7 +100,7 @@ void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<Visi
 	visionMapTempPtrArg->at(xArg).at(yArg) = VisionStatus::VISIBLE;
 	visionMap.at(xArg).at(yArg) = VisionStatus::VISIBLE;
 
-	if (map.getCellStatus(xArg, yArg) != (pActualMap->getCellStatus(xArg, yArg))) {
+	if (map.getCellStatus(xArg, yArg) != pActualMap->getCellStatus(xArg, yArg)) {
 		map.setCellStatus(pActualMap->getCellStatus(xArg, yArg), xArg, yArg);
 		for (int a = -1; a <= 1; a++) {
 			for (int b = -1; b <= 1; b++) {

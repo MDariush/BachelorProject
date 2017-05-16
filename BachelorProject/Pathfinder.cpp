@@ -130,8 +130,6 @@ void Pathfinder::CreateGridGraph() {
 			UpdateGridGraphNode(i, j);
 		}
 	}
-
-	generation++;
 }
 
 void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
@@ -169,9 +167,9 @@ void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
 			}
 		}
 	}
+
+	generation++;
 }
-
-
 
 void Pathfinder::CreateVisibilityGraph() {
 	nodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));
