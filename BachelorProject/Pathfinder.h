@@ -7,6 +7,7 @@ Created by Martin Dariush Hansen, 2017-04-13
 #include "Mathematics.h"
 #include <forward_list>
 #include <stack>
+#include <set>
 
 class Pathfinder
 {
@@ -42,13 +43,17 @@ private:
 	void ResetExploration();
 	void CreateGridGraph();
 	void CreateVisibilityGraph();
-
-	bool IsAtCorner(int xArg, int yArg, int xOffsetArg, int yOffsetArg);
+	void UpdateVisibilitySection(int xArg, int yArg);
+	void CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg);
+	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg);
+	bool IsAtCorner(int xArg, int yArg);
+	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
 
 	std::vector<std::vector<Node>> nodes;
+	std::vector<std::vector<Node>> visibilityGridNodes;
+	std::vector<std::vector<std::set<std::pair<int, int>>>> visibilitySectionNodes;
 	std::vector<std::vector<VisitedNode>> visitedNodes;
 	std::vector<std::vector<bool>> exploredNodesMap;
-
 	Mathematics math;
 	class Map* pMap;
 	class Vision* pVision;

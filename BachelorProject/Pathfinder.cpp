@@ -3,6 +3,7 @@ Pathfinder.cpp
 Created by Martin Dariush Hansen, 2017-04-13
 */
 
+#include "Configurations.h"
 #include "Constants.h"
 #include "Map.h"
 #include "Pathfinder.h"
@@ -172,44 +173,155 @@ void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
 }
 
 void Pathfinder::CreateVisibilityGraph() {
-	nodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));
+	visibilityGridNodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));
 
-	// For every node in the grid
-	for (int i = 0; i < nodes.size(); i++) {
-		for (int j = 0; j < nodes.at(0).size(); j++) {
-			if (pMap->getCellStatus(i, j) == pMap->OPEN) {
+	for (int i = 0; i < ceil(nodes.size() / (double)VISIBILITY_SECTION_WIDTH); i++) {
+		for (int j = 0; j < ceil(nodes.at(0).size() / (double)VISIBILITY_SECTION_WIDTH); j++) {
+			UpdateVisibilitySection(i, j);
+		}
+	}
+}
 
-				// For all its diagonal neighbors in the grid
-				for (int a = -1; a <= 1; a += 2) {
-					for (int b = -1; b <= 1; b += 2) {
-
-						if (IsAtCorner(i, j, a, b)) {
-							
-							/*if (a == 0 || b == 0) {
-								nodes[i][j].neighbors.push_back(make_pair(1.0, make_pair(i + a, j + b)));
-							}
-							else if (pMap->getCellStatus(i + a, j) == pMap->OPEN
-								&& pMap->getCellStatus(i, j + b) == pMap->OPEN) {
-
-								nodes[i][j].neighbors.push_back(make_pair(HYPOTENUSE_SCALAR, make_pair(i + a, j + b)));
-								cout << i + a << ", " << j + b << endl;
-							}*/
-
-							a = 2;
-							b = 2;
-						}
-					}
-				}
+void Pathfinder::UpdateVisibilitySection(int xSectionArg, int ySectionArg) {
+	visibilitySectionNodes.resize(pMap->getWidth(), vector<std::set<std::pair<int, int>>>(pMap->getHeight()));
+	for (int i = xSectionArg * VISIBILITY_SECTION_WIDTH; i < (xSectionArg + 1) * VISIBILITY_SECTION_WIDTH; i++) {
+		for (int j = ySectionArg * VISIBILITY_SECTION_WIDTH; j < (ySectionArg + 1) * VISIBILITY_SECTION_WIDTH; j++) {
+			if (pMap->IsLegalCell(xSectionArg, ySectionArg)) {
+				CreateVisibilityNode(xSectionArg, ySectionArg, i, j);
+			}
+		}
+	}
+	for (int i = xSectionArg * VISIBILITY_SECTION_WIDTH; i < (xSectionArg + 1) * VISIBILITY_SECTION_WIDTH; i++) {
+		for (int j = ySectionArg * VISIBILITY_SECTION_WIDTH; j < (ySectionArg + 1) * VISIBILITY_SECTION_WIDTH; j++) {
+			if (pMap->IsLegalCell(xSectionArg, ySectionArg)) {
+				visibilityGridNodes[i][j].neighbors.clear();
+				CreateVisibilityEdges(xSectionArg, ySectionArg, i, j);
 			}
 		}
 	}
 }
 
-bool Pathfinder::IsAtCorner(int xArg, int yArg, int xOffsetArg, int yOffsetArg) {
-	return pMap->IsLegalCell(xArg + xOffsetArg, yArg + yOffsetArg)
-		&& pMap->getCellStatus(xArg + xOffsetArg, yArg + yOffsetArg) == pMap->OPEN
-		&& (pMap->getCellStatus(xArg + xOffsetArg * 2, yArg) == pMap->OPEN
-			|| pMap->getCellStatus(xArg, yArg + yOffsetArg * 2) == pMap->OPEN);
+void Pathfinder::CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg) {
+	if (IsAtCorner(xArg, yArg)) {
+		/*set<Node*>::iterator it = visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).find(&visibilityGridNodes[xArg][yArg]);
+		if (it == visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).end()) {
+		}*/
+		visibilitySectionNodes.at(xSectionArg).at(ySectionArg).insert(std::make_pair(xArg, yArg));
+	}
+
+	generation++;
+}
+
+void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg) {
+
+	// Find reachable visibility nodes in section
+	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
+	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
+		if (it->first != xArg && it->second != yArg && StraightLineIsOpen(xArg, yArg, it->first, it->second)) {
+			
+			double edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
+
+			// Add neighbor to cell
+			visibilityGridNodes[xArg][yArg].neighbors.insert_after(visibilityGridNodes[xArg][yArg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(it->first, it->second)));
+
+			// Add cell to neighbor's neighbor list
+			visibilityGridNodes[it->first][it->second].neighbors.insert_after(visibilityGridNodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
+		}
+
+		++it;
+	}
+
+	// Find reachable visibility section wall nodes
+
+
+	/*else {
+		visibilitySectionNodes.at(xSectionArg).at(ySectionArg).erase(std::make_pair(xArg, yArg));
+	}*/
+
+		/*if (a == 0 || b == 0) {
+		nodes[i][j].neighbors.push_back(make_pair(1.0, make_pair(i + a, j + b)));
+		}
+		else if (pMap->getCellStatus(i + a, j) == pMap->OPEN
+		&& pMap->getCellStatus(i, j + b) == pMap->OPEN) {
+
+		nodes[i][j].neighbors.push_back(make_pair(HYPOTENUSE_SCALAR, make_pair(i + a, j + b)));
+		cout << i + a << ", " << j + b << endl;
+		}
+
+	}*/
+
+	generation++;
+}
+
+bool Pathfinder::IsAtCorner(int xArg, int yArg) {
+	if (pMap->IsLegalCell(xArg, yArg) || pMap->getCellStatus(xArg, yArg) == pMap->CLOSED) {
+		return false;
+	}
+	for (int a = -1; a <= 1; a += 2) {
+		for (int b = -1; b <= 1; b += 2) {
+			if (pMap->IsLegalCell(xArg + a, yArg + b)
+				&& pMap->getCellStatus(xArg + a, yArg + b) == pMap->CLOSED
+				&& (pMap->getCellStatus(xArg + a * 2, yArg) == pMap->OPEN
+					|| pMap->getCellStatus(xArg, yArg + b * 2) == pMap->OPEN)) {
+
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) {
+
+	// Calculate distances
+	int xDistance = x1Arg - x0Arg;
+	int yDistance = y1Arg - y0Arg;
+	int absXDistance = xDistance;
+	int absYDistance = yDistance;
+
+	if (absXDistance < 0) {
+		absXDistance = -absXDistance;
+	}
+	if (absYDistance < 0) {
+		absYDistance = -absYDistance;
+	}
+
+	// Set the x and y speed
+	double xSpd, ySpd = 1.0;
+	int xLoopSpd, yLoopSpd = 1;
+
+	if (xDistance < 0) {
+		xSpd = -1.0;
+		xLoopSpd = -1;
+	}
+	if (yDistance < 0) {
+		ySpd = -1.0;
+		yLoopSpd = -1;
+	}
+
+	if (absXDistance > absYDistance) {
+		xSpd = xDistance / (double)absYDistance;
+	}
+	else {
+		ySpd = yDistance / (double)absYDistance;
+	}
+
+	// Check collision with lines with a width of 2
+	double x = x0Arg;
+	double y = y0Arg;
+
+	while ((int)x != x1Arg && (int)y != y1Arg) {
+		for (int i = x; i < x + xSpd; i += xLoopSpd) {
+			for (int j = y; j < y + ySpd; j += yLoopSpd) {
+				if (pMap->getCellStatus(i, j) == Map::CLOSED) {
+					return false;
+				}
+			}
+		}
+		x += xSpd;
+		y += ySpd;
+	}
+	return true;
 }
 
 void Pathfinder::ResetExploration() {

@@ -1,5 +1,5 @@
 /*
-Constants.h
+Configurations.h
 Created by Martin Dariush Hansen, 2017-03-04
 */
 
@@ -19,3 +19,6 @@ const bool DYNAMIC_TERRAIN = true;
 const int TERRAIN_TIMER_MIN = 10;
 const int TERRAIN_TIMER_MAX = 40;
 const int DYNAMIC_TERRAIN_CLUSTER_RETRIES = 4;
+
+// Path planning
+const int VISIBILITY_SECTION_WIDTH = 10;
