@@ -42,12 +42,14 @@ private:
 
 	void ResetExploration();
 	void CreateGridGraph();
-	void CreateVisibilityGraph();
-	void UpdateVisibilitySection(int xArg, int yArg);
+	void CreateVisibilityGraph(int sectionWidthArg, int sectionHeightArg);
+	void UpdateVisibilitySection(int xArg, int yArg, int sectionWidthArg, int sectionHeightArg);
 	void CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg);
-	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg);
+	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg, int sectionWidthArg, int sectionHeightArg);
 	bool IsAtCorner(int xArg, int yArg);
 	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
+	void CreateBidirectedVisibilityEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
+	bool VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 
 	std::vector<std::vector<Node>> nodes;
 	std::vector<std::vector<Node>> visibilityGridNodes;

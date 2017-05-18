@@ -19,14 +19,19 @@ void Pathfinder::Init(Vision* pVisionArg) {
 	mapWidth = pMap->getWidth();
 	mapHeight = pMap->getHeight();
 
-	CreateGridGraph();
+	switch (GRAPH_TO_USE) {
+	VISIBILITY_DECOMPOSED:
+		CreateVisibilityGraph(VISIBILITY_SECTION_WIDTH, VISIBILITY_SECTION_HEIGHT);
+	VISIBILITY_FULL:
+		CreateVisibilityGraph(mapWidth, mapHeight);
+	default:
+		CreateGridGraph();
+	}
+
 	ResetExploration();
 }
 
 std::stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg) {
-
-	// TODO: Avoid recomputation
-	CreateGridGraph();
 
 	ResetExploration();
 	std::priority_queue<ExploredNode, std::vector<ExploredNode>, CompareCost> exploredNodesQueue;
@@ -172,30 +177,30 @@ void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
 	generation++;
 }
 
-void Pathfinder::CreateVisibilityGraph() {
+void Pathfinder::CreateVisibilityGraph(int sectionWidthArg, int sectionHeightArg) {
 	visibilityGridNodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));
 
-	for (int i = 0; i < ceil(nodes.size() / (double)VISIBILITY_SECTION_WIDTH); i++) {
-		for (int j = 0; j < ceil(nodes.at(0).size() / (double)VISIBILITY_SECTION_WIDTH); j++) {
-			UpdateVisibilitySection(i, j);
+	for (int i = 0; i < ceil(visibilityGridNodes.size() / (double)sectionWidthArg); i++) {
+		for (int j = 0; j < ceil(visibilityGridNodes.at(0).size() / (double)sectionHeightArg); j++) {
+			UpdateVisibilitySection(i, j, sectionWidthArg, sectionHeightArg);
 		}
 	}
 }
 
-void Pathfinder::UpdateVisibilitySection(int xSectionArg, int ySectionArg) {
+void Pathfinder::UpdateVisibilitySection(int xSectionArg, int ySectionArg, int sectionWidthArg, int sectionHeightArg) {
 	visibilitySectionNodes.resize(pMap->getWidth(), vector<std::set<std::pair<int, int>>>(pMap->getHeight()));
-	for (int i = xSectionArg * VISIBILITY_SECTION_WIDTH; i < (xSectionArg + 1) * VISIBILITY_SECTION_WIDTH; i++) {
-		for (int j = ySectionArg * VISIBILITY_SECTION_WIDTH; j < (ySectionArg + 1) * VISIBILITY_SECTION_WIDTH; j++) {
+	for (int i = xSectionArg * sectionWidthArg; i < (xSectionArg + 1) * sectionWidthArg; i++) {
+		for (int j = ySectionArg * sectionHeightArg; j < (ySectionArg + 1) * sectionHeightArg; j++) {
 			if (pMap->IsLegalCell(xSectionArg, ySectionArg)) {
 				CreateVisibilityNode(xSectionArg, ySectionArg, i, j);
 			}
 		}
 	}
-	for (int i = xSectionArg * VISIBILITY_SECTION_WIDTH; i < (xSectionArg + 1) * VISIBILITY_SECTION_WIDTH; i++) {
-		for (int j = ySectionArg * VISIBILITY_SECTION_WIDTH; j < (ySectionArg + 1) * VISIBILITY_SECTION_WIDTH; j++) {
+	for (int i = xSectionArg * sectionWidthArg; i < (xSectionArg + 1) * sectionWidthArg; i++) {
+		for (int j = ySectionArg * sectionHeightArg; j < (ySectionArg + 1) * sectionHeightArg; j++) {
 			if (pMap->IsLegalCell(xSectionArg, ySectionArg)) {
 				visibilityGridNodes[i][j].neighbors.clear();
-				CreateVisibilityEdges(xSectionArg, ySectionArg, i, j);
+				CreateVisibilityEdges(xSectionArg, ySectionArg, i, j, sectionWidthArg, sectionHeightArg);
 			}
 		}
 	}
@@ -212,27 +217,54 @@ void Pathfinder::CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg
 	generation++;
 }
 
-void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg) {
+void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg, int sectionWidthArg, int sectionHeightArg) {
+
+	double edgeWeight;
 
 	// Find reachable visibility nodes in section
 	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
 	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
 		if (it->first != xArg && it->second != yArg && StraightLineIsOpen(xArg, yArg, it->first, it->second)) {
 			
-			double edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
+			edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
 
-			// Add neighbor to cell
+			// Add nodes to cell
 			visibilityGridNodes[xArg][yArg].neighbors.insert_after(visibilityGridNodes[xArg][yArg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(it->first, it->second)));
 
-			// Add cell to neighbor's neighbor list
-			visibilityGridNodes[it->first][it->second].neighbors.insert_after(visibilityGridNodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
+			// Add cell to node's list if cell is in visibility graph
+			set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
+			if (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
+				visibilityGridNodes[it->first][it->second].neighbors.insert_after(visibilityGridNodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
+			}
 		}
 
 		++it;
 	}
 
-	// Find reachable visibility section wall nodes
+	// Find reachable visibility graph section wall nodes and create 2-way edges
+	int sectionX = xSectionArg * sectionWidthArg;
+	int sectionY = ySectionArg * sectionHeightArg;
 
+	for (int i = 0; i < sectionWidthArg; i++) {
+		if (StraightLineIsOpen(xArg, yArg, sectionX + i, sectionY)
+			&& VisibilityNodeInSection(sectionX + i, sectionY, xSectionArg, ySectionArg)) {
+			CreateBidirectedVisibilityEdge(xArg, yArg, sectionX + i, sectionY);
+		}
+		if (StraightLineIsOpen(xArg, yArg, sectionX + i, sectionY + sectionHeightArg)
+			&& VisibilityNodeInSection(sectionX + i, sectionY + sectionHeightArg, xSectionArg, ySectionArg)) {
+			CreateBidirectedVisibilityEdge(xArg, yArg, sectionX + i, sectionY + sectionHeightArg);
+		}
+	}
+	for (int i = 0; i < sectionHeightArg; i++) {
+		if (StraightLineIsOpen(xArg, yArg, sectionX, sectionY + i)
+			&& VisibilityNodeInSection(sectionX, sectionY + i, xSectionArg, ySectionArg)) {
+			CreateBidirectedVisibilityEdge(xArg, yArg, sectionX, sectionY + i);
+		}
+		if (StraightLineIsOpen(xArg, yArg, sectionX + sectionWidthArg, sectionY + i)
+			&& VisibilityNodeInSection(sectionX + sectionWidthArg, sectionY + i, xSectionArg, ySectionArg)) {
+			CreateBidirectedVisibilityEdge(xArg, yArg, sectionX + sectionWidthArg, sectionY + i);
+		}
+	}
 
 	/*else {
 		visibilitySectionNodes.at(xSectionArg).at(ySectionArg).erase(std::make_pair(xArg, yArg));
@@ -322,6 +354,17 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 		y += ySpd;
 	}
 	return true;
+}
+
+void Pathfinder::CreateBidirectedVisibilityEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg) {
+	int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
+	visibilityGridNodes[x0Arg][y0Arg].neighbors.insert_after(visibilityGridNodes[x0Arg][y0Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x1Arg, y1Arg)));
+	visibilityGridNodes[x1Arg][y1Arg].neighbors.insert_after(visibilityGridNodes[x1Arg][y1Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x0Arg, y0Arg)));
+}
+
+bool Pathfinder::VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg) {
+	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
+	return it == visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end();
 }
 
 void Pathfinder::ResetExploration() {
