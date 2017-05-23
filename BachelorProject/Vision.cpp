@@ -88,7 +88,7 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 
 void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
 	if (pActualMap->IsLegalCell(unitX, unitY) && pActualMap->IsLegalCell(originX, originY)) {
-		if (CanSeeCellEasily(unitX, unitY, originX, originY, visionMapTempPtrArg)
+		if (CanSeeCellEasily(unitX, unitY, originX, originY, visionMapTempPtrArg) // TODO: Fix bug with blocked vision in a line
 			|| CanSeeCellPrecisely(unitX, unitY, originX, originY, visionMapTempPtrArg)) {
 
 			ApplyVisionForCell(originX, originY, visionMapTempPtrArg);
@@ -105,7 +105,7 @@ void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<Visi
 		for (int a = -1; a <= 1; a++) {
 			for (int b = -1; b <= 1; b++) {
 				if (map.IsLegalCell(xArg + a, yArg + b)) {
-					pPathfinder->UpdateGridGraphNode(xArg + a, yArg + b);
+					pPathfinder->UpdateGraph(xArg + a, yArg + b);
 				}
 			}
 		}

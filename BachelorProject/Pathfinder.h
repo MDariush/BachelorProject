@@ -16,7 +16,7 @@ public:
 		std::forward_list<std::pair<double, std::pair<int, int>>> neighbors;
 	};
 	void Init(class Vision* pVisionArg);
-	void UpdateGridGraphNode(int xArg, int yArg);
+	void UpdateGraph(int xArg, int yArg);
 	std::stack<std::pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	std::vector<std::vector<Node>>* getNodesPtr();
 	int getGeneration();
@@ -42,13 +42,14 @@ private:
 
 	void ResetExploration();
 	void CreateGridGraph();
+	void UpdateGridGraphNode(int xArg, int yArg);
 	void CreateVisibilityGraph(int sectionWidthArg, int sectionHeightArg);
 	void UpdateVisibilitySection(int xArg, int yArg, int sectionWidthArg, int sectionHeightArg);
 	void CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg);
 	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg, int sectionWidthArg, int sectionHeightArg);
 	bool IsAtCorner(int xArg, int yArg);
 	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
-	void CreateBidirectedVisibilityEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
+	void CreateBidirectedWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
 	bool VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 
 	std::vector<std::vector<Node>> nodes;
