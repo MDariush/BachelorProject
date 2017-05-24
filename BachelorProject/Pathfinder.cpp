@@ -238,7 +238,7 @@ void Pathfinder::UpdateVisibilitySection(int xSectionArg, int ySectionArg, int s
 
 void Pathfinder::CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg) {
 	if (IsAtCorner(xArg, yArg)) {
-		cout << "Creating visibility graph node at (" << xArg << ", " << yArg << ")." << endl;
+		//cout << "Creating visibility graph node at (" << xArg << ", " << yArg << ")." << endl;
 		/*set<Node*>::iterator it = visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).find(&visibilityGridNodes[xArg][yArg]);
 		if (it == visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).end()) {
 		}*/
@@ -260,7 +260,7 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 	//set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
 	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).begin();
 	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
-		cout << "Looping through visibility node " << it->first << ", " << it->second << endl;
+		//cout << "Looping through visibility node " << it->first << ", " << it->second << endl;
 		if ((it->first != xArg || it->second != yArg)
 			&& StraightLineIsOpen(xArg, yArg, it->first, it->second)) {
 			
@@ -274,7 +274,7 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 				nodes[it->first][it->second].neighbors.insert_after(nodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
 			}
 
-			cout << "Edge created between visibility graph nodes (" << xArg << ", " << yArg << ") and (" << it->first << ", " << it->second << ")." << endl;
+			//cout << "Edge created between visibility graph nodes (" << xArg << ", " << yArg << ") and (" << it->first << ", " << it->second << ")." << endl;
 		}
 
 		++it;
@@ -285,12 +285,12 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 	int sectionY = ySectionArg * sectionHeightArg;
 
 	for (int i = 0; i <= sectionWidthArg; i++) {
-		CreateBidirectedWallEdge(xArg, yArg, sectionX + i, sectionY);
-		CreateBidirectedWallEdge(xArg, yArg, sectionX + i, sectionY + sectionHeightArg);
+		CreateBidirectedWallEdge(xArg, yArg, sectionX + i, sectionY, sectionWidthArg, sectionHeightArg);
+		CreateBidirectedWallEdge(xArg, yArg, sectionX + i, sectionY + sectionHeightArg, sectionWidthArg, sectionHeightArg);
 	}
 	for (int i = 1; i < sectionHeightArg; i++) {
-		CreateBidirectedWallEdge(xArg, yArg, sectionX, sectionY + i);
-		CreateBidirectedWallEdge(xArg, yArg, sectionX + sectionWidthArg, sectionY + i);
+		CreateBidirectedWallEdge(xArg, yArg, sectionX, sectionY + i, sectionWidthArg, sectionHeightArg);
+		CreateBidirectedWallEdge(xArg, yArg, sectionX + sectionWidthArg, sectionY + i, sectionWidthArg, sectionHeightArg);
 	}*/
 
 	/*else {
@@ -366,7 +366,7 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 		xSpd = xDistance / (double)absYDistance;
 	}
 	else {
-		ySpd = yDistance / (double)absYDistance;
+		ySpd = yDistance / (double)absXDistance;
 	}
 
 	// Check collision with lines with a width of 2
@@ -374,9 +374,9 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 	double y = y0Arg;
 
 	while ((int)x != x1Arg && (int)y != y1Arg) {
-		for (int i = x; i < x + xSpd; i += xLoopSpd) {
-			for (int j = y; j < y + ySpd; j += yLoopSpd) {
-				if (pMap->getCellStatus(i, j) == Map::CLOSED) {
+		for (double i = x; floor(i) != floor(x + xSpd); i += xLoopSpd) {
+			for (double j = y; floor(j) != floor(y + ySpd); j += yLoopSpd) {
+				if (pMap->getCellStatus((int)i, (int)j) == Map::CLOSED) {
 					return false;
 				}
 			}
@@ -387,15 +387,13 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 	return true;
 }
 
-void Pathfinder::CreateBidirectedWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg) {
+void Pathfinder::CreateBidirectedWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int sectionWidthArg, int sectionHeightArg) {
 	if (pMap->IsLegalCell(x0Arg, y0Arg)
 		&& pMap->IsLegalCell(x1Arg, y1Arg)
-		&& x1Arg != 0
-		&& y1Arg != 0
-		&& x1Arg != mapWidth - 1
-		&& y1Arg != mapHeight - 1
 		&& (x0Arg != x1Arg || y0Arg != y1Arg)
-		&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
+		/*&& ((x1Arg != 0 && x1Arg != mapWidth - 1) || (y0Arg != 0 && y0Arg != mapHeight - 1 && y1Arg % sectionHeightArg == 0))
+		&& ((y1Arg != 0 && y1Arg != mapHeight - 1) || (x0Arg != 0 && x0Arg != mapWidth - 1 && x1Arg % sectionWidthArg == 0))
+		&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)*/) {
 
 		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
 		nodes[x0Arg][y0Arg].neighbors.insert_after(nodes[x0Arg][y0Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x1Arg, y1Arg)));

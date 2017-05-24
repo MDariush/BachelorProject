@@ -49,7 +49,7 @@ private:
 	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg, int sectionWidthArg, int sectionHeightArg);
 	bool IsAtCorner(int xArg, int yArg);
 	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
-	void CreateBidirectedWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
+	void CreateBidirectedWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int sectionWidthArg, int sectionHeightArg);
 	bool VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 
 	std::vector<std::vector<Node>> nodes;
