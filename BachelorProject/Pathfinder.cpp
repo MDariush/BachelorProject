@@ -20,9 +20,13 @@ void Pathfinder::Init(Vision* pVisionArg) {
 	mapHeight = pMap->getHeight();
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
+		visibilityXSections = ceil(mapWidth / (double)VISIBILITY_SECTION_WIDTH);
+		visibilityYSections = ceil(mapHeight / (double)VISIBILITY_SECTION_HEIGHT);
 		CreateVisibilityGraph(VISIBILITY_SECTION_WIDTH, VISIBILITY_SECTION_HEIGHT);
 		break;
 	case VISIBILITY_FULL:
+		visibilityXSections = 1;
+		visibilityYSections = 1;
 		CreateVisibilityGraph(mapWidth, mapHeight);
 		break;
 	default:
@@ -83,7 +87,7 @@ std::stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitY
 
 		// Explore nearby nodes
 		if (currentX != destCellX || currentY != destCellY) {
-			for (forward_list<pair<double, pair<int, int>>>::iterator it = getNodesPtr()->at(currentX).at(currentY).neighbors.begin(); it != getNodesPtr()->at(currentX).at(currentY).neighbors.end(); ) {
+			for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes[currentX][currentY].neighbors.begin(); it != nodes[currentX][currentY].neighbors.end(); ) {
 			//for (int i = 0; i < nodes[currentX][currentY].neighbors.size(); i++) {
 
 				int neighborX = it->second.first;
@@ -141,14 +145,11 @@ std::stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitY
 }
 
 std::vector<std::vector<Pathfinder::Node>>* Pathfinder::getNodesPtr() {
-	if (GRAPH_TYPE != GRID) {
-		return &visibilityGridNodes;
-	}
 	return &nodes;
 }
 
 void Pathfinder::CreateGridGraph() {
-	nodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));
+	nodes.resize(mapWidth, vector<Node>(mapHeight));
 
 	for (int i = 0; i < nodes.size(); i++) {
 		for (int j = 0; j < nodes.at(0).size(); j++) {
@@ -200,10 +201,11 @@ void Pathfinder::CreateVisibilityGraph(int sectionWidthArg, int sectionHeightArg
 
 	cout << "Creating visibility graph for every section." << endl;
 
-	visibilityGridNodes.resize(pMap->getWidth(), vector<Node>(pMap->getHeight()));
+	nodes.resize(mapWidth, vector<Node>(mapHeight));
+	visibilityNodes.resize(mapWidth, vector<bool>(mapHeight, false));
 
-	for (int i = 0; i < ceil(visibilityGridNodes.size() / (double)sectionWidthArg); i++) {
-		for (int j = 0; j < ceil(visibilityGridNodes.at(0).size() / (double)sectionHeightArg); j++) {
+	for (int i = 0; i < visibilityXSections; i++) {
+		for (int j = 0; j < visibilityYSections; j++) {
 			UpdateVisibilitySection(i, j, sectionWidthArg, sectionHeightArg);
 		}
 	}
@@ -212,17 +214,22 @@ void Pathfinder::CreateVisibilityGraph(int sectionWidthArg, int sectionHeightArg
 void Pathfinder::UpdateVisibilitySection(int xSectionArg, int ySectionArg, int sectionWidthArg, int sectionHeightArg) {
 	cout << "Updating visibility graph section (" << xSectionArg << ", " << ySectionArg << ")." << endl;
 	visibilitySectionNodes.resize(pMap->getWidth(), vector<std::set<std::pair<int, int>>>(pMap->getHeight()));
+	for (int i = 0; i < mapWidth; i++) {
+		for (int j = 0; j < mapHeight; j++) {
+			visibilitySectionNodes[i][j].clear();
+		}
+	}
 	for (int i = xSectionArg * sectionWidthArg; i < (xSectionArg + 1) * sectionWidthArg; i++) {
 		for (int j = ySectionArg * sectionHeightArg; j < (ySectionArg + 1) * sectionHeightArg; j++) {
-			if (pMap->IsLegalCell(xSectionArg, ySectionArg)) {
+			if (pMap->IsLegalCell(i, j)) {
 				CreateVisibilityNode(xSectionArg, ySectionArg, i, j);
 			}
 		}
 	}
 	for (int i = xSectionArg * sectionWidthArg; i < (xSectionArg + 1) * sectionWidthArg; i++) {
 		for (int j = ySectionArg * sectionHeightArg; j < (ySectionArg + 1) * sectionHeightArg; j++) {
-			if (pMap->IsLegalCell(xSectionArg, ySectionArg)) {
-				visibilityGridNodes[i][j].neighbors.clear();
+			if (pMap->IsLegalCell(i, j)) {
+				nodes[i][j].neighbors.clear();
 				CreateVisibilityEdges(xSectionArg, ySectionArg, i, j, sectionWidthArg, sectionHeightArg);
 			}
 		}
@@ -236,6 +243,10 @@ void Pathfinder::CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg
 		if (it == visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).end()) {
 		}*/
 		visibilitySectionNodes.at(xSectionArg).at(ySectionArg).insert(std::make_pair(xArg, yArg));
+		visibilityNodes[xArg][yArg] = true;
+	}
+	else {
+		visibilityNodes[xArg][yArg] = false;
 	}
 
 	generation++;
@@ -246,19 +257,21 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 	double edgeWeight;
 
 	// Find reachable visibility nodes in section
-	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
+	//set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
+	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).begin();
 	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
-		if (it->first != xArg && it->second != yArg && StraightLineIsOpen(xArg, yArg, it->first, it->second)) {
+		cout << "Looping through visibility node " << it->first << ", " << it->second << endl;
+		if ((it->first != xArg || it->second != yArg)
+			&& StraightLineIsOpen(xArg, yArg, it->first, it->second)) {
 			
 			edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
 
 			// Add nodes to cell
-			visibilityGridNodes[xArg][yArg].neighbors.insert_after(visibilityGridNodes[xArg][yArg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(it->first, it->second)));
+			nodes[xArg][yArg].neighbors.insert_after(nodes[xArg][yArg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(it->first, it->second)));
 
 			// Add cell to node's neighbor list if cell is in visibility graph
-			set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
-			if (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
-				visibilityGridNodes[it->first][it->second].neighbors.insert_after(visibilityGridNodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
+			if (visibilityNodes[xArg][yArg]) {
+				nodes[it->first][it->second].neighbors.insert_after(nodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
 			}
 
 			cout << "Edge created between visibility graph nodes (" << xArg << ", " << yArg << ") and (" << it->first << ", " << it->second << ")." << endl;
@@ -268,7 +281,7 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 	}
 
 	// Find reachable visibility graph section wall nodes and create 2-way edges
-	int sectionX = xSectionArg * sectionWidthArg;
+	/*int sectionX = xSectionArg * sectionWidthArg;
 	int sectionY = ySectionArg * sectionHeightArg;
 
 	for (int i = 0; i <= sectionWidthArg; i++) {
@@ -278,7 +291,7 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 	for (int i = 1; i < sectionHeightArg; i++) {
 		CreateBidirectedWallEdge(xArg, yArg, sectionX, sectionY + i);
 		CreateBidirectedWallEdge(xArg, yArg, sectionX + sectionWidthArg, sectionY + i);
-	}
+	}*/
 
 	/*else {
 		visibilitySectionNodes.at(xSectionArg).at(ySectionArg).erase(std::make_pair(xArg, yArg));
@@ -385,8 +398,8 @@ void Pathfinder::CreateBidirectedWallEdge(int x0Arg, int y0Arg, int x1Arg, int y
 		&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
 
 		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
-		visibilityGridNodes[x0Arg][y0Arg].neighbors.insert_after(visibilityGridNodes[x0Arg][y0Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x1Arg, y1Arg)));
-		visibilityGridNodes[x1Arg][y1Arg].neighbors.insert_after(visibilityGridNodes[x1Arg][y1Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x0Arg, y0Arg)));
+		nodes[x0Arg][y0Arg].neighbors.insert_after(nodes[x0Arg][y0Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x1Arg, y1Arg)));
+		nodes[x1Arg][y1Arg].neighbors.insert_after(nodes[x1Arg][y1Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x0Arg, y0Arg)));
 		//cout << "Edge created between cell (" << x0Arg << ", " << y0Arg << ") and section wall (" << x1Arg << ", " << y1Arg << ")." << endl;
 	}
 }

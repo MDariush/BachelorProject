@@ -53,7 +53,7 @@ private:
 	bool VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 
 	std::vector<std::vector<Node>> nodes;
-	std::vector<std::vector<Node>> visibilityGridNodes;
+	std::vector<std::vector<bool>> visibilityNodes;
 	std::vector<std::vector<std::set<std::pair<int, int>>>> visibilitySectionNodes;
 	std::vector<std::vector<VisitedNode>> visitedNodes;
 	std::vector<std::vector<bool>> exploredNodesMap;
@@ -63,4 +63,6 @@ private:
 	int mapWidth;
 	int mapHeight;
 	int generation;
+	int visibilityXSections;
+	int visibilityYSections;
 };
