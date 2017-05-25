@@ -333,7 +333,7 @@ bool Pathfinder::IsAtCorner(int xArg, int yArg) {
 
 bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) {
 
-	cout << x0Arg << ", " << y0Arg << ", " << x1Arg << ", " << y1Arg << endl;
+	//cout << x0Arg << ", " << y0Arg << ", " << x1Arg << ", " << y1Arg << endl;
 
 	// Calculate distances
 	int xDistance = x1Arg - x0Arg;
@@ -365,8 +365,8 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 		ySpd = -1.0;
 	}
 
-	int xLoopSpd = xSpd;
-	int yLoopSpd = ySpd;
+	double xLoopSpd = xSpd;
+	double yLoopSpd = ySpd;
 
 	if (absXDistance > absYDistance) {
 		if (absYDistance == 0) {
@@ -385,32 +385,108 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 		}
 	}
 
-	// Check collision with lines with a width of 2
+	// Check collision - Horizontally
 	double x = (double)x0Arg + 0.5;
 	double y = (double)y0Arg + 0.5;
 
-	if (xSpd == 0.0) {
-		while ((int)y != y1Arg) {
-			if (pMap->getCellStatus(x, y) == Map::CLOSED) {
-				cout << "CLOSED " << x << ", " << y << endl;
-				return false;
-			}
-			cout << " OPEN " << x << ", " << y << endl;
-			y += yLoopSpd;
-		}
-	}
-	else if (ySpd == 0.0) {
+	if (ySpd == 0.0) {
 		while ((int)x != x1Arg) {
 			if (pMap->getCellStatus(x, y) == Map::CLOSED) {
-				cout << "CLOSED " << x << ", " << y << endl;
+				//cout << "CLOSED " << x << ", " << y << endl;
 				return false;
 			}
-			cout << " OPEN " << x << ", " << y << endl;
+			//cout << " OPEN " << x << ", " << y << endl;
 			x += xLoopSpd;
 		}
 	}
+
+	// Check collision - Vertically
+	else if (xSpd == 0.0) {
+		while ((int)y != y1Arg) {
+			if (pMap->getCellStatus(x, y) == Map::CLOSED) {
+				//cout << "CLOSED " << x << ", " << y << endl;
+				return false;
+			}
+			//cout << " OPEN " << x << ", " << y << endl;
+			y += yLoopSpd;
+		}
+	}
+
+	// Check collision - Mostly horizontally
+	else if (absXDistance > absYDistance) {
+		double xStart = x - xSpd - xLoopSpd * 0.49999;;
+		double xEnd = x + xSpd + xLoopSpd * 0.49999;;
+		bool xEndReached = false;
+		bool yEndReached = false;
+		while (!yEndReached) {
+			xEndReached = false;
+			while (!xEndReached) {
+				if (pMap->getCellStatus(x, y) == Map::CLOSED) {
+					//cout << "CLOSED " << x << ", " << y << endl;
+					return false;
+				}
+				//cout << " OPEN " << x << ", " << y << endl;
+				if (x == xEnd || (int)x == x1Arg) {
+					xStart += xSpd;
+					xEnd += xSpd;
+					x = xStart;
+					xEndReached = true;
+				}
+				else {
+					bool xIsGreaterThanXEnd = x > xEnd;
+					x += xLoopSpd;
+					if (xIsGreaterThanXEnd != x > xEnd) {
+						x = xEnd;
+					}
+				}
+			}
+			if ((int)y == y1Arg) {
+				yEndReached = true;
+			}
+			else {
+				y += yLoopSpd;
+			}
+		}
+	}
+
+	// Check collision - Mostly vertically
 	else {
-		int i;
+		double yStart = y - ySpd - yLoopSpd * 0.49999;
+		double yEnd = y + ySpd + yLoopSpd * 0.49999;;
+		bool xEndReached = false;
+		bool yEndReached = false;
+		while (!xEndReached) {
+			yEndReached = false;
+			while (!yEndReached) {
+				if (pMap->getCellStatus(x, y) == Map::CLOSED) {
+					//cout << "CLOSED " << x << ", " << y << endl;
+					return false;
+				}
+				//cout << " OPEN " << x << ", " << y << endl;
+				if (y == yEnd || (int)y == y1Arg) {
+					yStart += ySpd;
+					yEnd += ySpd;
+					y = yStart;
+					yEndReached = true;
+				}
+				else {
+					bool yIsGreaterThanYEnd = y > yEnd;
+					y += yLoopSpd;
+					if (yIsGreaterThanYEnd != y > yEnd) {
+						y = yEnd;
+					}
+				}
+			}
+			if ((int)x == x1Arg) {
+				xEndReached = true;
+			}
+			else {
+				x += xLoopSpd;
+			}
+		}
+	}
+		
+		/*int i;
 		int iIterations;
 		bool iDestinationReached;
 		int j;
@@ -472,7 +548,7 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 			x += xSpd;
 			y += ySpd;
 		}
-	}
+	}*/
 	return true;
 }
 
