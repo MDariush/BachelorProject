@@ -13,14 +13,14 @@ public:
 	Graphics();
 	~Graphics();
 	void Init(class Model* pModelArg);
-	void RenderGraphics();
+	void RenderGraphics(int programStepsArg);
 	bool getWindowOpen();
 	sf::RenderWindow* getWindow();
 	void ComputeScaling();
 	void GenerateBackgroundTexture();
 	void GenerateFogTexture();
 	void GenerateGraphTexture();
-	void UpdateEntireGraphTexture();
+	void UpdateEntireGraphTexture(int programStepsArg);
 	void UpdateEntireFogTexture();
 	void setMapDimensions(int mapWidthArg, int mapHeightArg);
 	void setMapPtr(class Map* pMapArg);
@@ -50,4 +50,5 @@ private:
 	int drawnMapGeneration;
 	int drawnGraphGeneration;
 	std::vector<class Player>* pPlayers;
+	int* pTimeStep;
 };

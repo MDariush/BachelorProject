@@ -43,8 +43,8 @@ void Graphics::Init(Model* pModelArg) {
 	spriteUnit.setOrigin(spriteUnit.getTexture()->getSize().x / 2, spriteUnit.getTexture()->getSize().y / 2);
 }
 
-void Graphics::RenderGraphics() {
-	window.clear();
+void Graphics::RenderGraphics(int programStepsArg) {
+	window.clear(sf::Color(255, 0, 0, 0));
 
 	// Draw terrain
 	if (pModel->getStatus() == Model::IN_MAP) {
@@ -68,10 +68,10 @@ void Graphics::RenderGraphics() {
 		window.draw(spriteFog);
 
 		// Draw graph
-		if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
-			UpdateEntireGraphTexture();
-			drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
-		}
+		//if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
+			UpdateEntireGraphTexture(programStepsArg);
+			//drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
+		//}
 		window.draw(spriteGraph);
 
 		// Draw paths
@@ -86,8 +86,8 @@ void Graphics::RenderGraphics() {
 						int x2 = path.top().first * scaling;
 						int y2 = path.top().second * scaling;
 						sf::Vertex line[] = {
-							sf::Vertex(sf::Vector2f(x1, y1)),
-							sf::Vertex(sf::Vector2f(x2, y2))
+							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 0, 0, 255)),
+							sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 0, 0, 255))
 						};
 
 						window.draw(line, 2, sf::Lines);
@@ -170,8 +170,8 @@ void Graphics::UpdateEntireFogTexture() {
 	spriteFog.setTexture(renderTextureFog.getTexture());
 }
 
-void Graphics::UpdateEntireGraphTexture() {
-	renderTextureGraph.clear(sf::Color(0, 0, 0, 0));
+void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
+	renderTextureGraph.clear(sf::Color(255, 255, 255, 0));
 
 	for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
 		for (int j = 0; j < mapWidth; j++) {
@@ -190,11 +190,14 @@ void Graphics::UpdateEntireGraphTexture() {
 					int y2 = (it->second.second + 0.5) * scaling;
 
 					sf::Vertex line[] = {
-						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(128, 255, 128, 128)),
-						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(128, 255, 128, 128))
+						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 255, 255, 64)),
+						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 255, 255, 64))
 					};
 
-					renderTextureGraph.draw(line, 2, sf::Lines);
+					if (j == programStepsArg / 100 % mapWidth && k == (programStepsArg / 100 % (mapWidth * mapHeight)) / mapHeight) {
+						renderTextureGraph.draw(line, 2, sf::Lines);
+						cout << ".";
+					}
 
 					++it;
 				}

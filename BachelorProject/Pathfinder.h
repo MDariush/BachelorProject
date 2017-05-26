@@ -43,18 +43,19 @@ private:
 	void ResetExploration();
 	void CreateGridGraph();
 	void UpdateGridGraphNode(int xArg, int yArg);
-	void CreateVisibilityGraph(int sectionWidthArg, int sectionHeightArg);
-	void UpdateVisibilitySection(int xArg, int yArg, int sectionWidthArg, int sectionHeightArg);
+	void CreateVisibilityGraph();
+	void UpdateVisibilitySection(int xArg, int yArg);
 	void CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg);
-	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg, int sectionWidthArg, int sectionHeightArg);
+	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg);
 	bool IsAtCorner(int xArg, int yArg);
 	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
-	void CreateBidirectedWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int sectionWidthArg, int sectionHeightArg);
+	void CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
+	bool IsWallNode(int xArg, int yArg);
 	bool VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 
 	std::vector<std::vector<Node>> nodes;
 	std::vector<std::vector<bool>> visibilityNodes;
-	std::vector<std::vector<std::set<std::pair<int, int>>>> visibilitySectionNodes;
+	std::vector<std::vector<std::set<std::pair<int, int>>>> visibilitySectionNodes; // List of visibility nodes in each visibility section
 	std::vector<std::vector<VisitedNode>> visitedNodes;
 	std::vector<std::vector<bool>> exploredNodesMap;
 	Mathematics math;
@@ -65,4 +66,6 @@ private:
 	int generation;
 	int visibilityXSections;
 	int visibilityYSections;
+	int visibilitySectionWidth;
+	int visibilitySectionHeight;
 };

@@ -57,7 +57,7 @@ void Timer::TimeLoop(int timeLoopRuns0) {
 		// Render graphics
 		currentTime = high_resolution_clock::now();
 		if (ReadyToRenderGraphics()) {
-			graphics.RenderGraphics();
+			graphics.RenderGraphics(programSteps);
 			RecordFrameTime();
 		}
 	}
