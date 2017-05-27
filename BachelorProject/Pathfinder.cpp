@@ -44,58 +44,37 @@ void Pathfinder::Init(Vision* pVisionArg) {
 void Pathfinder::UpdateGraph(int xArg, int yArg) {
 	int xSection = xArg / visibilitySectionWidth;
 	int ySection = yArg / visibilitySectionHeight;
-	int xMin = xArg - VISIBILITY_SECTION_WIDTH;
-	if (xMin < 0) {
-		xMin = 0;
+	int xSectionMin = xSection - 1;
+	if (xSectionMin < 0) {
+		xSectionMin = 0;
 	}
-	int yMin = yArg - VISIBILITY_SECTION_HEIGHT;
-	if (yMin < 0) {
-		yMin = 0;
+	int ySectionMin = ySection - 1;
+	if (ySectionMin < 0) {
+		ySectionMin = 0;
 	}
-	int xMax = xArg + VISIBILITY_SECTION_WIDTH;
-	if (xMax >= mapWidth) {
-		xMax = mapWidth - 1;
+	int xSectionMax = xSection + 1;
+	if (xSectionMax >= visibilityXSections) {
+		xSectionMax = visibilityXSections - 1;
 	}
-	int yMax = yArg + VISIBILITY_SECTION_HEIGHT;
-	if (yMax >= mapHeight) {
-		yMax = mapHeight - 1;
+	int ySectionMax = ySection + 1;
+	if (ySectionMax >= visibilityYSections) {
+		ySectionMax = visibilityYSections - 1;
 	}
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
-		for (int i = xMin; i < xMax; i += VISIBILITY_SECTION_WIDTH) {
-			for (int j = yMin; j < yMax; j += VISIBILITY_SECTION_HEIGHT) {
-				if (i / VISIBILITY_SECTION_WIDTH == xSection && j / VISIBILITY_SECTION_HEIGHT == ySection) {
-					ClearVisibilitySectionNodes(xSection, ySection);
-				}
-				ClearVisibilitySectionEdges(xSection, ySection);
+		ClearVisibilitySectionNodes(xSection, ySection);
+		for (int i = xSectionMin; i <= xSectionMax; i++) {
+			for (int j = ySectionMin; j <= ySectionMax; j++) {
+				ClearVisibilitySectionEdges(i, j);
 			}
 		}
-		for (int i = xMin; i < xMax; i += VISIBILITY_SECTION_WIDTH) {
-			for (int j = yMin; j < yMax; j += VISIBILITY_SECTION_HEIGHT) {
-				if (i / VISIBILITY_SECTION_WIDTH == xSection && j / VISIBILITY_SECTION_HEIGHT == ySection) {
-					CreateVisibilitySectionNodes(xSection, ySection);
-				}
-				CreateVisibilitySectionEdges(xSection, ySection);
-				CreateVisibilitySectionWallEdges(xSection, ySection);
+		CreateVisibilitySectionNodes(xSection, ySection);
+		for (int i = xSectionMin; i <= xSectionMax; i++) {
+			for (int j = ySectionMin; j <= ySectionMax; j++) {
+				CreateVisibilitySectionEdges(i, j);
+				CreateVisibilitySectionWallEdges(i, j);
 			}
 		}
-		/*if (xArg != 0
-			&& yArg != 0
-			&& xArg != mapWidth - 1
-			&& yArg != mapHeight - 1
-			&& xArg % VISIBILITY_SECTION_WIDTH == 0
-			&& yArg % VISIBILITY_SECTION_HEIGHT == 0) {
-
-			UpdateVisibilitySection(xArg - VISIBILITY_SECTION_WIDTH, yArg);
-			UpdateVisibilitySection(xArg, yArg - VISIBILITY_SECTION_HEIGHT);
-			UpdateVisibilitySection(xArg - VISIBILITY_SECTION_WIDTH, yArg - VISIBILITY_SECTION_HEIGHT);
-		}
-		else if (xArg != 0 && xArg != mapWidth - 1 && xArg % VISIBILITY_SECTION_WIDTH == 0) {
-			UpdateVisibilitySection(xArg - VISIBILITY_SECTION_WIDTH, yArg);
-		}
-		else if (yArg != 0 && yArg != mapHeight - 1 && yArg % VISIBILITY_SECTION_HEIGHT == 0) {
-			UpdateVisibilitySection(xArg, yArg - VISIBILITY_SECTION_HEIGHT);
-		}*/
 		break;
 	case VISIBILITY_FULL:
 		ClearVisibilitySectionNodes(0, 0);
@@ -257,8 +236,7 @@ void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
 }
 
 void Pathfinder::CreateVisibilityGraph() {
-
-	cout << "Creating visibility graph for every section." << endl;
+	//cout << "Creating visibility graph for every section." << endl;
 
 	nodes.resize(mapWidth, vector<Node>(mapHeight));
 	visibilityNodes.resize(mapWidth, vector<bool>(mapHeight, false));
@@ -271,7 +249,7 @@ void Pathfinder::CreateVisibilityGraph() {
 
 	for (int i = 0; i < visibilityXSections; i++) {
 		for (int j = 0; j < visibilityYSections; j++) {
-			UpdateGraph(i * visibilitySectionWidth + 1, j * visibilitySectionHeight + 1);
+			UpdateGraph(i * visibilitySectionWidth, j * visibilitySectionHeight);
 		}
 	}
 }
@@ -288,7 +266,6 @@ void Pathfinder::ClearVisibilitySectionNodes(int xSectionArg, int ySectionArg) {
 }
 
 void Pathfinder::ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
-
 	/*int destinationSectionXMin = destinationXSectionArg * visibilitySectionWidth;
 	int destinationSectionXMax = destinationSectionXMin + visibilitySectionWidth - 1;
 	int destinationSectionYMin = destinationYSectionArg * visibilitySectionHeight;
@@ -355,7 +332,6 @@ void Pathfinder::CreateVisibilitySectionWallEdges(int xSectionArg, int ySectionA
 
 void Pathfinder::CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg) {
 	if (IsAtCorner(xArg, yArg)) {
-		//cout << "Creating visibility graph node at (" << xArg << ", " << yArg << ")." << endl;
 		/*set<Node*>::iterator it = visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).find(&visibilityGridNodes[xArg][yArg]);
 		if (it == visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).end()) {
 		}*/

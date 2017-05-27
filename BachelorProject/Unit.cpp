@@ -170,6 +170,15 @@ void Unit::Act() {
 		x += spd * cos(direction);
 		y += spd * sin(direction);
 	}
+
+	// Die if outside map
+	if (x < 0.0
+		|| y < 0.0
+		|| x >= pMap->getWidth()
+		|| y >= pMap->getHeight()) {
+
+		hp = 0;
+	}
 }
 
 stack<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {

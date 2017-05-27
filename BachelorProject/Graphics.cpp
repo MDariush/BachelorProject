@@ -194,10 +194,10 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 255, 255, 64))
 					};
 
-					if (j == programStepsArg / 100 % mapWidth && k == (programStepsArg / 100 % (mapWidth * mapHeight)) / mapHeight) {
+					//if (j == programStepsArg / 100 % mapWidth && k == (programStepsArg / 100 % (mapWidth * mapHeight)) / mapHeight) {
 						renderTextureGraph.draw(line, 2, sf::Lines);
-						cout << ".";
-					}
+					//	cout << ".";
+					//}
 
 					++it;
 				}
