@@ -42,29 +42,67 @@ void Pathfinder::Init(Vision* pVisionArg) {
 }
 
 void Pathfinder::UpdateGraph(int xArg, int yArg) {
+	int xSection = xArg / visibilitySectionWidth;
+	int ySection = yArg / visibilitySectionHeight;
+	int xMin = xArg - VISIBILITY_SECTION_WIDTH;
+	if (xMin < 0) {
+		xMin = 0;
+	}
+	int yMin = yArg - VISIBILITY_SECTION_HEIGHT;
+	if (yMin < 0) {
+		yMin = 0;
+	}
+	int xMax = xArg + VISIBILITY_SECTION_WIDTH;
+	if (xMax >= mapWidth) {
+		xMax = mapWidth - 1;
+	}
+	int yMax = yArg + VISIBILITY_SECTION_HEIGHT;
+	if (yMax >= mapHeight) {
+		yMax = mapHeight - 1;
+	}
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
-		UpdateVisibilitySection(xArg, yArg);
-		if (xArg != 0
+		for (int i = xMin; i < xMax; i += VISIBILITY_SECTION_WIDTH) {
+			for (int j = yMin; j < yMax; j += VISIBILITY_SECTION_HEIGHT) {
+				if (i / VISIBILITY_SECTION_WIDTH == xSection && j / VISIBILITY_SECTION_HEIGHT == ySection) {
+					ClearVisibilitySectionNodes(xSection, ySection);
+				}
+				ClearVisibilitySectionEdges(xSection, ySection);
+			}
+		}
+		for (int i = xMin; i < xMax; i += VISIBILITY_SECTION_WIDTH) {
+			for (int j = yMin; j < yMax; j += VISIBILITY_SECTION_HEIGHT) {
+				if (i / VISIBILITY_SECTION_WIDTH == xSection && j / VISIBILITY_SECTION_HEIGHT == ySection) {
+					CreateVisibilitySectionNodes(xSection, ySection);
+				}
+				CreateVisibilitySectionEdges(xSection, ySection);
+				CreateVisibilitySectionWallEdges(xSection, ySection);
+			}
+		}
+		/*if (xArg != 0
 			&& yArg != 0
 			&& xArg != mapWidth - 1
 			&& yArg != mapHeight - 1
 			&& xArg % VISIBILITY_SECTION_WIDTH == 0
 			&& yArg % VISIBILITY_SECTION_HEIGHT == 0) {
 
-			UpdateVisibilitySection(xArg - 1, yArg);
-			UpdateVisibilitySection(xArg, yArg - 1);
-			UpdateVisibilitySection(xArg - 1, yArg - 1);
+			UpdateVisibilitySection(xArg - VISIBILITY_SECTION_WIDTH, yArg);
+			UpdateVisibilitySection(xArg, yArg - VISIBILITY_SECTION_HEIGHT);
+			UpdateVisibilitySection(xArg - VISIBILITY_SECTION_WIDTH, yArg - VISIBILITY_SECTION_HEIGHT);
 		}
 		else if (xArg != 0 && xArg != mapWidth - 1 && xArg % VISIBILITY_SECTION_WIDTH == 0) {
-			UpdateVisibilitySection(xArg - 1, yArg);
+			UpdateVisibilitySection(xArg - VISIBILITY_SECTION_WIDTH, yArg);
 		}
 		else if (yArg != 0 && yArg != mapHeight - 1 && yArg % VISIBILITY_SECTION_HEIGHT == 0) {
-			UpdateVisibilitySection(xArg, yArg - 1);
-		}
+			UpdateVisibilitySection(xArg, yArg - VISIBILITY_SECTION_HEIGHT);
+		}*/
 		break;
 	case VISIBILITY_FULL:
-		UpdateVisibilitySection(0, 0);
+		ClearVisibilitySectionNodes(0, 0);
+		ClearVisibilitySectionEdges(0, 0);
+		CreateVisibilitySectionNodes(0, 0);
+		CreateVisibilitySectionEdges(0, 0);
+		CreateVisibilitySectionWallEdges(0, 0);
 		break;
 	default:
 		UpdateGridGraphNode(xArg, yArg);
@@ -238,71 +276,78 @@ void Pathfinder::CreateVisibilityGraph() {
 	}
 }
 
-void Pathfinder::UpdateVisibilitySection(int xArg, int yArg) {
-
-	int xSection = xArg / visibilitySectionWidth;
-	int ySection = yArg / visibilitySectionHeight;
-
-	cout << "Updating visibility graph at (" << xArg << ", " << yArg << "), section (" << xSection << ", " << ySection << ")." << endl;
-
-	/*// Reset neighbor list of all nodes in section
-	visibilitySectionNodes.resize(pMap->getWidth(), vector<std::set<std::pair<int, int>>>(pMap->getHeight()));
-	for (int i = 0; i < mapWidth; i++) {
-		for (int j = 0; j < mapHeight; j++) {
-			visibilitySectionNodes[i][j].clear();
-		}
-	}*/
-
-	// Clear visibility nodes in section
-	//cout << "----------------------- Clearing visibility nodes in section " << xSection << ", " << ySection << endl;
-	visibilitySectionNodes[xSection][ySection].clear();
-	for (int i = xSection * visibilitySectionWidth; i < (xSection + 1) * visibilitySectionWidth; i++) {
-		for (int j = ySection * visibilitySectionHeight; j < (ySection + 1) * visibilitySectionHeight; j++) {
+void Pathfinder::ClearVisibilitySectionNodes(int xSectionArg, int ySectionArg) {
+	visibilitySectionNodes[xSectionArg][ySectionArg].clear();
+	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
+		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
 			if (pMap->IsLegalCell(i, j)) {
 				visibilityNodes[i][j] = false;
+			}
+		}
+	}
+}
 
-				// Remove all edges in section going to nodes in same section
-				/*if (IsWallNode(i, j)) {
+void Pathfinder::ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
+
+	/*int destinationSectionXMin = destinationXSectionArg * visibilitySectionWidth;
+	int destinationSectionXMax = destinationSectionXMin + visibilitySectionWidth - 1;
+	int destinationSectionYMin = destinationYSectionArg * visibilitySectionHeight;
+	int destinationSectionYMax = destinationSectionXMax + visibilitySectionHeight - 1;*/
+
+	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
+		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
+			if (pMap->IsLegalCell(i, j)) {
+				nodes[i][j].neighbors.clear();
+
+				/*// Remove all edges in section going to nodes in destination section
+				if (xSectionArg > destinationXSectionArg
+					|| ySectionArg > destinationYSectionArg
+					|| IsWallNode(i, j)) {
+
 					// @TODO: Optimize: Remove elements from the old list rather than filling up a new list OR use vectors instead
 					forward_list<pair<double, pair<int, int>>> edgesToOtherSections;
 					for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes[i][j].neighbors.begin(); it != nodes[i][j].neighbors.end(); ) {
-						if (it->second.first / visibilitySectionWidth != xSection || it->second.second / visibilitySectionHeight != ySection) {
+						if (it->second.first < destinationSectionXMin
+							|| it->second.first > destinationSectionXMax
+							|| it->second.second < destinationSectionYMin
+							|| it->second.second > destinationSectionYMax) {
+
 							edgesToOtherSections.insert_after(edgesToOtherSections.before_begin(), *it);
 						}
 						++it;
 					}
 					nodes[i][j].neighbors = edgesToOtherSections;
-				}
-				else {*/
-					nodes[i][j].neighbors.clear();
-				//}
+				}*/
 			}
 		}
 	}
+}
 
-	// Create visibility nodes in section
-	for (int i = xSection * visibilitySectionWidth; i < (xSection + 1) * visibilitySectionWidth; i++) {
-		for (int j = ySection * visibilitySectionHeight; j < (ySection + 1) * visibilitySectionHeight; j++) {
+void Pathfinder::CreateVisibilitySectionNodes(int xSectionArg, int ySectionArg) {
+	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
+		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
 			if (pMap->IsLegalCell(i, j)) {
-				CreateVisibilityNode(xSection, ySection, i, j);
+				CreateVisibilityNode(xSectionArg, ySectionArg, i, j);
 			}
 		}
 	}
+}
 
-	// Create visibility edges for cells in section
-	for (int i = xSection * visibilitySectionWidth; i < (xSection + 1) * visibilitySectionWidth; i++) {
-		for (int j = ySection * visibilitySectionHeight; j < (ySection + 1) * visibilitySectionHeight; j++) {
+void Pathfinder::CreateVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
+	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
+		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
 			if (pMap->IsLegalCell(i, j)) {
-				//CreateVisibilityEdges(xSection, ySection, i, j);
+				CreateVisibilityEdges(xSectionArg, ySectionArg, i, j);
 			}
 		}
 	}
+}
 
-	// Create visibility wall edges for cells in section
-	for (int i = xSection * visibilitySectionWidth; i <= (xSection + 1) * visibilitySectionWidth; i++) {
-		for (int j = ySection * visibilitySectionHeight; j <= (ySection + 1) * visibilitySectionHeight; j++) {
+void Pathfinder::CreateVisibilitySectionWallEdges(int xSectionArg, int ySectionArg) {
+	for (int i = xSectionArg * visibilitySectionWidth; i <= (xSectionArg + 1) * visibilitySectionWidth; i++) {
+		for (int j = ySectionArg * visibilitySectionHeight; j <= (ySectionArg + 1) * visibilitySectionHeight; j++) {
 			if (pMap->IsLegalCell(i, j)) {
-				CreateVisibilityWallEdges(xSection, ySection, i, j);
+				CreateVisibilityWallEdges(xSectionArg, ySectionArg, i, j);
 			}
 		}
 	}

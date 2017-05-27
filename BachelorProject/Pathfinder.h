@@ -44,7 +44,14 @@ private:
 	void CreateGridGraph();
 	void UpdateGridGraphNode(int xArg, int yArg);
 	void CreateVisibilityGraph();
-	void UpdateVisibilitySection(int xArg, int yArg);
+	void ClearVisibilitySectionNodes(int xSectionArg, int ySectionArg);
+	void ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg);
+	//void ClearVisibilitySection(int xArg, int yArg, int xSectionArg, int ySectionArg);
+	//void ClearVisibilitySectionGoingTo(int xArg, int yArg, int xSectionArg, int ySectionArg, int destinationXSectionArg, int destinationYSectionArg);
+	void CreateVisibilitySectionNodes(int xSectionArg, int ySectionArg);
+	void CreateVisibilitySectionEdges(int xSectionArg, int ySectionArg);
+	void CreateVisibilitySectionWallEdges(int xSectionArg, int ySectionArg);
+	//void UpdateVisibilitySection(int xArg, int yArg);
 	void CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg);
 	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg);
 	void CreateVisibilityWallEdges(int xSectionArg, int ySectionArg, int xArg, int yArg);
