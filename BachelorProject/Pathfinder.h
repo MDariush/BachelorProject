@@ -47,6 +47,7 @@ private:
 	void UpdateVisibilitySection(int xArg, int yArg);
 	void CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg);
 	void CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg);
+	void CreateVisibilityWallEdges(int xSectionArg, int ySectionArg, int xArg, int yArg);
 	bool IsAtCorner(int xArg, int yArg);
 	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
 	void CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg);

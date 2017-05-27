@@ -44,22 +44,22 @@ void Pathfinder::Init(Vision* pVisionArg) {
 void Pathfinder::UpdateGraph(int xArg, int yArg) {
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
-		visibilitySectionNodes.resize(visibilitySectionWidth, vector<std::set<std::pair<int, int>>>(visibilitySectionHeight));
-		for (int i = 0; i < visibilitySectionWidth; i++) {
-			for (int j = 0; j < visibilitySectionHeight; j++) {
-				visibilitySectionNodes[i][j].clear();
-			}
-		}
 		UpdateVisibilitySection(xArg, yArg);
-		if (xArg != 0 && yArg != 0 && xArg % VISIBILITY_SECTION_WIDTH == 0 && yArg % VISIBILITY_SECTION_HEIGHT == 0) {
+		if (xArg != 0
+			&& yArg != 0
+			&& xArg != mapWidth - 1
+			&& yArg != mapHeight - 1
+			&& xArg % VISIBILITY_SECTION_WIDTH == 0
+			&& yArg % VISIBILITY_SECTION_HEIGHT == 0) {
+
 			UpdateVisibilitySection(xArg - 1, yArg);
 			UpdateVisibilitySection(xArg, yArg - 1);
 			UpdateVisibilitySection(xArg - 1, yArg - 1);
 		}
-		else if (xArg != 0 && xArg % VISIBILITY_SECTION_WIDTH == 0) {
+		else if (xArg != 0 && xArg != mapWidth - 1 && xArg % VISIBILITY_SECTION_WIDTH == 0) {
 			UpdateVisibilitySection(xArg - 1, yArg);
 		}
-		else if (yArg != 0 && yArg % VISIBILITY_SECTION_HEIGHT == 0) {
+		else if (yArg != 0 && yArg != mapHeight - 1 && yArg % VISIBILITY_SECTION_HEIGHT == 0) {
 			UpdateVisibilitySection(xArg, yArg - 1);
 		}
 		break;
@@ -224,6 +224,12 @@ void Pathfinder::CreateVisibilityGraph() {
 
 	nodes.resize(mapWidth, vector<Node>(mapHeight));
 	visibilityNodes.resize(mapWidth, vector<bool>(mapHeight, false));
+	visibilitySectionNodes.resize(visibilitySectionWidth, vector<std::set<std::pair<int, int>>>(visibilitySectionHeight));
+	for (int i = 0; i < visibilitySectionWidth; i++) {
+		for (int j = 0; j < visibilitySectionHeight; j++) {
+			visibilitySectionNodes[i][j].clear();
+		}
+	}
 
 	for (int i = 0; i < visibilityXSections; i++) {
 		for (int j = 0; j < visibilityYSections; j++) {
@@ -248,6 +254,7 @@ void Pathfinder::UpdateVisibilitySection(int xArg, int yArg) {
 	}*/
 
 	// Clear visibility nodes in section
+	//cout << "----------------------- Clearing visibility nodes in section " << xSection << ", " << ySection << endl;
 	visibilitySectionNodes[xSection][ySection].clear();
 	for (int i = xSection * visibilitySectionWidth; i < (xSection + 1) * visibilitySectionWidth; i++) {
 		for (int j = ySection * visibilitySectionHeight; j < (ySection + 1) * visibilitySectionHeight; j++) {
@@ -255,8 +262,8 @@ void Pathfinder::UpdateVisibilitySection(int xArg, int yArg) {
 				visibilityNodes[i][j] = false;
 
 				// Remove all edges in section going to nodes in same section
-				if (IsWallNode(i, j)) {
-					// @TODO: Optimize: Remove elements from the old list rather than filling up a new list
+				/*if (IsWallNode(i, j)) {
+					// @TODO: Optimize: Remove elements from the old list rather than filling up a new list OR use vectors instead
 					forward_list<pair<double, pair<int, int>>> edgesToOtherSections;
 					for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes[i][j].neighbors.begin(); it != nodes[i][j].neighbors.end(); ) {
 						if (it->second.first / visibilitySectionWidth != xSection || it->second.second / visibilitySectionHeight != ySection) {
@@ -266,9 +273,9 @@ void Pathfinder::UpdateVisibilitySection(int xArg, int yArg) {
 					}
 					nodes[i][j].neighbors = edgesToOtherSections;
 				}
-				else {
+				else {*/
 					nodes[i][j].neighbors.clear();
-				}
+				//}
 			}
 		}
 	}
@@ -283,12 +290,19 @@ void Pathfinder::UpdateVisibilitySection(int xArg, int yArg) {
 	}
 
 	// Create visibility edges for cells in section
-	if (GRAPH_TYPE == VISIBILITY_DECOMPOSED) {
-		for (int i = xSection * visibilitySectionWidth; i <= (xSection + 1) * visibilitySectionWidth; i++) {
-			for (int j = ySection * visibilitySectionHeight; j <= (ySection + 1) * visibilitySectionHeight; j++) {
-				if (pMap->IsLegalCell(i, j)) {
-					CreateVisibilityEdges(xSection, ySection, i, j);
-				}
+	for (int i = xSection * visibilitySectionWidth; i < (xSection + 1) * visibilitySectionWidth; i++) {
+		for (int j = ySection * visibilitySectionHeight; j < (ySection + 1) * visibilitySectionHeight; j++) {
+			if (pMap->IsLegalCell(i, j)) {
+				//CreateVisibilityEdges(xSection, ySection, i, j);
+			}
+		}
+	}
+
+	// Create visibility wall edges for cells in section
+	for (int i = xSection * visibilitySectionWidth; i <= (xSection + 1) * visibilitySectionWidth; i++) {
+		for (int j = ySection * visibilitySectionHeight; j <= (ySection + 1) * visibilitySectionHeight; j++) {
+			if (pMap->IsLegalCell(i, j)) {
+				CreateVisibilityWallEdges(xSection, ySection, i, j);
 			}
 		}
 	}
@@ -335,7 +349,7 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 	double edgeWeight;
 
 	// Find reachable visibility nodes in section
-	/*//set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
+	//set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
 	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).begin();
 	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
 		//cout << "Looping through visibility node " << it->first << ", " << it->second << endl;
@@ -348,61 +362,41 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 			nodes[xArg][yArg].neighbors.insert_after(nodes[xArg][yArg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(it->first, it->second)));
 
 			// Add cell to node's neighbor list if cell is in visibility graph
-			if (visibilityNodes[xArg][yArg]) {
-				nodes[it->first][it->second].neighbors.insert_after(nodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
-			}
+			//if (visibilityNodes[xArg][yArg]) {
+			//	nodes[it->first][it->second].neighbors.insert_after(nodes[it->first][it->second].neighbors.before_begin(), make_pair(edgeWeight, make_pair(xArg, yArg)));
+			//}
 
 			//cout << "Edge created between visibility graph nodes (" << xArg << ", " << yArg << ") and (" << it->first << ", " << it->second << ")." << endl;
 		}
 		++it;
-	}*/
-
-	// Find reachable visibility graph section wall nodes and create 2-way edges
-	//int sectionX = xSectionArg * visibilitySectionWidth;
-	//int sectionY = ySectionArg * visibilitySectionHeight;
-	int xMin = xSectionArg * visibilitySectionWidth;
-	int yMin = ySectionArg * visibilitySectionHeight;
-	int xMax = xMin + visibilitySectionWidth;
-	int yMax = yMin + visibilitySectionHeight;
-	if (xMax >= mapWidth) {
-		xMax = mapWidth - 1;
-	}
-	if (yMax >= mapHeight) {
-		yMax = mapHeight - 1;
-	}
-	for (int i = xMin; i <= xMax; i++) {
-		CreateWallEdge(xArg, yArg, i, yMin);
-		CreateWallEdge(xArg, yArg, i, yMax);
-	}
-	for (int i = yMin + 1; i < yMax; i++) {
-		CreateWallEdge(xArg, yArg, xMin, i);
-		CreateWallEdge(xArg, yArg, xMax, i);
 	}
 
-	/*for (int i = 0; i <= visibilitySectionWidth; i++) {
-		CreateWallEdge(xArg, yArg, sectionX + i, sectionY);
-		CreateWallEdge(xArg, yArg, sectionX + i, sectionY + visibilitySectionHeight);
-	}
-	for (int i = 1; i < visibilitySectionHeight; i++) {
-		CreateWallEdge(xArg, yArg, sectionX, sectionY + i);
-		CreateWallEdge(xArg, yArg, sectionX + visibilitySectionWidth, sectionY + i);
-	}*/
+	generation++;
+}
 
-	/*else {
-		visibilitySectionNodes.at(xSectionArg).at(ySectionArg).erase(std::make_pair(xArg, yArg));
-	}*/
+void Pathfinder::CreateVisibilityWallEdges(int xSectionArg, int ySectionArg, int xArg, int yArg) {
 
-		/*if (a == 0 || b == 0) {
-		nodes[i][j].neighbors.push_back(make_pair(1.0, make_pair(i + a, j + b)));
+	// Find reachable visibility graph section wall nodes
+	if (GRAPH_TYPE == VISIBILITY_DECOMPOSED) {
+		int xMin = xSectionArg * visibilitySectionWidth;
+		int yMin = ySectionArg * visibilitySectionHeight;
+		int xMax = xMin + visibilitySectionWidth;
+		int yMax = yMin + visibilitySectionHeight;
+		if (xMax >= mapWidth) {
+			xMax = mapWidth - 1;
 		}
-		else if (pMap->getCellStatus(i + a, j) == pMap->OPEN
-		&& pMap->getCellStatus(i, j + b) == pMap->OPEN) {
-
-		nodes[i][j].neighbors.push_back(make_pair(HYPOTENUSE_SCALAR, make_pair(i + a, j + b)));
-		cout << i + a << ", " << j + b << endl;
+		if (yMax >= mapHeight) {
+			yMax = mapHeight - 1;
 		}
-
-	}*/
+		for (int i = xMin; i <= xMax; i++) {
+			CreateWallEdge(xArg, yArg, i, yMin);
+			CreateWallEdge(xArg, yArg, i, yMax);
+		}
+		for (int i = yMin + 1; i < yMax; i++) {
+			CreateWallEdge(xArg, yArg, xMin, i);
+			CreateWallEdge(xArg, yArg, xMax, i);
+		}
+	}
 
 	generation++;
 }
@@ -418,18 +412,19 @@ void Pathfinder::CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg) {
 
 	if (pMap->IsLegalCell(x0Arg, y0Arg)
 		&& pMap->IsLegalCell(x1Arg, y1Arg)
-		//&& pMap->getCellStatus(x0Arg, y0Arg) == pMap->OPEN
-		//&& pMap->getCellStatus(x1Arg, y1Arg) == pMap->OPEN
+		&& pMap->getCellStatus(x0Arg, y0Arg) == pMap->OPEN
+		&& pMap->getCellStatus(x1Arg, y1Arg) == pMap->OPEN
 		&& (x0Arg != x1Arg || y0Arg != y1Arg)
 		/*&& ((x1Arg != 0 && x1Arg != mapWidth - 1) || (y0Arg != 0 && y0Arg != mapHeight - 1 && y1Arg % sectionHeightArg == 0))
-		&& ((y1Arg != 0 && y1Arg != mapHeight - 1) || (x0Arg != 0 && x0Arg != mapWidth - 1 && x1Arg % sectionWidthArg == 0))
-		&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)*/) {
+		&& ((y1Arg != 0 && y1Arg != mapHeight - 1) || (x0Arg != 0 && x0Arg != mapWidth - 1 && x1Arg % sectionWidthArg == 0))*/
+		&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
 
 		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
+		// @TODO: Avoid corner cell of sections to create dublicate edges
 		nodes[x0Arg][y0Arg].neighbors.insert_after(nodes[x0Arg][y0Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x1Arg, y1Arg)));
-		if (visibilityNodes[x0Arg][y0Arg] || IsWallNode(x0Arg, y0Arg)) {
+		/*if (visibilityNodes[x0Arg][y0Arg] || IsWallNode(x0Arg, y0Arg)) {
 			nodes[x1Arg][y1Arg].neighbors.insert_after(nodes[x1Arg][y1Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x0Arg, y0Arg)));
-		}
+		}*/
 		//cout << "Edge created between cell (" << x0Arg << ", " << y0Arg << ") and section wall (" << x1Arg << ", " << y1Arg << ")." << endl;
 	}
 }
