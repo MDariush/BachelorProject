@@ -24,13 +24,18 @@ public:
 
 	class Map* getMapPtr();
 	std::vector<std::vector<VisionStatus>>* getVisionMapPtr();
+	int * getGenerationPtr();
 	void ResetVisionMap(int widthArg, int heightArg, VisionStatus statusArg);
 
 private:
 	std::vector<std::vector<VisionStatus>> visionMap;
+	std::vector<std::vector<VisionStatus>> visionMapPrevious;
 	std::vector<std::vector<VisionStatus>> visionMapTemp;
 	Mathematics math;
 	class Map* pActualMap;
 	class Map map;
 	class Pathfinder* pPathfinder;
+	int generation;
+	int visibleCells;
+	int visibleCellsPreviousStep;
 };

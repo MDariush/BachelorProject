@@ -35,11 +35,11 @@ void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, cla
 	direction = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_X2));
 	orientation = 0.0;
 	orientationAcc = (PI_X2 / STEPS_PER_SECOND) / 0.5;
-	spdMax = 1.0 / STEPS_PER_SECOND;
+	spdMax = 2.0 / STEPS_PER_SECOND;
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
-	setVisionRng(3.0 + 0.5);
+	setVisionRng(4.0 + 0.5);
 	hpMax = 100;
 	hp = hpMax;
 
@@ -83,9 +83,14 @@ void Unit::ProcessCommands() {
 					commandQueue.pop();
 					cout << "Move command completed" << endl;
 				}
-				else if (IsInSquare(commandQueue.front().path.top().first, commandQueue.front().path.top().second, spd * 2)) {
-					commandQueue.front().path.pop();
+				else {
+					if (IsInSquare(commandQueue.front().path.top().first, commandQueue.front().path.top().second, spd * 2)) {
+						commandQueue.front().path.pop();
+					}
+
+					// Update path if there are spotted changes to the terrain
 					if (pPathfinder->getGeneration() != pathGeneration) {
+						cout << "Updating path" << endl;
 						commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
 						pathGeneration = pPathfinder->getGeneration();
 					}

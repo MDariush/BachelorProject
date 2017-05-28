@@ -22,11 +22,16 @@ void Vision::Init(class Map* pMapArg, class Pathfinder* pPathfinderArg) {
 	pActualMap = pMapArg;
 	map = *pMapArg;
 	pPathfinder = pPathfinderArg;
+
 	map.Clear(Map::OPEN);
+	generation = 1;
+	visibleCells = 0;
+	visibleCellsPreviousStep = 0;
 	ResetVisionMap(pActualMap->getCellStatusArrayPtr()->size(), pActualMap->getCellStatusArrayPtr()->at(0).size(), VisionStatus::UNEXPLORED);
 }
 
 void Vision::FullUpdate(std::vector<class Unit>* pUnitsArg) {
+	visionMapPrevious = visionMap;
 	for (int i = 0; i < pActualMap->getCellStatusArrayPtr()->size(); i++) {
 		for (int j = 0; j < pActualMap->getCellStatusArrayPtr()->at(0).size(); j++) {
 			if (visionMap[i][j] == VisionStatus::VISIBLE)
@@ -36,8 +41,13 @@ void Vision::FullUpdate(std::vector<class Unit>* pUnitsArg) {
 	
 	if (pUnitsArg->size() > 0) {
 		visionMapTemp = visionMap;
+		visibleCellsPreviousStep = visibleCells;
+		visibleCells = 0;
 		for (int u = 0; u < pUnitsArg->size(); u++) {
 			UpdateVisionForUnit(&pUnitsArg->at(u), visionMapTemp);
+		}
+		if (visibleCells != visibleCellsPreviousStep) {
+			generation++;
 		}
 	}
 }
@@ -97,8 +107,14 @@ void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, d
 }
 
 void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
+	if (visionMapPrevious[xArg][yArg] != VisionStatus::VISIBLE) {
+		generation++;
+	}
 	visionMapTempPtrArg->at(xArg).at(yArg) = VisionStatus::VISIBLE;
-	visionMap.at(xArg).at(yArg) = VisionStatus::VISIBLE;
+	if (visionMap.at(xArg).at(yArg) != VisionStatus::VISIBLE) {
+		visionMap.at(xArg).at(yArg) = VisionStatus::VISIBLE;
+		visibleCells++;
+	}
 
 	if (map.getCellStatus(xArg, yArg) != pActualMap->getCellStatus(xArg, yArg)) {
 		map.setCellStatus(pActualMap->getCellStatus(xArg, yArg), xArg, yArg);
@@ -233,4 +249,8 @@ Map* Vision::getMapPtr() {
 
 std::vector<std::vector<Vision::VisionStatus>>* Vision::getVisionMapPtr() {
 	return &visionMap;
+}
+
+int* Vision::getGenerationPtr() {
+	return &generation;
 }

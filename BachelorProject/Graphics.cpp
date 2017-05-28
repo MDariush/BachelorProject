@@ -3,6 +3,7 @@ WindowManager.cpp
 Created by Martin Dariush Hansen, 2017-03-15
 */
 
+#include "Configurations.h"
 #include "Constants.h"
 #include "Graphics.h"
 #include "Map.h"
@@ -24,6 +25,8 @@ void Graphics::Init(Model* pModelArg) {
 	//pMap = pPlayers->at(0).getVisionPtr()->getMapPtr();
 
 	drawnMapGeneration = 0;
+	drawnFogGeneration = 0;
+	drawnGraphGeneration = 0;
 
 	// TODO: Move definitions
 	shapeUnexploredPixel.setSize(sf::Vector2f(1, 1));
@@ -44,7 +47,7 @@ void Graphics::Init(Model* pModelArg) {
 }
 
 void Graphics::RenderGraphics(int programStepsArg) {
-	window.clear(sf::Color(255, 0, 0, 0));
+	window.clear(sf::Color(0, 0, 0, 255));
 
 	// Draw terrain
 	if (pModel->getStatus() == Model::IN_MAP) {
@@ -64,33 +67,50 @@ void Graphics::RenderGraphics(int programStepsArg) {
 		}
 
 		// Draw fog
-		UpdateEntireFogTexture(); // #TODO: Avoid recomputation
-		window.draw(spriteFog);
+		if (FOG_GRAPHICS > 0) {
+			if (*pPlayers->at(0).getVisionPtr()->getGenerationPtr() != drawnFogGeneration) {
+				UpdateEntireFogTexture();
+				drawnFogGeneration = *pPlayers->at(0).getVisionPtr()->getGenerationPtr();
+			}
+			window.draw(spriteFog);
+		}
 
 		// Draw graph
-		//if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
+		if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
 			UpdateEntireGraphTexture(programStepsArg);
-			//drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
-		//}
+			drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
+		}
 		window.draw(spriteGraph);
 
 		// Draw paths
 		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
 			for (int j = 0; j < pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->size(); j++) {
 				stack<std::pair<double, double>> path = pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getCurrentCommand().path;
-				if (path.size() > 1) {
-					for (int k = 0; k < path.size() - 1; k) {
-						int x1 = path.top().first * scaling;
-						int y1 = path.top().second * scaling;
-						path.pop();
-						int x2 = path.top().first * scaling;
-						int y2 = path.top().second * scaling;
-						sf::Vertex line[] = {
-							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 0, 0, 255)),
-							sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 0, 0, 255))
-						};
+				if (path.size() > 0) {
+					sf::Vertex lineDirect[] = {
+						sf::Vertex(sf::Vector2f(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getX() * scaling, pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getY() * scaling), sf::Color(0, 128, 255, 255)),
+						sf::Vertex(sf::Vector2f(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getCurrentCommand().x * scaling, pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getCurrentCommand().y * scaling), sf::Color(0, 128, 255, 255))
+					};
+					window.draw(lineDirect, 2, sf::Lines);
+					sf::Vertex lineToPathStart[] = {
+						sf::Vertex(sf::Vector2f(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getX() * scaling, pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getY() * scaling), sf::Color(0, 128, 0, 255)),
+						sf::Vertex(sf::Vector2f(path.top().first * scaling, path.top().second * scaling), sf::Color(0, 128, 0, 255))
+					};
+					window.draw(lineToPathStart, 2, sf::Lines);
+					if (path.size() > 1) {
+						for (int k = 0; k < path.size() - 1; k) {
+							int x1 = path.top().first * scaling;
+							int y1 = path.top().second * scaling;
+							path.pop();
+							int x2 = path.top().first * scaling;
+							int y2 = path.top().second * scaling;
+							sf::Vertex pathLine[] = {
+								sf::Vertex(sf::Vector2f(x1, y1), sf::Color(0, 128, 0, 255)),
+								sf::Vertex(sf::Vector2f(x2, y2), sf::Color(0, 128, 0, 255))
+							};
 
-						window.draw(line, 2, sf::Lines);
+							window.draw(pathLine, 2, sf::Lines);
+						}
 					}
 				}
 			}
@@ -148,6 +168,8 @@ void Graphics::GenerateGraphTexture() {
 }
 
 void Graphics::UpdateEntireFogTexture() {
+	cout << "Updating fog texture." << endl;
+
 	renderTextureFog.clear(sf::Color(0, 0, 0, 0));
 
 	for (int i = 0; i < mapWidth; i++) {

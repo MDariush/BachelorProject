@@ -39,6 +39,7 @@ void Pathfinder::Init(Vision* pVisionArg) {
 	}
 
 	ResetExploration();
+	generation = 1;
 }
 
 void Pathfinder::UpdateGraph(int xArg, int yArg) {
@@ -81,7 +82,6 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 		ClearVisibilitySectionEdges(0, 0);
 		CreateVisibilitySectionNodes(0, 0);
 		CreateVisibilitySectionEdges(0, 0);
-		CreateVisibilitySectionWallEdges(0, 0);
 		break;
 	default:
 		UpdateGridGraphNode(xArg, yArg);

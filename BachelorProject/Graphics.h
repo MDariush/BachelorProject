@@ -48,6 +48,7 @@ private:
 	int mapWidth;
 	int mapHeight;
 	int drawnMapGeneration;
+	int drawnFogGeneration;
 	int drawnGraphGeneration;
 	std::vector<class Player>* pPlayers;
 	int* pTimeStep;
