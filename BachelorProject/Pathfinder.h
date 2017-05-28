@@ -17,7 +17,7 @@ public:
 	};
 	void Init(class Vision* pVisionArg);
 	void UpdateGraph(int xArg, int yArg);
-	std::stack<std::pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg);
+	std::stack<std::pair<double, double>> GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	std::vector<std::vector<Node>>* getNodesPtr();
 	int getGeneration();
 	void setGeneration(int generationArg);
@@ -40,6 +40,7 @@ private:
 		}
 	};
 
+	std::stack<std::pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	void ResetExploration();
 	void CreateGridGraph();
 	void UpdateGridGraphNode(int xArg, int yArg);

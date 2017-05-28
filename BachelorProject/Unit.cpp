@@ -91,13 +91,13 @@ void Unit::ProcessCommands() {
 					// Update path if there are spotted changes to the terrain
 					if (pPathfinder->getGeneration() != pathGeneration) {
 						cout << "Updating path" << endl;
-						commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
+						commandQueue.front().path = pPathfinder->GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
 						pathGeneration = pPathfinder->getGeneration();
 					}
 				}
 			}
 			else {
-				commandQueue.front().path = GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
+				commandQueue.front().path = pPathfinder->GeneratePath(x, y, commandQueue.front().x, commandQueue.front().y);
 				pathGeneration = pPathfinder->getGeneration();
 				commandIssued = true;
 				moving = true;
@@ -184,10 +184,6 @@ void Unit::Act() {
 
 		hp = 0;
 	}
-}
-
-stack<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {
-	return pPathfinder->AStar(unitXArg, unitYArg, destXArg, destYArg);
 }
 
 bool Unit::IsInSquare(double xArg, double yArg, double diameterArg) {

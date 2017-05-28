@@ -89,10 +89,19 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 	}
 }
 
-std::stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg) {
+stack<pair<double, double>> Pathfinder::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {
+	if (GRAPH_TYPE != GRID && StraightLineIsOpen(unitXArg, unitYArg, destXArg, destYArg)) {
+		stack<pair<double, double>> path;
+		path.push(make_pair(destXArg, destYArg));
+		return path;
+	}
+	return AStar(unitXArg, unitYArg, destXArg, destYArg);
+}
+
+stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg) {
 
 	ResetExploration();
-	std::priority_queue<ExploredNode, std::vector<ExploredNode>, CompareCost> exploredNodesQueue;
+	priority_queue<ExploredNode, vector<ExploredNode>, CompareCost> exploredNodesQueue;
 	stack<pair<double, double>> path;
 	int destCellX = destXArg;
 	int destCellY = destYArg;

@@ -27,7 +27,6 @@ public:
 	void IssueCommand(Unit::CommandType commandTypeArg, double xArg, double yArg);
 	void ProcessCommands();
 	void Act();
-	std::stack<std::pair<double, double>> Unit::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	bool IsInSquare(double xArg, double yArg, double diameterArg);
 	bool IsInRect(double x1Arg, double x2Arg, double y1Arg, double y2Arg);
 	double getX();

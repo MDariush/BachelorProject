@@ -24,7 +24,7 @@ void Model::Step() {
 	switch (status) {
 		case Model::LOADING_MAP:
 			if (!map.getInitialized()) {
-				map.Init("TestMapRandom100x100.png");
+				map.Init("TestMapRandom10x10.png");
 				pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
 				pGraphics->ComputeScaling();
 			}

@@ -67,13 +67,11 @@ void Graphics::RenderGraphics(int programStepsArg) {
 		}
 
 		// Draw fog
-		if (FOG_GRAPHICS > 0) {
-			if (*pPlayers->at(0).getVisionPtr()->getGenerationPtr() != drawnFogGeneration) {
-				UpdateEntireFogTexture();
-				drawnFogGeneration = *pPlayers->at(0).getVisionPtr()->getGenerationPtr();
-			}
-			window.draw(spriteFog);
+		if (*pPlayers->at(0).getVisionPtr()->getGenerationPtr() != drawnFogGeneration) {
+			UpdateEntireFogTexture();
+			drawnFogGeneration = *pPlayers->at(0).getVisionPtr()->getGenerationPtr();
 		}
+		window.draw(spriteFog);
 
 		// Draw graph
 		if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
