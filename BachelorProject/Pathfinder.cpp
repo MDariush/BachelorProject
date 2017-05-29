@@ -456,6 +456,26 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 void Pathfinder::CreateVisibilityWallEdges(int xSectionArg, int ySectionArg, int xArg, int yArg) {
 
 	// Find reachable visibility graph section wall nodes
+	int xMin = xSectionArg * visibilitySectionWidth;
+	int yMin = ySectionArg * visibilitySectionHeight;
+	int xMax = xMin + visibilitySectionWidth;
+	int yMax = yMin + visibilitySectionHeight;
+	if (xMax >= mapWidth) {
+		xMax = mapWidth - 1;
+	}
+	if (yMax >= mapHeight) {
+		yMax = mapHeight - 1;
+	}
+	for (int i = xMin; i <= xMax; i++) {
+		CreateWallEdge(xArg, yArg, i, yMin);
+		CreateWallEdge(xArg, yArg, i, yMax);
+	}
+	for (int i = yMin + 1; i < yMax; i++) {
+		CreateWallEdge(xArg, yArg, xMin, i);
+		CreateWallEdge(xArg, yArg, xMax, i);
+	}
+
+	// Find reachable visibility graph section visibility nodes
 	if (GRAPH_TYPE == VISIBILITY_DECOMPOSED) {
 		int xMin = xSectionArg * visibilitySectionWidth;
 		int yMin = ySectionArg * visibilitySectionHeight;
@@ -499,11 +519,11 @@ void Pathfinder::CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg) {
 		&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
 
 		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
-		// @TODO: Avoid corner cell of sections to create dublicate edges
+		// @TODO: Avoid corner cell of sections to create dublicate edges (out-comment above part of if-condition?)
 		nodes[x0Arg][y0Arg].neighbors.insert_after(nodes[x0Arg][y0Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x1Arg, y1Arg)));
-		/*if (visibilityNodes[x0Arg][y0Arg] || IsWallNode(x0Arg, y0Arg)) {
+		if (visibilityNodes[x0Arg][y0Arg] && ! IsWallNode(x0Arg, y0Arg)) {
 			nodes[x1Arg][y1Arg].neighbors.insert_after(nodes[x1Arg][y1Arg].neighbors.before_begin(), make_pair(edgeWeight, make_pair(x0Arg, y0Arg)));
-		}*/
+		}
 		//cout << "Edge created between cell (" << x0Arg << ", " << y0Arg << ") and section wall (" << x1Arg << ", " << y1Arg << ")." << endl;
 	}
 }

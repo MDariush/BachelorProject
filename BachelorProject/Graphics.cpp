@@ -214,7 +214,7 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 
 					//if (j == programStepsArg / 100 % mapWidth && k == (programStepsArg / 100 % (mapWidth * mapHeight)) / mapHeight) {
 						renderTextureGraph.draw(line, 2, sf::Lines);
-					//	cout << ".";
+						//cout << ".";
 					//}
 
 					++it;
