@@ -65,10 +65,10 @@ void Graphics::RenderGraphics(int programStepsArg) {
 		window.draw(spriteFog);
 
 		// Draw graph
-		if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
+		//if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
 			UpdateEntireGraphTexture(programStepsArg);
 			drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
-		}
+		//}
 		window.draw(spriteGraph);
 
 		// Draw units
@@ -194,30 +194,32 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 	for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
 		for (int j = 0; j < mapWidth; j++) {
 			for (int k = 0; k < mapHeight; k++) {
-				std::vector<std::vector<Pathfinder::Node>>* nodes = pModel->getGamePtr()->getPlayersPtr()->at(i).getPathfinderPtr()->getNodesPtr();
+				if (j == programStepsArg / 10 % mapWidth && k == (programStepsArg / 10 % (mapWidth * mapHeight)) / mapHeight) {
+					
+					std::vector<std::vector<Pathfinder::Node>>* nodes = pModel->getGamePtr()->getPlayersPtr()->at(i).getPathfinderPtr()->getNodesPtr();
 				
-				int x1 = (j + 0.5) * scaling;
-				int y1 = (k + 0.5) * scaling;
+					int x1 = (j + 0.5) * scaling;
+					int y1 = (k + 0.5) * scaling;
 
-				//for (int l = 0; l < nodes->at(j).at(k).neighbors.size(); l++) {
-				for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes->at(j).at(k).neighbors.begin(); it != nodes->at(j).at(k).neighbors.end(); ) {
+					//for (int l = 0; l < nodes->at(j).at(k).neighbors.size(); l++) {
+					for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes->at(j).at(k).neighbors.begin(); it != nodes->at(j).at(k).neighbors.end(); ) {
 
-					//int x2 = (nodes->at(j).at(k).neighbors.at(l).second.first + 0.5) * scaling;
-					//int y2 = (nodes->at(j).at(k).neighbors.at(l).second.second + 0.5) * scaling;
-					int x2 = (it->second.first + 0.5) * scaling;
-					int y2 = (it->second.second + 0.5) * scaling;
+						//int x2 = (nodes->at(j).at(k).neighbors.at(l).second.first + 0.5) * scaling;
+						//int y2 = (nodes->at(j).at(k).neighbors.at(l).second.second + 0.5) * scaling;
+						int x2 = (it->second.first + 0.5) * scaling;
+						int y2 = (it->second.second + 0.5) * scaling;
 
-					sf::Vertex line[] = {
-						sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 255, 255, 64)),
-						sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 255, 255, 64))
-					};
+						sf::Vertex line[] = {
+							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 255, 255, 64)),
+							sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 255, 255, 64))
+						};
 
-					//if (j == programStepsArg / 100 % mapWidth && k == (programStepsArg / 100 % (mapWidth * mapHeight)) / mapHeight) {
 						renderTextureGraph.draw(line, 2, sf::Lines);
-						//cout << ".";
-					//}
 
-					++it;
+						//cout << ".";
+
+						++it;
+					}
 				}
 			}
 		}

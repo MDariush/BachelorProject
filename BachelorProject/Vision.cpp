@@ -3,6 +3,7 @@ Vision.cpp
 Created by Martin Dariush Hansen, 2017-03-22
 */
 
+#include "Configurations.h"
 #include "Constants.h"
 #include "Map.h"
 #include "Pathfinder.h"
@@ -118,13 +119,19 @@ void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<Visi
 
 	if (map.getCellStatus(xArg, yArg) != pActualMap->getCellStatus(xArg, yArg)) {
 		map.setCellStatus(pActualMap->getCellStatus(xArg, yArg), xArg, yArg);
-		for (int a = -1; a <= 1; a++) {
-			for (int b = -1; b <= 1; b++) {
-				if (map.IsLegalCell(xArg + a, yArg + b)) {
-					pPathfinder->UpdateGraph(xArg + a, yArg + b);
+		if (GRAPH_TYPE == GRID) {
+			for (int a = -1; a <= 1; a++) {
+				for (int b = -1; b <= 1; b++) {
+					if (map.IsLegalCell(xArg + a, yArg + b)) {
+						pPathfinder->UpdateGraph(xArg + a, yArg + b);
+					}
 				}
 			}
 		}
+		else {
+			pPathfinder->UpdateGraph(xArg, yArg);
+		}
+		
 	}
 }
 

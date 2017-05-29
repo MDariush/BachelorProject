@@ -43,6 +43,7 @@ void Pathfinder::Init(Vision* pVisionArg) {
 }
 
 void Pathfinder::UpdateGraph(int xArg, int yArg) {
+	cout << "UpdateGraph xArg " << xArg << " yArg " << yArg << endl;
 	int xSection = xArg / visibilitySectionWidth;
 	int ySection = yArg / visibilitySectionHeight;
 	int xSectionMin = xSection - 1;
@@ -90,16 +91,19 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 }
 
 stack<pair<double, double>> Pathfinder::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {
+	cout << "GeneratePath unitXArg " << unitXArg << " unitYArg " << unitYArg << " destXArg " << destXArg << " destYArg " << destYArg << endl;
 	if (GRAPH_TYPE != GRID && StraightLineIsOpen(unitXArg, unitYArg, destXArg, destYArg)) {
 		stack<pair<double, double>> path;
 		path.push(make_pair(destXArg, destYArg));
+		cout << "Straight line path found" << endl;
 		return path;
 	}
 	return AStar(unitXArg, unitYArg, destXArg, destYArg);
 }
 
 stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg) {
-
+	cout << "AStar unitXArg " << unitXArg << " unitYArg " << unitYArg << " destXArg " << destXArg << " destYArg " << destYArg << endl;
+	//cout << "Generating A* path from ";
 	ResetExploration();
 	priority_queue<ExploredNode, vector<ExploredNode>, CompareCost> exploredNodesQueue;
 	stack<pair<double, double>> path;
@@ -117,7 +121,7 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 	exploredNodesQueue.push(startNode);
 	exploredNodesMap[startNode.x][startNode.y] = true;
 
-	cout << "Generating A* path from " << startNode.x << ", " << startNode.y << " to " << destCellX << ", " << destCellY << ". Euclidean distance: " << startNode.totalCost << endl;
+	//cout << startNode.x << ", " << startNode.y << " to " << destCellX << ", " << destCellY << ". Euclidean distance: " << startNode.totalCost << endl;
 
 	// Destination variables for visibility graphs
 	int destCellXSection;
@@ -131,15 +135,10 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 		destCellXSection = destCellX / visibilitySectionWidth;
 		destCellYSection = destCellY / visibilitySectionHeight;
 		destCellSectionXMin = destCellXSection * visibilitySectionWidth;
-		cout << "destCellSectionXMin " << destCellSectionXMin << endl;
 		destCellSectionXMax = destCellSectionXMin + visibilitySectionWidth;
-		cout << "destCellSectionXMax " << destCellSectionXMax << endl;
 		destCellSectionYMin = destCellYSection * visibilitySectionWidth;
-		cout << "destCellSectionYMin " << destCellSectionYMin << endl;
 		destCellSectionYMax = destCellSectionYMin + visibilitySectionHeight;
-		cout << "destCellSectionYMax " << destCellSectionYMax << endl;
 		destIsInVisibilityGraph = IsWallNode(destCellX, destCellY) || IsVisibilityNode(destCellX, destCellY, destCellXSection, destCellYSection);
-		cout << "destIsInVisibilityGraph " << destIsInVisibilityGraph << endl;
 	}
 
 	// While there are still explored nodes
@@ -165,8 +164,6 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 			&& currentY >= destCellSectionYMin
 			&& currentY <= destCellSectionYMax) {
 
-			cout << "AAA" << endl;
-
 			for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes[destCellX][destCellY].neighbors.begin(); it != nodes[destCellX][destCellY].neighbors.end(); ) {
 				if (it->second.first == currentX && it->second.second == currentY) {
 					visitedNodes[destCellX][destCellY].cost = visitedNodes[currentX][currentY].cost + math.CellDistance(currentX, currentY, destCellX, destCellY);
@@ -174,7 +171,6 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 					visitedNodes[destCellX][destCellY].cameFromY = currentY;
 					currentX = destCellX;
 					currentY = destCellY;
-					cout << "BBB" << endl;
 					break;
 				}
 				++it;
@@ -294,6 +290,7 @@ void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
 }
 
 void Pathfinder::CreateVisibilityGraph() {
+	cout << "CreateVisibilityGraph" << endl;
 	//cout << "Creating visibility graph for every section." << endl;
 
 	nodes.resize(mapWidth, vector<Node>(mapHeight));
@@ -313,6 +310,7 @@ void Pathfinder::CreateVisibilityGraph() {
 }
 
 void Pathfinder::ClearVisibilitySectionNodes(int xSectionArg, int ySectionArg) {
+	cout << "ClearVisibilitySectionNodes xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	visibilitySectionNodes[xSectionArg][ySectionArg].clear();
 	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
 		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
@@ -324,6 +322,8 @@ void Pathfinder::ClearVisibilitySectionNodes(int xSectionArg, int ySectionArg) {
 }
 
 void Pathfinder::ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
+	cout << "ClearVisibilitySectionEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+
 	/*int destinationSectionXMin = destinationXSectionArg * visibilitySectionWidth;
 	int destinationSectionXMax = destinationSectionXMin + visibilitySectionWidth - 1;
 	int destinationSectionYMin = destinationYSectionArg * visibilitySectionHeight;
@@ -359,6 +359,7 @@ void Pathfinder::ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
 }
 
 void Pathfinder::CreateVisibilitySectionNodes(int xSectionArg, int ySectionArg) {
+	cout << "CreateVisibilitySectionNodes xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
 		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
 			if (pMap->IsLegalCell(i, j)) {
@@ -369,6 +370,7 @@ void Pathfinder::CreateVisibilitySectionNodes(int xSectionArg, int ySectionArg) 
 }
 
 void Pathfinder::CreateVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
+	cout << "CreateVisibilitySectionEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
 		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
 			if (pMap->IsLegalCell(i, j)) {
@@ -379,6 +381,7 @@ void Pathfinder::CreateVisibilitySectionEdges(int xSectionArg, int ySectionArg) 
 }
 
 void Pathfinder::CreateVisibilitySectionWallEdges(int xSectionArg, int ySectionArg) {
+	cout << "CreateVisibilitySectionWallEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	for (int i = xSectionArg * visibilitySectionWidth; i <= (xSectionArg + 1) * visibilitySectionWidth; i++) {
 		for (int j = ySectionArg * visibilitySectionHeight; j <= (ySectionArg + 1) * visibilitySectionHeight; j++) {
 			if (pMap->IsLegalCell(i, j)) {
@@ -389,6 +392,7 @@ void Pathfinder::CreateVisibilitySectionWallEdges(int xSectionArg, int ySectionA
 }
 
 void Pathfinder::CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg) {
+	//cout << "CreateVisibilityNode xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << " xArg " << xArg << " yArg " << yArg << endl;
 	if (IsAtCorner(xArg, yArg)) {
 		/*set<Node*>::iterator it = visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).find(&visibilityGridNodes[xArg][yArg]);
 		if (it == visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).end()) {
@@ -424,7 +428,7 @@ bool Pathfinder::IsAtCorner(int xArg, int yArg) {
 }
 
 void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xArg, int yArg) {
-
+	//cout << "CreateVisibilityEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << " xArg " << xArg << " yArg " << yArg << endl;
 	double edgeWeight;
 
 	// Find reachable visibility nodes in section
@@ -454,7 +458,7 @@ void Pathfinder::CreateVisibilityEdges(int xSectionArg, int ySectionArg, int xAr
 }
 
 void Pathfinder::CreateVisibilityWallEdges(int xSectionArg, int ySectionArg, int xArg, int yArg) {
-
+	//cout << "CreateVisibilityWallEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << " xArg " << xArg << " yArg " << yArg << endl;
 	// Find reachable visibility graph section wall nodes
 	int xMin = xSectionArg * visibilitySectionWidth;
 	int yMin = ySectionArg * visibilitySectionHeight;
