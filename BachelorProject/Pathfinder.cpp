@@ -119,6 +119,29 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 
 	cout << "Generating A* path from " << startNode.x << ", " << startNode.y << " to " << destCellX << ", " << destCellY << ". Euclidean distance: " << startNode.totalCost << endl;
 
+	// Destination variables for visibility graphs
+	int destCellXSection;
+	int destCellYSection;
+	int destCellSectionXMin;
+	int destCellSectionXMax;
+	int destCellSectionYMin;
+	int destCellSectionYMax;
+	bool destIsInVisibilityGraph;
+	if (GRAPH_TYPE != GRID) {
+		destCellXSection = destCellX / visibilitySectionWidth;
+		destCellYSection = destCellY / visibilitySectionHeight;
+		destCellSectionXMin = destCellXSection * visibilitySectionWidth;
+		cout << "destCellSectionXMin " << destCellSectionXMin << endl;
+		destCellSectionXMax = destCellSectionXMin + visibilitySectionWidth;
+		cout << "destCellSectionXMax " << destCellSectionXMax << endl;
+		destCellSectionYMin = destCellYSection * visibilitySectionWidth;
+		cout << "destCellSectionYMin " << destCellSectionYMin << endl;
+		destCellSectionYMax = destCellSectionYMin + visibilitySectionHeight;
+		cout << "destCellSectionYMax " << destCellSectionYMax << endl;
+		destIsInVisibilityGraph = IsWallNode(destCellX, destCellY) || IsVisibilityNode(destCellX, destCellY, destCellXSection, destCellYSection);
+		cout << "destIsInVisibilityGraph " << destIsInVisibilityGraph << endl;
+	}
+
 	// While there are still explored nodes
 	while (!exploredNodesQueue.empty()) {
 
@@ -131,6 +154,32 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 		exploredNodesQueue.pop();
 		exploredNodesMap[currentX][currentY] = false;
 		//cout << "Visited " << currentX << ", " << currentY << endl;
+		
+		// Check if goal node can reach visited node when using visibility graphs
+		if (GRAPH_TYPE != GRID
+			&& !destIsInVisibilityGraph
+			//&& ((currentX / visibilitySectionWidth == destCellXSection
+			//&& currentY / visibilitySectionHeight == destCellYSection)
+			&& currentX >= destCellSectionXMin
+			&& currentX <= destCellSectionXMax
+			&& currentY >= destCellSectionYMin
+			&& currentY <= destCellSectionYMax) {
+
+			cout << "AAA" << endl;
+
+			for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes[destCellX][destCellY].neighbors.begin(); it != nodes[destCellX][destCellY].neighbors.end(); ) {
+				if (it->second.first == currentX && it->second.second == currentY) {
+					visitedNodes[destCellX][destCellY].cost = visitedNodes[currentX][currentY].cost + math.CellDistance(currentX, currentY, destCellX, destCellY);
+					visitedNodes[destCellX][destCellY].cameFromX = currentX;
+					visitedNodes[destCellX][destCellY].cameFromY = currentY;
+					currentX = destCellX;
+					currentY = destCellY;
+					cout << "BBB" << endl;
+					break;
+				}
+				++it;
+			}
+		}
 
 		// Explore nearby nodes
 		if (currentX != destCellX || currentY != destCellY) {
@@ -459,6 +508,11 @@ void Pathfinder::CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg) {
 	}
 }
 
+bool Pathfinder::IsVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg) {
+	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
+	return it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end();
+}
+
 bool Pathfinder::IsWallNode(int xArg, int yArg) {
 	return xArg == 0
 		|| yArg == 0
@@ -624,12 +678,6 @@ bool Pathfinder::StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg) 
 		}
 	}
 	return true;
-}
-
-// @TODO: Unused?
-bool Pathfinder::VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg) {
-	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
-	return it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end();
 }
 
 void Pathfinder::ResetExploration() {

@@ -57,15 +57,6 @@ void Graphics::RenderGraphics(int programStepsArg) {
 		}
 		window.draw(spriteBackground);
 
-		// Draw units
-		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
-			for (int j = 0; j < pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->size(); j++) {
-				spriteUnit.setPosition(sf::Vector2f(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getX() * scaling, pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getY() * scaling));
-				spriteUnit.setRotation(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getOrientationDeg());
-				window.draw(spriteUnit);
-			}
-		}
-
 		// Draw fog
 		if (*pPlayers->at(0).getVisionPtr()->getGenerationPtr() != drawnFogGeneration) {
 			UpdateEntireFogTexture();
@@ -79,6 +70,15 @@ void Graphics::RenderGraphics(int programStepsArg) {
 			drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
 		}
 		window.draw(spriteGraph);
+
+		// Draw units
+		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
+			for (int j = 0; j < pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->size(); j++) {
+				spriteUnit.setPosition(sf::Vector2f(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getX() * scaling, pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getY() * scaling));
+				spriteUnit.setRotation(pModel->getGamePtr()->getPlayersPtr()->at(i).getUnitsPtr()->at(j).getOrientationDeg());
+				window.draw(spriteUnit);
+			}
+		}
 
 		// Draw paths
 		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
@@ -166,8 +166,6 @@ void Graphics::GenerateGraphTexture() {
 }
 
 void Graphics::UpdateEntireFogTexture() {
-	cout << "Updating fog texture." << endl;
-
 	renderTextureFog.clear(sf::Color(0, 0, 0, 0));
 
 	for (int i = 0; i < mapWidth; i++) {

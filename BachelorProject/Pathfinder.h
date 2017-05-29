@@ -59,8 +59,8 @@ private:
 	bool IsAtCorner(int xArg, int yArg);
 	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
 	void CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
+	bool IsVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg);
 	bool IsWallNode(int xArg, int yArg);
-	bool VisibilityNodeInSection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 
 	std::vector<std::vector<Node>> nodes;
 	std::vector<std::vector<bool>> visibilityNodes;
