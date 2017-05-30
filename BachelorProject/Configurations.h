@@ -28,5 +28,5 @@ const enum PathType {
 	VISIBILITY_FULL
 };
 const PathType GRAPH_TYPE = VISIBILITY_DECOMPOSED;
-const int VISIBILITY_SECTION_WIDTH = 5;
+const int VISIBILITY_SECTION_WIDTH = 5; // Must fit into map dimensions
 const int VISIBILITY_SECTION_HEIGHT = VISIBILITY_SECTION_WIDTH;
