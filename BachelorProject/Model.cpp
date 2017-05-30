@@ -3,6 +3,7 @@ Model.cpp
 Created by Martin Dariush Hansen, 2017-03-14
 */
 
+#include "Configurations.h"
 #include "Game.h"
 #include "Graphics.h"
 #include "Model.h"
@@ -17,14 +18,13 @@ Model::~Model() {
 void Model::Init(Graphics* graphics) {
 	pGraphics = graphics;
 	status = Status::LOADING_MAP;
-	
 }
 
 void Model::Step() {
 	switch (status) {
 		case Model::LOADING_MAP:
 			if (!map.getInitialized()) {
-				map.Init("TestMapRandom40x40.png");
+				map.Init(MAP_NAME);
 				pGraphics->setMapDimensions(map.getWidth(), map.getHeight());
 				pGraphics->ComputeScaling();
 			}

@@ -295,9 +295,15 @@ void Pathfinder::CreateVisibilityGraph() {
 
 	nodes.resize(mapWidth, vector<Node>(mapHeight));
 	visibilityNodes.resize(mapWidth, vector<bool>(mapHeight, false));
-	visibilitySectionNodes.resize(visibilitySectionWidth, vector<std::set<std::pair<int, int>>>(visibilitySectionHeight));
+	/*visibilitySectionNodes.resize(visibilitySectionWidth, vector<std::set<std::pair<int, int>>>(visibilitySectionHeight));
 	for (int i = 0; i < visibilitySectionWidth; i++) {
 		for (int j = 0; j < visibilitySectionHeight; j++) {
+			visibilitySectionNodes[i][j].clear();
+		}
+	}*/
+	visibilitySectionNodes.resize(visibilityXSections, vector<std::set<std::pair<int, int>>>(visibilityYSections));
+	for (int i = 0; i < visibilityXSections; i++) {
+		for (int j = 0; j < visibilityYSections; j++) {
 			visibilitySectionNodes[i][j].clear();
 		}
 	}
