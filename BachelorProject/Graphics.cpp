@@ -194,7 +194,7 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 	for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
 		for (int j = 0; j < mapWidth; j++) {
 			for (int k = 0; k < mapHeight; k++) {
-				if (j == programStepsArg / 10 % mapWidth && k == (programStepsArg / 10 % (mapWidth * mapHeight)) / mapHeight) {
+				if (j == programStepsArg / 20 % mapWidth && k == (programStepsArg / 20 % (mapWidth * mapHeight)) / mapHeight) {
 					
 					std::vector<std::vector<Pathfinder::Node>>* nodes = pModel->getGamePtr()->getPlayersPtr()->at(i).getPathfinderPtr()->getNodesPtr();
 				

@@ -21,7 +21,7 @@ Game::~Game() {
 void Game::Init(class Map* pMap0) {
 	pMap = pMap0;
 	unitsCreated = 0;
-	terrainChangeTimer = 0;
+	terrainChangeTimer = -1;
 	terrainChangeTime = TERRAIN_TIMER_MAX;
 	CreatePlayer();
 	initialized = true;
@@ -48,45 +48,77 @@ void Game::Step() {
 	}
 
 	// Change terrain
-	if (DYNAMIC_TERRAIN && terrainChangeTimer >= terrainChangeTime) {
+	if (DYNAMIC_TERRAIN) {
 		int randomX, randomY;
-		
-		// 50% chance to create obstacle whithout blocking areas
-		if ((float) rand() / RAND_MAX < 0.5) {
-			for (int i = 0; i < DYNAMIC_TERRAIN_CLUSTER_RETRIES; i++) {
-				randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
-				randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
 
+		// Change a random cell when initializing
+		while (terrainChangeTimer == -1) {
+			randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+			randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+
+			if ((float)rand() / RAND_MAX < 0.5) {
 				if (pMap->getCellStatus(randomX, randomY) == Map::OPEN
+					&& pMap->CellTouchingCellOfType(Map::CLOSED, randomX, randomY)
 					&& !pMap->CellBlocking(randomX, randomY)
-					&& !UnitsExistAt(randomX, randomY)) {
+					&& !UnitsExistInRect(randomX - 1, randomY - 1, randomX + 2, randomY + 2)) {
 
 					pMap->setCellStatus(Map::CLOSED, randomX, randomY);
-					break;
+					terrainChangeTimer = 0;
+					previousTerrainChangeCreatedABlock = true;
 				}
 			}
-		}
-
-		// 50% chance to remove obstacle near open space
-		else {
-			for (int i = 0; i < DYNAMIC_TERRAIN_CLUSTER_RETRIES; i++) {
-				randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
-				randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
-
+			else {
 				if (pMap->getCellStatus(randomX, randomY) == Map::CLOSED
 					&& pMap->CellTouchingCellOfType(Map::OPEN, randomX, randomY)) {
 
 					pMap->setCellStatus(Map::OPEN, randomX, randomY);
-					break;
+					terrainChangeTimer = 0;
+					previousTerrainChangeCreatedABlock = false;
 				}
 			}
 		}
 
-		terrainChangeTimer = 0;
-		terrainChangeTime = floor(((TERRAIN_TIMER_MAX - TERRAIN_TIMER_MIN) * rand()) / (RAND_MAX + 1.0)) + TERRAIN_TIMER_MIN;
-	}
-	else {
-		terrainChangeTimer++;
+		// Create obstacle whithout blocking areas
+		if (terrainChangeTimer >= terrainChangeTime) {
+			if (previousTerrainChangeCreatedABlock == false) {
+				for (int i = 0; i < DYNAMIC_TERRAIN_CLUSTER_RETRIES; i++) {
+					randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+					randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+
+					if (pMap->getCellStatus(randomX, randomY) == Map::OPEN
+						&& pMap->CellTouchingCellOfType(Map::CLOSED, randomX, randomY)
+						&& !pMap->CellBlocking(randomX, randomY)
+						&& !UnitsExistInRect(randomX - 1, randomY - 1, randomX + 2, randomY + 2)) {
+
+						pMap->setCellStatus(Map::CLOSED, randomX, randomY);
+						previousTerrainChangeCreatedABlock = true;
+						break;
+					}
+				}
+			}
+
+			// Remove obstacle near open space
+			else {
+				for (int i = 0; i < DYNAMIC_TERRAIN_CLUSTER_RETRIES; i++) {
+					randomX = floor((pMap->getWidth() * rand()) / (RAND_MAX + 1.0));
+					randomY = floor((pMap->getHeight() * rand()) / (RAND_MAX + 1.0));
+
+					if (pMap->getCellStatus(randomX, randomY) == Map::CLOSED
+						&& pMap->CellTouchingCellOfType(Map::OPEN, randomX, randomY)) {
+
+						pMap->setCellStatus(Map::OPEN, randomX, randomY);
+						previousTerrainChangeCreatedABlock = false;
+						break;
+					}
+				}
+			}
+
+			terrainChangeTimer = 0;
+			terrainChangeTime = floor(((TERRAIN_TIMER_MAX - TERRAIN_TIMER_MIN) * rand()) / (RAND_MAX + 1.0)) + TERRAIN_TIMER_MIN;
+		}
+		else {
+			terrainChangeTimer++;
+		}
 	}
 
 	// Update units
@@ -111,9 +143,9 @@ void Game::CreatePlayer() {
 	cout << "Player " << players.size() - 1 << " created.\n";
 }
 
-bool Game::UnitsExistAt(int xArg, int yArg) {
+bool Game::UnitsExistInRect(double x0Arg, double y0Arg, double x1Arg, double y1Arg) {
 	for (int i = 0; i < players.size(); i++) {
-		if (players.at(i).HasUnitsAt(xArg, yArg)) {
+		if (players.at(i).HasUnitsInRect(x0Arg, y0Arg, x1Arg, y1Arg)) {
 			return true;
 		}
 	}

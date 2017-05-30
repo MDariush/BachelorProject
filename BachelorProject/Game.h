@@ -14,7 +14,7 @@ public:
 	void Init(class Map* pMap0);
 	void Step();
 	void CreatePlayer();
-	bool UnitsExistAt(int xArg, int yArg);
+	bool UnitsExistInRect(double x0Arg, double y0Arg, double x1Arg, double y1Arg);
 	bool getInitialized();
 
 	std::vector<class Player>* getPlayersPtr();
@@ -27,5 +27,6 @@ private:
 	int unitsCreated;
 	int terrainChangeTimer;
 	int terrainChangeTime;
+	bool previousTerrainChangeCreatedABlock;
 };
 

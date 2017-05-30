@@ -72,20 +72,51 @@ bool Map::IsLegalCell(int x, int y) {
 }
 
 bool Map::CellBlocking(int xArg, int yArg) {
-	bool openCell = false;
-	bool closedAfterOpenCell = false;
+	/*if (IsLegalCell(xArg, yArg) && cellStatusArray[xArg][yArg] == Map::OPEN) {
+		for (int i = -1; i <= 1; i += 2) {
+			for (int j = -1; j <= 1; j += 2) {
+				if (IsLegalCell(xArg + i, yArg + j)
+					&& cellStatusArray[xArg + i][yArg + j] == Map::OPEN
+					&& cellStatusArray[xArg + i][yArg] == Map::OPEN
+					&& (cellStatusArray[xArg][yArg + j] == Map::OPEN
+						|| (IsLegalCell(xArg + i, yArg - j)
+							&& cellStatusArray[xArg + i][yArg - j] == Map::OPEN))) {
+
+					return true;
+				}
+			}
+		}
+	}
+	return false;*/
+	
+	int openCellsAfterClosedCells = 0;
+	Map::CellStatus cellStatusPrevious;
+
+	int x = xArg + cellSurroundChecking.at(cellSurroundChecking.size() - 1).first;
+	int y = yArg + cellSurroundChecking.at(cellSurroundChecking.size() - 1).second;
+	if (IsLegalCell(x, y)) {
+		cellStatusPrevious = cellStatusArray[x][y];
+	}
+	else {
+		cellStatusPrevious = Map::CLOSED;
+	}
+	Map::CellStatus cellStatus = cellStatusPrevious;
 
 	for (int i = 0; i < cellSurroundChecking.size(); i++) {
-		if (IsLegalCell(cellSurroundChecking.at(i).first, cellSurroundChecking.at(i).second)
-			&& cellStatusArray[cellSurroundChecking.at(i).first][cellSurroundChecking.at(i).second] == Map::OPEN) {
-
-			if (closedAfterOpenCell) {
-				return true;
+		x = xArg + cellSurroundChecking.at(i).first;
+		y = yArg + cellSurroundChecking.at(i).second;
+		cellStatusPrevious = cellStatus;
+		if (IsLegalCell(x, y)) {
+			cellStatus = cellStatusArray[x][y];
+			if (cellStatus == Map::OPEN && cellStatusPrevious == Map::CLOSED) {
+				openCellsAfterClosedCells++;
+				if (openCellsAfterClosedCells > 1) {
+					return true;
+				}
 			}
-			openCell = true;
 		}
-		else if (openCell) {
-			closedAfterOpenCell = true;
+		else {
+			cellStatus = Map::CLOSED;
 		}
 	}
 

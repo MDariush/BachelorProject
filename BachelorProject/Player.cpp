@@ -54,9 +54,12 @@ std::vector<class Unit>* Player::getUnitsPtr() {
 	return &units;
 }
 
-bool Player::HasUnitsAt(int xArg, int yArg) {
+bool Player::HasUnitsInRect(double x0Arg, double y0Arg, double x1Arg, double y1Arg) {
 	for (int i = 0; i < units.size(); i++) {
-		if (int(units.at(i).getX()) == xArg && int(units.at(i).getY()) == yArg) {
+		if (units.at(i).getX() >= x0Arg
+			&& units.at(i).getX() < x1Arg
+			&& units.at(i).getY() >= y0Arg
+			&& units.at(i).getY() < y1Arg) {
 			return true;
 		}
 	}

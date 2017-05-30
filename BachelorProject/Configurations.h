@@ -15,9 +15,9 @@ const int MAX_UNITS_ON_MAP = 1;
 const int UNIT_DESTINATIONS = 1000;
 
 // Terrain
-const bool DYNAMIC_TERRAIN = false;
-const int TERRAIN_TIMER_MIN = 10;
-const int TERRAIN_TIMER_MAX = 40;
+const bool DYNAMIC_TERRAIN = true;
+const int TERRAIN_TIMER_MIN = 5;
+const int TERRAIN_TIMER_MAX = 15;
 const int DYNAMIC_TERRAIN_CLUSTER_RETRIES = 4;
 
 // Path planning
@@ -26,6 +26,6 @@ const enum PathType {
 	VISIBILITY_DECOMPOSED,
 	VISIBILITY_FULL
 };
-const PathType GRAPH_TYPE = VISIBILITY_DECOMPOSED;
+const PathType GRAPH_TYPE = GRID;
 const int VISIBILITY_SECTION_WIDTH = 10;
 const int VISIBILITY_SECTION_HEIGHT = VISIBILITY_SECTION_WIDTH;
