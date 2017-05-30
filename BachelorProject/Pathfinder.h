@@ -60,6 +60,7 @@ private:
 	void CreateVisibilitySectionEdges(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg);
 	//void CreateVisibilitySectionEdges(int xSectionArg, int ySectionArg);
 	void CreateVisibilitySectionWallEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg);
+	void CreateEdgesFromOuterSectionsToInnerWall(int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg, int neighborXMinArg, int neighborYMinArg, int neighborXMaxArg, int neighborYMaxArg);
 	//void CreateVisibilitySectionWallEdgesGoingTo(int xSection0Arg, int ySection0Arg, int xSection1Arg, int ySection1Arg);
 	//void UpdateVisibilitySection(int xArg, int yArg);
 	void CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg);
@@ -69,7 +70,7 @@ private:
 	//void CreateVisibilityWallEdgesGoingTo(int xArg, int yArg, int xSectionDestinationArg, int ySectionDestinationArg);
 	bool IsAtCorner(int xArg, int yArg);
 	bool StraightLineIsOpen(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
-	void CreateWallEdge(int cellXArg, int cellYArg, int wallXArg, int wallYArg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg);
+	void CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg);
 	bool IsVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg);
 	bool IsWallNode(int xArg, int yArg);
 
