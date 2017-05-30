@@ -202,12 +202,12 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 					int y1 = (k + 0.5) * scaling;
 
 					//for (int l = 0; l < nodes->at(j).at(k).neighbors.size(); l++) {
-					for (forward_list<pair<double, pair<int, int>>>::iterator it = nodes->at(j).at(k).neighbors.begin(); it != nodes->at(j).at(k).neighbors.end(); ) {
+					for (set<pair<pair<int, int>, double>>::iterator it = nodes->at(j).at(k).neighbors.begin(); it != nodes->at(j).at(k).neighbors.end(); ) {
 
 						//int x2 = (nodes->at(j).at(k).neighbors.at(l).second.first + 0.5) * scaling;
 						//int y2 = (nodes->at(j).at(k).neighbors.at(l).second.second + 0.5) * scaling;
-						int x2 = (it->second.first + 0.5) * scaling;
-						int y2 = (it->second.second + 0.5) * scaling;
+						int x2 = (it->first.first + 0.5) * scaling;
+						int y2 = (it->first.second + 0.5) * scaling;
 
 						sf::Vertex line[] = {
 							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 255, 255, 64)),
