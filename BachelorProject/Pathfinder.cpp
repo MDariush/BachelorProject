@@ -78,6 +78,7 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 		ClearVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
 		ClearSectionEdges(neighborXMin, neighborYMin, xWallMax, yWallMax, xWallMin, yWallMin, xMax, yMax);
 		CreateVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
+		CreateVisibilitySectionInternalEdges(xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
 
 		/*ClearVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
 		ClearOutboundEdgesInRect(xMin, yMin, xMax, yMax);
@@ -503,25 +504,37 @@ void Pathfinder::CreateVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, i
 	}
 }
 
-void Pathfinder::CreateVisibilitySectionEdges(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg) {
-	cout << "CreateVisibilitySectionEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
-	for (int x = x0Arg; x <= x1Arg; x++) {
-		for (int y = y0Arg; y <= y1Arg; y++) {
-			CreateVisibilityEdges(x, y, x0Arg, y0Arg, x1Arg, y1Arg, xSectionArg, ySectionArg);
+void Pathfinder::CreateVisibilitySectionInternalEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xSectionArg, int ySectionArg) {
+	cout << "CreateVisibilitySectionInternalEdges" << endl;
+	for (int x = xMinArg; x <= xMaxArg; x++) {
+		for (int y = yMinArg; y <= yMaxArg; y++) {
+			bool isVisibilityOrWallNode = IsVisibilityNode(x, y, xSectionArg, ySectionArg)
+				|| x == xMinArg || y == yMinArg || x == xMaxArg || y == yMaxArg;
+			CreateVisibilityEdges(x, y, xSectionArg, ySectionArg, isVisibilityOrWallNode);
+			CreateVisibilityWallEdges(x, y, xMinArg, yMinArg, xMaxArg, yMaxArg, isVisibilityOrWallNode);
 		}
 	}
 }
 
-void Pathfinder::CreateVisibilitySectionWallEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg) {
+/*void Pathfinder::CreateVisibilitySectionEdges(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg) {
+	cout << "CreateVisibilitySectionEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+	for (int x = x0Arg; x <= x1Arg; x++) {
+		for (int y = y0Arg; y <= y1Arg; y++) {
+			CreateVisibilityEdges(x, y, xSectionArg, ySectionArg);
+		}
+	}
+}*/
+
+/*void Pathfinder::CreateVisibilitySectionWallEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg) {
 	cout << "CreateVisibilitySectionWallEdges" << endl;
 	for (int x = xMinArg; x <= xMaxArg; x++) {
 		for (int y = yMinArg; y <= yMaxArg; y++) {
 			CreateVisibilityWallEdges(x, y, xWallMinArg, yWallMinArg, xWallMaxArg, yWallMaxArg);
 		}
 	}
-}
+}*/
 
-void Pathfinder::CreateEdgesFromOuterSectionsToInnerWall(int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg, int neighborXMinArg, int neighborYMinArg, int neighborXMaxArg, int neighborYMaxArg) {
+/*void Pathfinder::CreateEdgesFromOuterSectionsToInnerWall(int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg, int neighborXMinArg, int neighborYMinArg, int neighborXMaxArg, int neighborYMaxArg) {
 	
 	// From upper wall in main section
 	for (int x0 = xWallMinArg; x0 <= xWallMaxArg; x0++) {
@@ -561,7 +574,7 @@ void Pathfinder::CreateEdgesFromOuterSectionsToInnerWall(int xWallMinArg, int yW
 
 	// From upper left wall cell in main section
 	CreateVisibilityWallEdges(xWallMinArg, yWallMinArg, xWallMinArg, yWallMinArg, xWallMinArg, yWallMinArg);
-}
+}*/
 
 /*void Pathfinder::CreateVisibilitySectionWallEdgesGoingTo(int xSection0Arg, int ySection0Arg, int xSection1Arg, int ySection1Arg) {
 	cout << "CreateVisibilitySectionWallEdgesGoingTo xSection0Arg " << xSection0Arg << " ySection0Arg " << ySection0Arg << " xSection1Arg " << xSection1Arg << " ySection1Arg " << ySection1Arg << endl;
@@ -607,30 +620,24 @@ bool Pathfinder::IsAtCorner(int xArg, int yArg) {
 	return false;
 }
 
-void Pathfinder::CreateVisibilityEdges(int xArg, int yArg, int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg) {
+void Pathfinder::CreateVisibilityEdges(int xArg, int yArg, int xSectionArg, int ySectionArg, bool bidirectedEdgeArg) {
 	//cout << "CreateVisibilityEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << " xArg " << xArg << " yArg " << yArg << endl;
 	double edgeWeight;
 
 	// Find reachable visibility nodes in section
-	//set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).find(std::make_pair(xArg, yArg));
 	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).begin();
 	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
-		//cout << "Looping through visibility node " << it->first << ", " << it->second << endl;
 		edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
 
 		if (it->first != xArg || it->second != yArg
 			&& nodes[xArg][yArg].neighbors.find(make_pair(make_pair(it->first, it->second), edgeWeight)) == nodes[xArg][yArg].neighbors.end()
 			&& StraightLineIsOpen(xArg, yArg, it->first, it->second)) {
 			
-			// Add nodes to cell
+			// Create (bidirected) edge
 			nodes[xArg][yArg].neighbors.insert(make_pair(make_pair(it->first, it->second), edgeWeight));
-
-			// Add cell to node's neighbor list if cell is in visibility graph
-			if (visibilityNodes[xArg][yArg]) {
+			if (bidirectedEdgeArg) {
 				nodes[it->first][it->second].neighbors.insert(make_pair(make_pair(xArg, yArg), edgeWeight));
 			}
-
-			//cout << "Edge created between visibility graph nodes (" << xArg << ", " << yArg << ") and (" << it->first << ", " << it->second << ")." << endl;
 		}
 		++it;
 	}
@@ -638,16 +645,16 @@ void Pathfinder::CreateVisibilityEdges(int xArg, int yArg, int x0Arg, int y0Arg,
 	generation++;
 }
 
-void Pathfinder::CreateVisibilityWallEdges(int xArg, int yArg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg) {
+void Pathfinder::CreateVisibilityWallEdges(int xArg, int yArg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg, bool bidirectedEdgeArg) {
 	//cout << "CreateVisibilityWallEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << " xArg " << xArg << " yArg " << yArg << endl;
 
 	for (int x = xWallMinArg; x <= xWallMaxArg; x++) {
-		CreateWallEdge(xArg, yArg, x, yWallMinArg, xWallMinArg, yWallMinArg, xWallMaxArg, yWallMaxArg);
-		CreateWallEdge(xArg, yArg, x, yWallMaxArg, xWallMinArg, yWallMinArg, xWallMaxArg, yWallMaxArg);
+		CreateWallEdge(xArg, yArg, x, yWallMinArg, bidirectedEdgeArg);
+		CreateWallEdge(xArg, yArg, x, yWallMaxArg, bidirectedEdgeArg);
 	}
 	for (int y = xWallMinArg + 1; y < xWallMaxArg; y++) {
-		CreateWallEdge(xArg, yArg, xWallMinArg, y, xWallMinArg, yWallMinArg, xWallMaxArg, yWallMaxArg);
-		CreateWallEdge(xArg, yArg, xWallMaxArg, y, xWallMinArg, yWallMinArg, xWallMaxArg, yWallMaxArg);
+		CreateWallEdge(xArg, yArg, xWallMinArg, y, bidirectedEdgeArg);
+		CreateWallEdge(xArg, yArg, xWallMaxArg, y, bidirectedEdgeArg);
 	}
 
 	generation++;
@@ -747,7 +754,7 @@ void Pathfinder::CreateVisibilityWallEdges(int xArg, int yArg, int xWallMinArg, 
 	generation++;
 }*/
 
-void Pathfinder::CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg) {
+void Pathfinder::CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, bool bidirectedEdgeArg) {
 
 	if (pMap->getCellStatus(x0Arg, y0Arg) == pMap->OPEN
 		&& pMap->getCellStatus(x1Arg, y1Arg) == pMap->OPEN
@@ -755,53 +762,15 @@ void Pathfinder::CreateWallEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int 
 		
 		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
 
-		// Create bidirected edge if cell is not wall node
-		if (x0Arg != xWallMinArg
-			&& x0Arg != xWallMaxArg
-			&& y0Arg != yWallMinArg
-			&& y0Arg != yWallMaxArg
+		if (nodes[x0Arg][y0Arg].neighbors.find(make_pair(make_pair(x1Arg, y0Arg), edgeWeight)) == nodes[x0Arg][y0Arg].neighbors.end()
 			&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
 
 			nodes[x0Arg][y0Arg].neighbors.insert(make_pair(make_pair(x1Arg, y1Arg), edgeWeight));
-			nodes[x1Arg][y1Arg].neighbors.insert(make_pair(make_pair(x0Arg, y0Arg), edgeWeight));
-		}
-
-		// Create bidirected edge if cell is wall node and there is no prior connection
-		else {
-			set<pair<int, int>>::iterator it = visibilitySectionNodes.at(x0Arg).at(y0Arg).begin();
-			if (nodes[x0Arg][y0Arg].neighbors.find(make_pair(make_pair(x1Arg, y1Arg), edgeWeight)) == nodes[x0Arg][y0Arg].neighbors.end()
-				&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
-
-				nodes[x0Arg][y0Arg].neighbors.insert(make_pair(make_pair(x1Arg, y1Arg), edgeWeight));
+			if (bidirectedEdgeArg) {
 				nodes[x1Arg][y1Arg].neighbors.insert(make_pair(make_pair(x0Arg, y0Arg), edgeWeight));
 			}
 		}
 	}
-
-	/*if (x1Arg == mapWidth && y1Arg != 0 && y1Arg != mapHeight) {
-		x1Arg -= 1;
-	}
-	if (y1Arg == mapHeight && x1Arg != 0 && x1Arg != mapWidth) {
-		y1Arg -= 1;
-	}*/
-
-	/*if (pMap->IsLegalCell(x0Arg, y0Arg)
-		&& pMap->IsLegalCell(x1Arg, y1Arg)
-		&& pMap->getCellStatus(x0Arg, y0Arg) == pMap->OPEN
-		&& pMap->getCellStatus(x1Arg, y1Arg) == pMap->OPEN
-		&& (x0Arg != x1Arg || y0Arg != y1Arg)
-		//&& ((x1Arg != 0 && x1Arg != mapWidth - 1) || (y0Arg != 0 && y0Arg != mapHeight - 1 && y1Arg % sectionHeightArg == 0))
-		//&& ((y1Arg != 0 && y1Arg != mapHeight - 1) || (x0Arg != 0 && x0Arg != mapWidth - 1 && x1Arg % sectionWidthArg == 0))
-		&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
-
-		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
-		// @TODO: Avoid corner cell of sections to create dublicate edges (out-comment above part of if-condition?)
-		nodes[x0Arg][y0Arg].neighbors.insert(make_pair(make_pair(x1Arg, y1Arg), edgeWeight));
-		if (visibilityNodes[x0Arg][y0Arg] && ! IsWallNode(x0Arg, y0Arg)) {
-			nodes[x1Arg][y1Arg].neighbors.insert(make_pair(make_pair(x0Arg, y0Arg), edgeWeight));
-		}
-		//cout << "Edge created between cell (" << x0Arg << ", " << y0Arg << ") and section wall (" << x1Arg << ", " << y1Arg << ")." << endl;
-	}*/
 }
 
 bool Pathfinder::IsVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg) {
