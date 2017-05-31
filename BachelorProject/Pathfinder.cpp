@@ -72,53 +72,20 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 	if (neighborYMax >= mapHeight) {
 		neighborYMax = mapHeight;
 	}
-	/*int xSectionMin = xSection - 1;
-	if (xSectionMin < 0) {
-		xSectionMin = 0;
-	}
-	int ySectionMin = ySection - 1;
-	if (ySectionMin < 0) {
-		ySectionMin = 0;
-	}
-	int xSectionMax = xSection + 1;
-	if (xSectionMax >= visibilityXSections) {
-		xSectionMax = visibilityXSections - 1;
-	}
-	int ySectionMax = ySection + 1;
-	if (ySectionMax >= visibilityYSections) {
-		ySectionMax = visibilityYSections - 1;
-	}*/
 	
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
 		ClearVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
+		ClearSectionEdges(neighborXMin, neighborYMin, xWallMax, yWallMax, xWallMin, yWallMin, xMax, yMax);
+		CreateVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
+
+		/*ClearVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
 		ClearOutboundEdgesInRect(xMin, yMin, xMax, yMax);
 		ClearInnerWallEdges(xWallMin, yWallMin, xWallMax, yWallMax);
-		/*for (int i = xSectionMin; i <= xSectionMax; i++) {
-			for (int j = ySectionMin; j <= ySectionMax; j++) {
-				if (i == xSection && j == ySection) {
-					ClearVisibilitySectionEdges(i, j);
-				}
-				else {
-					ClearVisibilitySectionEdgesGoingTo(i, j, xSection, ySection);
-				}
-			}
-		}*/
 		CreateVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
 		CreateVisibilitySectionEdges(xMin, yMin, xMax, yMax, xSection, ySection);
 		CreateVisibilitySectionWallEdges(xMin, yMin, xMax, yMax, xWallMin, yWallMin, xWallMax, yWallMax);
-		CreateEdgesFromOuterSectionsToInnerWall(xWallMin, yWallMin, xWallMax, yWallMax, neighborXMin, neighborYMin, neighborXMax, neighborYMax);
-		/*for (int i = xSectionMin; i <= xSectionMax; i++) {
-			for (int j = ySectionMin; j <= ySectionMax; j++) {
-				CreateVisibilitySectionEdges(i, j);
-				if (i == xSection && j == ySection) {
-					CreateVisibilitySectionWallEdges(i, j);
-				}
-				else {
-					CreateVisibilitySectionWallEdgesGoingTo(i, j, xSection, ySection);
-				}
-			}
-		}*/
+		CreateEdgesFromOuterSectionsToInnerWall(xWallMin, yWallMin, xWallMax, yWallMax, neighborXMin, neighborYMin, neighborXMax, neighborYMax);*/
 		break;
 	case VISIBILITY_FULL:
 		ClearVisibilitySectionNodes(0, 0, mapWidth - 1, mapHeight - 1, 0, 0);
@@ -365,10 +332,29 @@ void Pathfinder::CreateVisibilityGraph() {
 void Pathfinder::ClearVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg) {
 	cout << "ClearVisibilitySectionNodes x0Arg " << x0Arg << " y0Arg " << y0Arg << " x1Arg " << x1Arg << " y1Arg " << y1Arg << endl;
 	visibilitySectionNodes[xSectionArg][ySectionArg].clear();
-	for (int i = x0Arg; i <= x1Arg; i++) {
-		for (int j = y0Arg; j <= y1Arg; j++) {
-			if (pMap->IsLegalCell(i, j)) {
-				visibilityNodes[i][j] = false;
+	for (int x = x0Arg; x <= x1Arg; x++) {
+		for (int y = y0Arg; y <= y1Arg; y++) {
+			visibilityNodes[x][y] = false;
+		}
+	}
+}
+
+void Pathfinder::ClearSectionEdges(int neighborXMinArg, int neighborYMinArg, int neighborXMaxArg, int neighborYMaxArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg) {
+	
+	// Clear all edges for cells in main section (including upper/left walls)
+	for (int x = neighborXMinArg; x <= neighborXMaxArg; x++) {
+		for (int y = neighborYMinArg; y <= neighborYMaxArg; y++) {
+			if (x >= xMinArg
+				&& y >= yMinArg
+				&& x <= xMaxArg
+				&& y <= yMaxArg) {
+
+				nodes[x][y].neighbors.clear();
+			}
+
+			// Clear all edges going into main section (including upper/left walls)
+			else {
+				RemoveEdgesGoingToRect(x, y, xMinArg, yMinArg, xMaxArg, yMaxArg);
 			}
 		}
 	}
@@ -512,7 +498,7 @@ void Pathfinder::CreateVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, i
 	cout << "CreateVisibilitySectionNodes xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	for (int x = x0Arg; x <= x1Arg; x++) {
 		for (int y = y0Arg; y <= y1Arg; y++) {
-			CreateVisibilityNode(xSectionArg, ySectionArg, x, y);
+			CreateVisibilityNode(x, y, xSectionArg, ySectionArg);
 		}
 	}
 }
@@ -588,12 +574,9 @@ void Pathfinder::CreateEdgesFromOuterSectionsToInnerWall(int xWallMinArg, int yW
 	}
 }*/
 
-void Pathfinder::CreateVisibilityNode(int xSectionArg, int ySectionArg, int xArg, int yArg) {
+void Pathfinder::CreateVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg) {
 	//cout << "CreateVisibilityNode xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << " xArg " << xArg << " yArg " << yArg << endl;
 	if (IsAtCorner(xArg, yArg)) {
-		/*set<Node*>::iterator it = visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).find(&visibilityGridNodes[xArg][yArg]);
-		if (it == visibilityNodesPtr.at(visibilitySectionX).at(visibilitySectionY).end()) {
-		}*/
 		visibilitySectionNodes.at(xSectionArg).at(ySectionArg).insert(std::make_pair(xArg, yArg));
 		visibilityNodes[xArg][yArg] = true;
 	}
