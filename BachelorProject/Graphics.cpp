@@ -210,8 +210,8 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 						int y2 = (it->first.second + 0.5) * scaling;
 
 						sf::Vertex line[] = {
-							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 0, 0, 255)),
-							sf::Vertex(sf::Vector2f(x2, y2), sf::Color(0, 0, 255, 255))
+							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 255, 255, 64)),
+							sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 255, 255, 32))
 						};
 
 						renderTextureGraph.draw(line, 2, sf::Lines);

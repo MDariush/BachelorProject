@@ -372,12 +372,11 @@ void Pathfinder::ClearEdgesIntersectingSection(int sectionX0Arg, int sectionY0Ar
 
 	// Remove edges from upper wall of lower section to left wall of right section and vice versa
 	RemoveEdgesFromRectToRect(sectionX0Arg, boundaryY1Arg, boundaryX1Arg, boundaryY1Arg, neighborXMinArg, sectionY0Arg, boundaryX1Arg, sectionY1Arg);
-
-	// Remove edges from 
 	RemoveEdgesFromRectToRect(boundaryX1Arg, sectionY0Arg, boundaryX1Arg, boundaryY1Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY1Arg);
 
-	// 
-
+	// Remove edges from lower to right wall of upper/left section and vice versa
+	RemoveEdgesFromRectToRect(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY0Arg, sectionX0Arg, neighborYMinArg, sectionX0Arg, boundaryY0Arg);
+	RemoveEdgesFromRectToRect(sectionX0Arg, neighborYMinArg, sectionX0Arg, boundaryY0Arg, neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY0Arg);
 }
 
 void Pathfinder::ClearOutboundEdgesInRect(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg) {
