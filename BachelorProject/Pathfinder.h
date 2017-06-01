@@ -54,7 +54,6 @@ private:
 	void RemoveNeighborsOutsideRect(int neighborXArg, int neighborYArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
 	void RemoveEdgesGoingToRect(int xArg, int yArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
 	void ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg);
-	void ClearVisibilitySectionEdgesGoingTo(int xSection0Arg, int ySection0Arg, int xSection1Arg, int ySection1Arg);
 	//void ClearVisibilitySection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 	//void ClearVisibilitySectionGoingTo(int xArg, int yArg, int xSectionArg, int ySectionArg, int destinationXSectionArg, int destinationYSectionArg);
 	void CreateVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg);
