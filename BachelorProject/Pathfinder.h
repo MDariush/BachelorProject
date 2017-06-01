@@ -12,8 +12,13 @@ Created by Martin Dariush Hansen, 2017-04-13
 class Pathfinder
 {
 public:
+	struct CompareCoordinates {
+		constexpr bool operator()(std::pair<std::pair<int, int>, double> const & a, std::pair<std::pair<int, int>, double> const & b) const noexcept {
+			return a.first.first < b.first.first || (!(b.first.first < a.first.first) && a.first.second < b.first.second);
+		}
+	};
 	struct Node {
-		std::set<std::pair<std::pair<int, int>, double>> neighbors;
+		std::set<std::pair<std::pair<int, int>, double>, CompareCoordinates> neighbors;
 		//std::forward_list<std::pair<double, std::pair<int, int>>> neighbors;
 	};
 	void Init(class Vision* pVisionArg);
@@ -48,11 +53,14 @@ private:
 	void CreateVisibilityGraph();
 	void ClearVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg);
 	void ClearSectionEdges(int neighborXMinArg, int neighborYMinArg, int neighborXMaxArg, int neighborYMaxArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
+	void ClearEdgesIntersectingSection(int sectionX0Arg, int sectionY0Arg, int sectionX1Arg, int sectionY1Arg, int boundaryX0Arg, int boundaryY0Arg, int boundaryX1Arg, int boundaryY1Arg, int neighborXMinArg, int neighborYMinArg);
 	void ClearOutboundEdgesInRect(int x0Arg, int y0Arg, int x1Arg, int y1Arg);
 	void ClearInnerWallEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
 	void ClearEdgesFromOuterWall(int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg);
 	void RemoveNeighborsOutsideRect(int neighborXArg, int neighborYArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
 	void RemoveEdgesGoingToRect(int xArg, int yArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
+	void RemoveEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int rectX1Arg, int rectY1Arg, int xPointArg, int yPointArg);
+	void RemoveEdgesFromRectToRect(int rect0X0Arg, int rect0Y0Arg, int rect0X1Arg, int rect0Y1Arg, int rect1X0Arg, int rect1Y0Arg, int rect1X1Arg, int rect1Y1Arg);
 	void ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg);
 	//void ClearVisibilitySection(int xArg, int yArg, int xSectionArg, int ySectionArg);
 	//void ClearVisibilitySectionGoingTo(int xArg, int yArg, int xSectionArg, int ySectionArg, int destinationXSectionArg, int destinationYSectionArg);

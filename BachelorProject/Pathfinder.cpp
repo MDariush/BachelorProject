@@ -18,6 +18,7 @@ void Pathfinder::Init(Vision* pVisionArg) {
 	pMap = pVisionArg->getMapPtr();
 	mapWidth = pMap->getWidth();
 	mapHeight = pMap->getHeight();
+	generation = 0;
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
 		visibilitySectionWidth = VISIBILITY_SECTION_WIDTH;
@@ -37,9 +38,8 @@ void Pathfinder::Init(Vision* pVisionArg) {
 		CreateGridGraph();
 		break;
 	}
-
-	ResetExploration();
 	generation = 1;
+	ResetExploration();
 }
 
 void Pathfinder::UpdateGraph(int xArg, int yArg) {
@@ -75,11 +75,20 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 	
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
-		ClearVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
-		ClearSectionEdges(neighborXMin, neighborYMin, xWallMax, yWallMax, xWallMin, yWallMin, xMax, yMax);
-		CreateVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
-		CreateVisibilitySectionInternalEdges(xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
-		CreateVisibilitySectionExternalEdges(neighborXMin, neighborYMin, xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
+		if (generation == 0) {
+			ClearVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
+			ClearSectionEdges(neighborXMin, neighborYMin, xWallMax, yWallMax, xWallMin, yWallMin, xMax, yMax);
+			ClearEdgesIntersectingSection(xWallMin, yWallMin, xMax, yMax, xWallMin - 1, yWallMin - 1, xWallMax, yWallMax, neighborXMin, neighborYMin);
+			CreateVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
+			CreateVisibilitySectionInternalEdges(xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
+			CreateVisibilitySectionExternalEdges(neighborXMin, neighborYMin, xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
+			generation = 0;
+		}
+		else {
+			ClearVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
+			ClearSectionEdges(neighborXMin, neighborYMin, xWallMax, yWallMax, xWallMin, yWallMin, xMax, yMax);
+			ClearEdgesIntersectingSection(xWallMin, yWallMin, xMax, yMax, xWallMin - 1, yWallMin - 1, xWallMax, yWallMax, neighborXMin, neighborYMin);
+		}
 		break;
 	case VISIBILITY_FULL:
 		ClearVisibilitySectionNodes(0, 0, mapWidth - 1, mapHeight - 1, 0, 0);
@@ -350,6 +359,25 @@ void Pathfinder::ClearSectionEdges(int neighborXMinArg, int neighborYMinArg, int
 	}
 }
 
+void Pathfinder::ClearEdgesIntersectingSection(int sectionX0Arg, int sectionY0Arg, int sectionX1Arg, int sectionY1Arg, int boundaryX0Arg, int boundaryY0Arg, int boundaryX1Arg, int boundaryY1Arg, int neighborXMinArg, int neighborYMinArg) {
+	cout << "ClearEdgesIntersectingSection sectionX0Arg " << sectionX0Arg << " sectionY0Arg " << sectionY0Arg << " sectionX1Arg " << sectionX1Arg << " sectionY1Arg " << sectionY1Arg << " boundaryX0Arg " << boundaryX0Arg << " boundaryY0Arg " << boundaryY0Arg << " boundaryX1Arg " << boundaryX1Arg << " boundaryY1Arg " << boundaryY1Arg << " neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << endl;
+
+	// Remove edges from/to left section to left upper corner of lower section
+	RemoveEdgesFromRectToPoint(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg, sectionX0Arg, boundaryY1Arg);
+	RemoveEdgesGoingToRect(sectionX0Arg, boundaryY1Arg, neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg);
+
+	// Remove edges from/to upper section to left upper corner of right section
+	RemoveEdgesFromRectToPoint(sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY0Arg, boundaryX1Arg, sectionY0Arg);
+	RemoveEdgesGoingToRect(boundaryX1Arg, sectionY0Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY0Arg);
+
+	// Remove edges from/to upper wall of lower section to left wall of right section
+	//RemoveEdgesFromRectToRect();
+	// Remove edges from 
+
+	// 
+
+}
+
 void Pathfinder::ClearOutboundEdgesInRect(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg) {
 	cout << "ClearOutboundEdgesInRect xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << endl;
 	for (int x = yMinArg; x <= xMaxArg; x++) {
@@ -411,6 +439,25 @@ void Pathfinder::RemoveEdgesGoingToRect(int xArg, int yArg, int xMinArg, int yMi
 			else {
 				++it;
 			}
+		}
+	}
+}
+
+void Pathfinder::RemoveEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int rectX1Arg, int rectY1Arg, int xPointArg, int yPointArg) {
+	cout << "RemoveEdgesFromRectToPoint rectX0Arg " << rectX0Arg << " rectY0Arg " << rectY0Arg << " rectX1Arg " << rectX1Arg << " rectY1Arg " << rectY1Arg << " xPointArg " << xPointArg << " yPointArg " << yPointArg << endl;
+	for (int x = rectX0Arg; x <= rectX1Arg; x++) {
+		for (int y = rectY0Arg; y <= rectY1Arg; y++) {
+			cout << "Erase edge from " << x << ", " << y << " to " << xPointArg << ", " << yPointArg << " with distance " << math.CellDistance(x, y, xPointArg, yPointArg) << endl;
+			//nodes[x][y].neighbors.erase(make_pair(make_pair(x, y), math.CellDistance(x, y, xPointArg, yPointArg)));
+			nodes[x][y].neighbors.erase(make_pair(make_pair(xPointArg, yPointArg), 0));
+		}
+	}
+}
+
+void Pathfinder::RemoveEdgesFromRectToRect(int rect0X0Arg, int rect0Y0Arg, int rect0X1Arg, int rect0Y1Arg, int rect1X0Arg, int rect1Y0Arg, int rect1X1Arg, int rect1Y1Arg) {
+	for (int x = rect0X0Arg; x <= rect0X1Arg; x++) {
+		for (int y = rect0Y0Arg; y <= rect0Y1Arg; y++) {
+			RemoveEdgesGoingToRect(x, y, rect1X0Arg, rect1Y0Arg, rect1X1Arg, rect1Y1Arg);
 		}
 	}
 }
