@@ -362,17 +362,19 @@ void Pathfinder::ClearSectionEdges(int neighborXMinArg, int neighborYMinArg, int
 void Pathfinder::ClearEdgesIntersectingSection(int sectionX0Arg, int sectionY0Arg, int sectionX1Arg, int sectionY1Arg, int boundaryX0Arg, int boundaryY0Arg, int boundaryX1Arg, int boundaryY1Arg, int neighborXMinArg, int neighborYMinArg) {
 	cout << "ClearEdgesIntersectingSection sectionX0Arg " << sectionX0Arg << " sectionY0Arg " << sectionY0Arg << " sectionX1Arg " << sectionX1Arg << " sectionY1Arg " << sectionY1Arg << " boundaryX0Arg " << boundaryX0Arg << " boundaryY0Arg " << boundaryY0Arg << " boundaryX1Arg " << boundaryX1Arg << " boundaryY1Arg " << boundaryY1Arg << " neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << endl;
 
-	// Remove edges from/to left section to left upper corner of lower section
+	// Remove edges from left section to left upper corner of lower section and vice versa
 	RemoveEdgesFromRectToPoint(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg, sectionX0Arg, boundaryY1Arg);
-	RemoveEdgesGoingToRect(sectionX0Arg, boundaryY1Arg, neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg);
+	//RemoveEdgesGoingToRect(sectionX0Arg, boundaryY1Arg, neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg);
 
-	// Remove edges from/to upper section to left upper corner of right section
+	// Remove edges from upper section to left upper corner of right section and vice versa
 	RemoveEdgesFromRectToPoint(sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY0Arg, boundaryX1Arg, sectionY0Arg);
-	RemoveEdgesGoingToRect(boundaryX1Arg, sectionY0Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY0Arg);
+	//RemoveEdgesGoingToRect(boundaryX1Arg, sectionY0Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY0Arg);
 
-	// Remove edges from/to upper wall of lower section to left wall of right section
-	//RemoveEdgesFromRectToRect();
+	// Remove edges from upper wall of lower section to left wall of right section and vice versa
+	RemoveEdgesFromRectToRect(sectionX0Arg, boundaryY1Arg, boundaryX1Arg, boundaryY1Arg, neighborXMinArg, sectionY0Arg, boundaryX1Arg, sectionY1Arg);
+
 	// Remove edges from 
+	RemoveEdgesFromRectToRect(boundaryX1Arg, sectionY0Arg, boundaryX1Arg, boundaryY1Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY1Arg);
 
 	// 
 
