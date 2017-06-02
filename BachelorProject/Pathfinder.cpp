@@ -82,6 +82,7 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 			CreateVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
 			CreateVisibilitySectionInternalEdges(xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
 			CreateVisibilitySectionExternalEdges(neighborXMin, neighborYMin, xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
+			CreateEdgesIntersectingSection(xWallMin, yWallMin, xMax, yMax, xWallMin - 1, yWallMin - 1, xWallMax, yWallMax, neighborXMin, neighborYMin, xSection, ySection);
 			generation = 0;
 		}
 		else {
@@ -90,7 +91,8 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 			ClearEdgesIntersectingSection(xWallMin, yWallMin, xMax, yMax, xWallMin - 1, yWallMin - 1, xWallMax, yWallMax, neighborXMin, neighborYMin);
 			CreateVisibilitySectionNodes(xMin, yMin, xMax, yMax, xSection, ySection);
 			CreateVisibilitySectionInternalEdges(xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
-			//CreateVisibilitySectionExternalEdges(neighborXMin, neighborYMin, xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
+			CreateVisibilitySectionExternalEdges(neighborXMin, neighborYMin, xWallMin, yWallMin, xWallMax, yWallMax, xSection, ySection);
+			CreateEdgesIntersectingSection(xWallMin, yWallMin, xMax, yMax, xWallMin - 1, yWallMin - 1, xWallMax, yWallMax, neighborXMin, neighborYMin, xSection, ySection);
 		}
 		break;
 	case VISIBILITY_FULL:
@@ -374,8 +376,8 @@ void Pathfinder::ClearEdgesIntersectingSection(int sectionX0Arg, int sectionY0Ar
 	//RemoveEdgesGoingToRect(boundaryX1Arg, sectionY0Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY0Arg);
 
 	// Remove edges from upper wall of lower section to left wall of right section and vice versa
-	RemoveEdgesFromRectToRect(sectionX0Arg, boundaryY1Arg, boundaryX1Arg, boundaryY1Arg, neighborXMinArg, sectionY0Arg, boundaryX1Arg, sectionY1Arg);
-	RemoveEdgesFromRectToRect(boundaryX1Arg, sectionY0Arg, boundaryX1Arg, boundaryY1Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY1Arg);
+	RemoveEdgesFromRectToRect(sectionX0Arg, boundaryY1Arg, sectionX1Arg, boundaryY1Arg, neighborXMinArg, sectionY0Arg, boundaryX1Arg, sectionY1Arg);
+	RemoveEdgesFromRectToRect(boundaryX1Arg, sectionY0Arg, boundaryX1Arg, sectionY1Arg, sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY1Arg);
 
 	// Remove edges from lower to right wall of upper/left section and vice versa
 	RemoveEdgesFromRectToRect(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY0Arg, sectionX0Arg, neighborYMinArg, sectionX0Arg, boundaryY0Arg);
@@ -451,7 +453,7 @@ void Pathfinder::RemoveEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int re
 	cout << "RemoveEdgesFromRectToPoint rectX0Arg " << rectX0Arg << " rectY0Arg " << rectY0Arg << " rectX1Arg " << rectX1Arg << " rectY1Arg " << rectY1Arg << " xPointArg " << xPointArg << " yPointArg " << yPointArg << endl;
 	for (int x = rectX0Arg; x <= rectX1Arg; x++) {
 		for (int y = rectY0Arg; y <= rectY1Arg; y++) {
-			cout << "Erase edge from " << x << ", " << y << " to " << xPointArg << ", " << yPointArg << " with distance " << math.CellDistance(x, y, xPointArg, yPointArg) << endl;
+			//cout << "Erase edge from " << x << ", " << y << " to " << xPointArg << ", " << yPointArg << " with distance " << math.CellDistance(x, y, xPointArg, yPointArg) << endl;
 			//nodes[x][y].neighbors.erase(make_pair(make_pair(x, y), math.CellDistance(x, y, xPointArg, yPointArg)));
 			nodes[x][y].neighbors.erase(make_pair(make_pair(xPointArg, yPointArg), 0));
 		}
@@ -495,7 +497,7 @@ void Pathfinder::CreateVisibilitySectionInternalEdges(int xMinArg, int yMinArg, 
 				bool isVisibilityOrWallNode = IsVisibilityNode(x, y, xSectionArg, ySectionArg)
 					|| x == xMinArg || y == yMinArg || x == xMaxArg || y == yMaxArg;
 				CreateVisibilityEdges(x, y, xSectionArg, ySectionArg, isVisibilityOrWallNode);
-				//CreateVisibilityWallEdges(x, y, xMinArg, yMinArg, xMaxArg, yMaxArg, isVisibilityOrWallNode);
+				CreateVisibilityWallEdges(x, y, xMinArg, yMinArg, xMaxArg, yMaxArg, isVisibilityOrWallNode);
 			}
 		}
 	}
@@ -543,6 +545,22 @@ void Pathfinder::CreateVisibilitySectionExternalEdges(int neighborXMinArg, int n
 	}
 }
 
+void Pathfinder::CreateEdgesIntersectingSection(int sectionX0Arg, int sectionY0Arg, int sectionX1Arg, int sectionY1Arg, int boundaryX0Arg, int boundaryY0Arg, int boundaryX1Arg, int boundaryY1Arg, int neighborXMinArg, int neighborYMinArg, int xSectionArg, int ySectionArg) {
+	cout << "CreateEdgesIntersectingSection sectionX0Arg " << sectionX0Arg << " sectionY0Arg " << sectionY0Arg << " sectionX1Arg " << sectionX1Arg << " sectionY1Arg " << sectionY1Arg << " boundaryX0Arg " << boundaryX0Arg << " boundaryY0Arg " << boundaryY0Arg << " boundaryX1Arg " << boundaryX1Arg << " boundaryY1Arg " << boundaryY1Arg << " neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+
+	// Create edges from left section to left upper corner of lower section and vice versa
+	CreateEdgesFromRectToPoint(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg, sectionX0Arg, boundaryY1Arg, xSectionArg - 1, ySectionArg);
+
+	// Create edges from upper section to left upper corner of right section and vice versa
+	CreateEdgesFromRectToPoint(sectionX0Arg, neighborYMinArg, sectionX1Arg, boundaryY0Arg, boundaryX1Arg, sectionY0Arg, xSectionArg, ySectionArg - 1);
+
+	// Create edges from upper wall of lower section to left wall of right section and vice versa
+	CreateEdgesFromWallToWall(sectionX0Arg, boundaryY1Arg, sectionX1Arg, boundaryY1Arg, boundaryX1Arg, sectionY0Arg, boundaryX1Arg, sectionY1Arg);
+
+	// Create edges from lower to right wall of upper/left section and vice versa
+	CreateEdgesFromWallToWall(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY0Arg, sectionX0Arg, neighborYMinArg, sectionX0Arg, boundaryY0Arg);
+}
+
 void Pathfinder::CreateVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg) {
 	//cout << "CreateVisibilityNode xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << " xArg " << xArg << " yArg " << yArg << endl;
 	if (IsAtCorner(xArg, yArg)) {
@@ -583,13 +601,13 @@ void Pathfinder::CreateVisibilityEdges(int xArg, int yArg, int xSectionArg, int 
 	// Find reachable visibility nodes in section
 	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).begin();
 	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
+		edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
 
 		if ((it->first != xArg || it->second != yArg)
-			&& nodes[xArg][yArg].neighbors.find(make_pair(make_pair(it->first, it->second), 0)) == nodes[xArg][yArg].neighbors.end()
+			&& nodes[xArg][yArg].neighbors.find(make_pair(make_pair(it->first, it->second), edgeWeight)) == nodes[xArg][yArg].neighbors.end()
 			&& StraightLineIsOpen(xArg, yArg, it->first, it->second)) {
 			
 			// Create (bidirected) edge
-			edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
 			nodes[xArg][yArg].neighbors.insert(make_pair(make_pair(it->first, it->second), edgeWeight));
 			if (bidirectedEdgeArg) {
 				nodes[it->first][it->second].neighbors.insert(make_pair(make_pair(xArg, yArg), edgeWeight));
@@ -616,6 +634,30 @@ void Pathfinder::CreateVisibilityWallEdges(int xArg, int yArg, int xWallMinArg, 
 	generation++;
 }
 
+void Pathfinder::CreateEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int rectX1Arg, int rectY1Arg, int xPointArg, int yPointArg, int xSectionArg, int ySectionArg) {
+	for (int x = rectX0Arg; x <= rectX1Arg; x++) {
+		for (int y = rectY0Arg; y <= rectY1Arg; y++) {
+			bool isVisibilityOrWallNode = IsVisibilityNode(x, y, xSectionArg, ySectionArg)
+				|| x == rectX0Arg || y == rectY0Arg; // @TODO: Generalize this to be any wall and not just this fixed wall
+			CreateEdge(x, y, xPointArg, yPointArg, isVisibilityOrWallNode);
+		}
+	}
+	generation++;
+}
+
+void Pathfinder::CreateEdgesFromWallToWall(int rect0X0Arg, int rect0Y0Arg, int rect0X1Arg, int rect0Y1Arg, int rect1X0Arg, int rect1Y0Arg, int rect1X1Arg, int rect1Y1Arg) {
+	for (int x0 = rect0X0Arg; x0 <= rect0X1Arg; x0++) {
+		for (int y0 = rect0Y0Arg; y0 <= rect0Y1Arg; y0++) {
+			for (int x1 = rect1X0Arg; x1 <= rect1X1Arg; x1++) {
+				for (int y1 = rect1Y0Arg; y1 <= rect1Y1Arg; y1++) {
+					CreateEdge(x0, y0, x1, y1, true);
+				}
+			}
+		}
+	}
+	generation++;
+}
+
 void Pathfinder::CreateEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, bool bidirectedEdgeArg) {
 	if (pMap->IsLegalCell(x0Arg, y0Arg) && pMap->IsLegalCell(x1Arg, y1Arg)
 		&& (x0Arg != x1Arg || y0Arg != y1Arg)
@@ -624,10 +666,11 @@ void Pathfinder::CreateEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, bool bid
 
 		//cout << "CreateEdge x0Arg " << x0Arg << " y0Arg " << y0Arg << " x1Arg " << x1Arg << " y1Arg " << y1Arg << " bidirectedEdgeArg " << bidirectedEdgeArg << endl;
 
-		if (nodes[x0Arg][y0Arg].neighbors.find(make_pair(make_pair(x1Arg, y1Arg), 0)) == nodes[x0Arg][y0Arg].neighbors.end()
+		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
+
+		if (nodes[x0Arg][y0Arg].neighbors.find(make_pair(make_pair(x1Arg, y1Arg), edgeWeight)) == nodes[x0Arg][y0Arg].neighbors.end()
 			&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {
 
-			int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
 			nodes[x0Arg][y0Arg].neighbors.insert(make_pair(make_pair(x1Arg, y1Arg), edgeWeight));
 			if (bidirectedEdgeArg) {
 				nodes[x1Arg][y1Arg].neighbors.insert(make_pair(make_pair(x0Arg, y0Arg), edgeWeight));

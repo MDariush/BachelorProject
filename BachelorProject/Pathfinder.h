@@ -59,6 +59,8 @@ private:
 	void ClearEdgesFromOuterWall(int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg);
 	void RemoveNeighborsOutsideRect(int neighborXArg, int neighborYArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
 	void RemoveEdgesGoingToRect(int xArg, int yArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg);
+	void CreateEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int rectX1Arg, int rectY1Arg, int xPointArg, int yPointArg, int xSectionArg, int ySectionArg);
+	void CreateEdgesFromWallToWall(int rect0X0Arg, int rect0Y0Arg, int rect0X1Arg, int rect0Y1Arg, int rect1X0Arg, int rect1Y0Arg, int rect1X1Arg, int rect1Y1Arg);
 	void RemoveEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int rectX1Arg, int rectY1Arg, int xPointArg, int yPointArg);
 	void RemoveEdgesFromRectToRect(int rect0X0Arg, int rect0Y0Arg, int rect0X1Arg, int rect0Y1Arg, int rect1X0Arg, int rect1Y0Arg, int rect1X1Arg, int rect1Y1Arg);
 	void ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg);
@@ -67,6 +69,7 @@ private:
 	void CreateVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg);
 	void CreateVisibilitySectionInternalEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xSectionArg, int ySectionArg);
 	void CreateVisibilitySectionExternalEdges(int neighborXMinArg, int neighborYMinArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xSectionArg, int ySectionArg);
+	void CreateEdgesIntersectingSection(int sectionX0Arg, int sectionY0Arg, int sectionX1Arg, int sectionY1Arg, int boundaryX0Arg, int boundaryY0Arg, int boundaryX1Arg, int boundaryY1Arg, int neighborXMinArg, int neighborYMinArg, int xSectionArg, int ySectionArg);
 	//void CreateVisibilitySectionEdges(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg);
 	//void CreateVisibilitySectionEdges(int xSectionArg, int ySectionArg);
 	//void CreateVisibilitySectionWallEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg);

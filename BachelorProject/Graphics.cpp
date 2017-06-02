@@ -65,10 +65,10 @@ void Graphics::RenderGraphics(int programStepsArg) {
 		window.draw(spriteFog);
 
 		// Draw graph
-		//if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
+		if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
 			UpdateEntireGraphTexture(programStepsArg);
 			drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
-		//}
+		}
 		window.draw(spriteGraph);
 
 		// Draw units
@@ -190,11 +190,10 @@ void Graphics::UpdateEntireFogTexture() {
 
 void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 	renderTextureGraph.clear(sf::Color(255, 255, 255, 0));
-
 	for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {
 		for (int j = 0; j < mapWidth; j++) {
 			for (int k = 0; k < mapHeight; k++) {
-				if (!(j == programStepsArg / 5 % mapWidth && k == (programStepsArg / 5 % (mapWidth * mapHeight)) / mapHeight)) {
+				//if (!(j == programStepsArg / 2 % mapWidth && k == (programStepsArg / 2 % (mapWidth * mapHeight)) / mapHeight)) {
 					
 					std::vector<std::vector<Pathfinder::Node>>* nodes = pModel->getGamePtr()->getPlayersPtr()->at(i).getPathfinderPtr()->getNodesPtr();
 				
@@ -210,17 +209,15 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 						int y2 = (it->first.second + 0.5) * scaling;
 
 						sf::Vertex line[] = {
-							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 255, 255, 64)),
-							sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 255, 255, 32))
+							sf::Vertex(sf::Vector2f(x1, y1), sf::Color(255, 255, 255, 32)),
+							sf::Vertex(sf::Vector2f(x2, y2), sf::Color(255, 255, 255, 16))
 						};
 
 						renderTextureGraph.draw(line, 2, sf::Lines);
 
-						//cout << ".";
-
 						++it;
 					}
-				}
+				/*}
 				else {
 
 					std::vector<std::vector<Pathfinder::Node>>* nodes = pModel->getGamePtr()->getPlayersPtr()->at(i).getPathfinderPtr()->getNodesPtr();
@@ -243,11 +240,9 @@ void Graphics::UpdateEntireGraphTexture(int programStepsArg) {
 
 						renderTextureGraph.draw(line, 2, sf::Lines);
 
-						//cout << ".";
-
 						++it;
 					}
-				}
+				}*/
 			}
 		}
 	}
