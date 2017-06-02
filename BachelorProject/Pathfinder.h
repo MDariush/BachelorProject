@@ -87,6 +87,7 @@ private:
 	void CreateEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, bool bidirectedEdgeArg);
 	bool IsVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg);
 	bool IsWallNode(int xArg, int yArg);
+	void UpdateAveragePathLength(double pathLengthArg);
 
 	std::vector<std::vector<Node>> nodes;
 	std::vector<std::vector<bool>> visibilityNodes;
@@ -103,4 +104,6 @@ private:
 	int visibilityYSections;
 	int visibilitySectionWidth;
 	int visibilitySectionHeight;
+	int pathsCreated;
+	double totalPathLength;
 };

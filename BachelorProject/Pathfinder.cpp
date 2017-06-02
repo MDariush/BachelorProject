@@ -19,6 +19,9 @@ void Pathfinder::Init(Vision* pVisionArg) {
 	mapWidth = pMap->getWidth();
 	mapHeight = pMap->getHeight();
 	generation = 0;
+	pathsCreated = 0;
+	totalPathLength = 0.0;
+
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
 		visibilitySectionWidth = VISIBILITY_SECTION_WIDTH;
@@ -42,7 +45,7 @@ void Pathfinder::Init(Vision* pVisionArg) {
 }
 
 void Pathfinder::UpdateGraph(int xArg, int yArg) {
-	cout << "UpdateGraph xArg " << xArg << " yArg " << yArg << endl;
+	//cout << "UpdateGraph xArg " << xArg << " yArg " << yArg << endl;
 
 	// Define section and neighbor coordinates
 	int xSection = xArg / visibilitySectionWidth;
@@ -100,6 +103,9 @@ stack<pair<double, double>> Pathfinder::GeneratePath(double unitXArg, double uni
 		stack<pair<double, double>> path;
 		path.push(make_pair(destXArg, destYArg));
 		cout << "Straight line path found" << endl;
+		if (PERFORMANCE_TESTS) {
+			UpdateAveragePathLength(math.CellDistance(unitXArg, unitYArg, destXArg, destYArg));
+		}
 		return path;
 	}
 	return AStar(unitXArg, unitYArg, destXArg, destYArg);
@@ -107,12 +113,12 @@ stack<pair<double, double>> Pathfinder::GeneratePath(double unitXArg, double uni
 
 stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg) {
 	cout << "AStar unitXArg " << unitXArg << " unitYArg " << unitYArg << " destXArg " << destXArg << " destYArg " << destYArg << endl;
-	//cout << "Generating A* path from ";
 	ResetExploration();
 	priority_queue<ExploredNode, vector<ExploredNode>, CompareCost> exploredNodesQueue;
 	stack<pair<double, double>> path;
 	int destCellX = destXArg;
 	int destCellY = destYArg;
+	double pathLength = 0;
 
 	// Add start node to explored nodes
 	ExploredNode startNode;
@@ -124,8 +130,6 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 	startNode.totalCost = math.CellDistance(startNode.x, startNode.y, destCellX, destCellY);
 	exploredNodesQueue.push(startNode);
 	exploredNodesMap[startNode.x][startNode.y] = true;
-
-	//cout << startNode.x << ", " << startNode.y << " to " << destCellX << ", " << destCellY << ". Euclidean distance: " << startNode.totalCost << endl;
 
 	// Destination variables for visibility graphs
 	int destCellXSection;
@@ -222,6 +226,9 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 
 			while (backtrackCellX != unitCellX || backtrackCellY != unitCellY) {
 				//cout << backtrackCellX << ", " << backtrackCellY << " came from ";
+				if (PERFORMANCE_TESTS) {
+					pathLength += math.CellDistance(backtrackCellX, backtrackCellY, visitedNodes[backtrackCellX][backtrackCellY].cameFromX, visitedNodes[backtrackCellX][backtrackCellY].cameFromY);
+				}
 				backtrackCellXPrev = backtrackCellX;
 				backtrackCellX = visitedNodes[backtrackCellX][backtrackCellY].cameFromX;
 				backtrackCellY = visitedNodes[backtrackCellXPrev][backtrackCellY].cameFromY;
@@ -233,11 +240,22 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 			if (path.size() > 1) {
 				path.pop();
 			}
+			if (PERFORMANCE_TESTS) {
+				UpdateAveragePathLength(pathLength);
+			}
 			return path;
 		}
 	}
-
+	if (PERFORMANCE_TESTS) {
+		UpdateAveragePathLength(pathLength);
+	}
 	return path;
+}
+
+void Pathfinder::UpdateAveragePathLength(double pathLengthArg) {
+	pathsCreated++;
+	totalPathLength += pathLengthArg;
+	cout << "Path created with length: " << pathLengthArg << ". Paths created: " << pathsCreated << ". Average length: " << totalPathLength / pathsCreated << endl;
 }
 
 std::vector<std::vector<Pathfinder::Node>>* Pathfinder::getNodesPtr() {
@@ -294,7 +312,7 @@ void Pathfinder::UpdateGridGraphNode(int xArg, int yArg) {
 }
 
 void Pathfinder::CreateVisibilityGraph() {
-	cout << "CreateVisibilityGraph" << endl;
+	//cout << "CreateVisibilityGraph" << endl;
 	//cout << "Creating visibility graph for every section." << endl;
 
 	nodes.resize(mapWidth, vector<Node>(mapHeight));
@@ -320,7 +338,7 @@ void Pathfinder::CreateVisibilityGraph() {
 }
 
 void Pathfinder::ClearVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg) {
-	cout << "ClearVisibilitySectionNodes x0Arg " << x0Arg << " y0Arg " << y0Arg << " x1Arg " << x1Arg << " y1Arg " << y1Arg << endl;
+	//cout << "ClearVisibilitySectionNodes x0Arg " << x0Arg << " y0Arg " << y0Arg << " x1Arg " << x1Arg << " y1Arg " << y1Arg << endl;
 	visibilitySectionNodes[xSectionArg][ySectionArg].clear();
 	for (int x = x0Arg; x <= x1Arg; x++) {
 		for (int y = y0Arg; y <= y1Arg; y++) {
@@ -330,7 +348,7 @@ void Pathfinder::ClearVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, in
 }
 
 void Pathfinder::ClearSectionEdges(int neighborXMinArg, int neighborYMinArg, int neighborXMaxArg, int neighborYMaxArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg) {
-	cout << "ClearSectionEdges neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << " neighborXMaxArg " << neighborXMaxArg << " neighborYMaxArg " << neighborYMaxArg << " xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << endl;
+	//cout << "ClearSectionEdges neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << " neighborXMaxArg " << neighborXMaxArg << " neighborYMaxArg " << neighborYMaxArg << " xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << endl;
 
 	// Clear all edges for cells in main section (including upper/left walls)
 	for (int x = neighborXMinArg; x <= neighborXMaxArg; x++) {
@@ -352,7 +370,7 @@ void Pathfinder::ClearSectionEdges(int neighborXMinArg, int neighborYMinArg, int
 }
 
 void Pathfinder::ClearEdgesIntersectingSection(int sectionX0Arg, int sectionY0Arg, int sectionX1Arg, int sectionY1Arg, int boundaryX0Arg, int boundaryY0Arg, int boundaryX1Arg, int boundaryY1Arg, int neighborXMinArg, int neighborYMinArg) {
-	cout << "ClearEdgesIntersectingSection sectionX0Arg " << sectionX0Arg << " sectionY0Arg " << sectionY0Arg << " sectionX1Arg " << sectionX1Arg << " sectionY1Arg " << sectionY1Arg << " boundaryX0Arg " << boundaryX0Arg << " boundaryY0Arg " << boundaryY0Arg << " boundaryX1Arg " << boundaryX1Arg << " boundaryY1Arg " << boundaryY1Arg << " neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << endl;
+	//cout << "ClearEdgesIntersectingSection sectionX0Arg " << sectionX0Arg << " sectionY0Arg " << sectionY0Arg << " sectionX1Arg " << sectionX1Arg << " sectionY1Arg " << sectionY1Arg << " boundaryX0Arg " << boundaryX0Arg << " boundaryY0Arg " << boundaryY0Arg << " boundaryX1Arg " << boundaryX1Arg << " boundaryY1Arg " << boundaryY1Arg << " neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << endl;
 
 	// Remove edges from left section to left upper corner of lower section and vice versa
 	RemoveEdgesFromRectToPoint(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg, sectionX0Arg, boundaryY1Arg);
@@ -372,7 +390,7 @@ void Pathfinder::ClearEdgesIntersectingSection(int sectionX0Arg, int sectionY0Ar
 }
 
 void Pathfinder::ClearEdgesInRect(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg) {
-	cout << "ClearEdgesInRect xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << endl;
+	//cout << "ClearEdgesInRect xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << endl;
 	for (int x = yMinArg; x <= xMaxArg; x++) {
 		for (int y = yMinArg; y <= yMaxArg; y++) {
 			nodes[x][y].neighbors.clear();
@@ -381,7 +399,7 @@ void Pathfinder::ClearEdgesInRect(int xMinArg, int yMinArg, int xMaxArg, int yMa
 }
 
 void Pathfinder::ClearInnerWallEdges(int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg) {
-	cout << "ClearInnerWallEdges xMinArg " << xWallMinArg << " yWallMin " << yWallMinArg << " xWallMax " << xWallMaxArg << " yWallMax " << yWallMaxArg << endl;
+	//cout << "ClearInnerWallEdges xMinArg " << xWallMinArg << " yWallMin " << yWallMinArg << " xWallMax " << xWallMaxArg << " yWallMax " << yWallMaxArg << endl;
 	for (int x = xWallMinArg; x <= xWallMaxArg; x++) {
 		RemoveNeighborsOutsideRect(x, yWallMinArg, xWallMinArg, yWallMinArg, xWallMaxArg, yWallMaxArg);
 		nodes[x][yWallMinArg].neighbors.clear();
@@ -393,7 +411,7 @@ void Pathfinder::ClearInnerWallEdges(int xWallMinArg, int yWallMinArg, int xWall
 }
 
 void Pathfinder::ClearEdgesFromOuterWall(int xWallMinArg, int yWallMinArg, int xWallMaxArg, int yWallMaxArg) {
-	cout << "ClearEdgesFromOuterWall xMinArg " << xWallMinArg << " yWallMin " << yWallMinArg << " xWallMax " << xWallMaxArg << " yWallMax " << yWallMaxArg << endl;
+	//cout << "ClearEdgesFromOuterWall xMinArg " << xWallMinArg << " yWallMin " << yWallMinArg << " xWallMax " << xWallMaxArg << " yWallMax " << yWallMaxArg << endl;
 	for (int x = xWallMinArg; x <= xWallMaxArg; x++) {
 		RemoveEdgesGoingToRect(x, yWallMinArg, xWallMinArg, yWallMinArg, xWallMaxArg - 1, yWallMaxArg - 1);
 	}
@@ -435,7 +453,7 @@ void Pathfinder::RemoveEdgesGoingToRect(int xArg, int yArg, int xMinArg, int yMi
 }
 
 void Pathfinder::RemoveEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int rectX1Arg, int rectY1Arg, int xPointArg, int yPointArg) {
-	cout << "RemoveEdgesFromRectToPoint rectX0Arg " << rectX0Arg << " rectY0Arg " << rectY0Arg << " rectX1Arg " << rectX1Arg << " rectY1Arg " << rectY1Arg << " xPointArg " << xPointArg << " yPointArg " << yPointArg << endl;
+	//cout << "RemoveEdgesFromRectToPoint rectX0Arg " << rectX0Arg << " rectY0Arg " << rectY0Arg << " rectX1Arg " << rectX1Arg << " rectY1Arg " << rectY1Arg << " xPointArg " << xPointArg << " yPointArg " << yPointArg << endl;
 	for (int x = rectX0Arg; x <= rectX1Arg; x++) {
 		for (int y = rectY0Arg; y <= rectY1Arg; y++) {
 			//cout << "Erase edge from " << x << ", " << y << " to " << xPointArg << ", " << yPointArg << " with distance " << math.CellDistance(x, y, xPointArg, yPointArg) << endl;
@@ -454,7 +472,7 @@ void Pathfinder::RemoveEdgesFromRectToRect(int rect0X0Arg, int rect0Y0Arg, int r
 }
 
 void Pathfinder::ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
-	cout << "ClearVisibilitySectionEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+	//cout << "ClearVisibilitySectionEdges xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 
 	for (int i = xSectionArg * visibilitySectionWidth; i < (xSectionArg + 1) * visibilitySectionWidth; i++) {
 		for (int j = ySectionArg * visibilitySectionHeight; j < (ySectionArg + 1) * visibilitySectionHeight; j++) {
@@ -466,7 +484,7 @@ void Pathfinder::ClearVisibilitySectionEdges(int xSectionArg, int ySectionArg) {
 }
 
 void Pathfinder::CreateVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, int y1Arg, int xSectionArg, int ySectionArg) {
-	cout << "CreateVisibilitySectionNodes xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+	//cout << "CreateVisibilitySectionNodes xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	for (int x = x0Arg; x <= x1Arg; x++) {
 		for (int y = y0Arg; y <= y1Arg; y++) {
 			CreateVisibilityNode(x, y, xSectionArg, ySectionArg);
@@ -475,7 +493,7 @@ void Pathfinder::CreateVisibilitySectionNodes(int x0Arg, int y0Arg, int x1Arg, i
 }
 
 void Pathfinder::CreateVisibilityEdgesInRect(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xSectionArg, int ySectionArg) {
-	cout << "CreateVisibilityEdgesInRect xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+	//cout << "CreateVisibilityEdgesInRect xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	for (int x = xMinArg; x <= xMaxArg; x++) {
 		for (int y = yMinArg; y <= yMaxArg; y++) {
 			CreateVisibilityEdges(x, y, xSectionArg, ySectionArg, IsVisibilityNode(x, y, xSectionArg, ySectionArg));
@@ -484,7 +502,7 @@ void Pathfinder::CreateVisibilityEdgesInRect(int xMinArg, int yMinArg, int xMaxA
 }
 
 void Pathfinder::CreateVisibilitySectionInternalEdges(int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xSectionArg, int ySectionArg) {
-	cout << "CreateVisibilitySectionInternalEdges xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+	//cout << "CreateVisibilitySectionInternalEdges xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 	for (int x = xMinArg; x <= xMaxArg; x++) {
 		for (int y = yMinArg; y <= yMaxArg; y++) {
 			if (pMap->IsLegalCell(x, y) && pMap->getCellStatus(x, y) == pMap->OPEN) {
@@ -498,7 +516,7 @@ void Pathfinder::CreateVisibilitySectionInternalEdges(int xMinArg, int yMinArg, 
 }
 
 void Pathfinder::CreateVisibilitySectionExternalEdges(int neighborXMinArg, int neighborYMinArg, int xMinArg, int yMinArg, int xMaxArg, int yMaxArg, int xSectionArg, int ySectionArg) {
-	cout << "CreateVisibilitySectionExternalEdges neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << " xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+	//cout << "CreateVisibilitySectionExternalEdges neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << " xMinArg " << xMinArg << " yMinArg " << yMinArg << " xMaxArg " << xMaxArg << " yMaxArg " << yMaxArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 
 	int yMax = yMaxArg;
 	for (int x = neighborXMinArg; x <= xMaxArg; x++) {
@@ -540,7 +558,7 @@ void Pathfinder::CreateVisibilitySectionExternalEdges(int neighborXMinArg, int n
 }
 
 void Pathfinder::CreateEdgesIntersectingSection(int sectionX0Arg, int sectionY0Arg, int sectionX1Arg, int sectionY1Arg, int boundaryX0Arg, int boundaryY0Arg, int boundaryX1Arg, int boundaryY1Arg, int neighborXMinArg, int neighborYMinArg, int xSectionArg, int ySectionArg) {
-	cout << "CreateEdgesIntersectingSection sectionX0Arg " << sectionX0Arg << " sectionY0Arg " << sectionY0Arg << " sectionX1Arg " << sectionX1Arg << " sectionY1Arg " << sectionY1Arg << " boundaryX0Arg " << boundaryX0Arg << " boundaryY0Arg " << boundaryY0Arg << " boundaryX1Arg " << boundaryX1Arg << " boundaryY1Arg " << boundaryY1Arg << " neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
+	//cout << "CreateEdgesIntersectingSection sectionX0Arg " << sectionX0Arg << " sectionY0Arg " << sectionY0Arg << " sectionX1Arg " << sectionX1Arg << " sectionY1Arg " << sectionY1Arg << " boundaryX0Arg " << boundaryX0Arg << " boundaryY0Arg " << boundaryY0Arg << " boundaryX1Arg " << boundaryX1Arg << " boundaryY1Arg " << boundaryY1Arg << " neighborXMinArg " << neighborXMinArg << " neighborYMinArg " << neighborYMinArg << " xSectionArg " << xSectionArg << " ySectionArg " << ySectionArg << endl;
 
 	// Create edges from left section to left upper corner of lower section and vice versa
 	CreateEdgesFromRectToPoint(neighborXMinArg, sectionY0Arg, boundaryX0Arg, sectionY1Arg, sectionX0Arg, boundaryY1Arg, xSectionArg - 1, ySectionArg);

@@ -5,8 +5,10 @@ Created by Martin Dariush Hansen, 2017-03-04
 
 #pragma once
 
+// Program
+const bool PERFORMANCE_TESTS = true;
 const bool UNIT_TESTS = true;
-const bool WARNINGS = true;
+const bool WARNINGS = false;
 const int TIME_LOOP_RUNS = -1; // -1 = infinite
 
 // Units
@@ -16,7 +18,7 @@ const int UNIT_DESTINATIONS = 1000;
 
 // Terrain
 const char MAP_NAME[] = "TestMapRandom40x40.png";
-const bool DYNAMIC_TERRAIN = true;
+const bool DYNAMIC_TERRAIN = false;
 const int TERRAIN_TIMER_MIN = 5;
 const int TERRAIN_TIMER_MAX = 15;
 const int DYNAMIC_TERRAIN_CLUSTER_RETRIES = 4;
@@ -27,6 +29,6 @@ const enum PathType {
 	VISIBILITY_DECOMPOSED,
 	VISIBILITY_FULL
 };
-const PathType GRAPH_TYPE = VISIBILITY_FULL;
+const PathType GRAPH_TYPE = VISIBILITY_DECOMPOSED;
 const int VISIBILITY_SECTION_WIDTH = 5; // Must fit into map dimensions
 const int VISIBILITY_SECTION_HEIGHT = VISIBILITY_SECTION_WIDTH;
