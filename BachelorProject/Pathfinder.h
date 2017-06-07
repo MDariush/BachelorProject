@@ -21,7 +21,7 @@ public:
 		std::set<std::pair<std::pair<int, int>, double>, CompareCoordinates> neighbors;
 		//std::forward_list<std::pair<double, std::pair<int, int>>> neighbors;
 	};
-	void Init(class Vision* pVisionArg);
+	void Init(class Vision* pVisionArg, class Timer* pTimerArg);
 	void UpdateGraph(int xArg, int yArg);
 	std::stack<std::pair<double, double>> GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg);
 	std::vector<std::vector<Node>>* getNodesPtr();
@@ -87,7 +87,7 @@ private:
 	void CreateEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, bool bidirectedEdgeArg);
 	bool IsVisibilityNode(int xArg, int yArg, int xSectionArg, int ySectionArg);
 	bool IsWallNode(int xArg, int yArg);
-	void UpdateAveragePathLength(double pathLengthArg);
+	void UpdatePerformanceTest(double pathLengthArg, long long pathComputationTimeArg);
 
 	std::vector<std::vector<Node>> nodes;
 	std::vector<std::vector<bool>> visibilityNodes;
@@ -97,6 +97,7 @@ private:
 	Mathematics math;
 	class Map* pMap;
 	class Vision* pVision;
+	class Timer* pTimer;
 	int mapWidth;
 	int mapHeight;
 	int generation;
@@ -106,4 +107,5 @@ private:
 	int visibilitySectionHeight;
 	int pathsCreated;
 	double totalPathLength;
+	long long totalPathComputationTime;
 };

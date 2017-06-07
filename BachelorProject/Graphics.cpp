@@ -65,11 +65,13 @@ void Graphics::RenderGraphics(int programStepsArg) {
 		window.draw(spriteFog);
 
 		// Draw graph
-		if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
-			UpdateEntireGraphTexture(programStepsArg);
-			drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
+		if (DRAW_GRAPH) {
+			if (pPlayers->at(0).getPathfinderPtr()->getGeneration() != drawnGraphGeneration) {
+				UpdateEntireGraphTexture(programStepsArg);
+				drawnGraphGeneration = pPlayers->at(0).getPathfinderPtr()->getGeneration();
+			}
+			window.draw(spriteGraph);
 		}
-		window.draw(spriteGraph);
 
 		// Draw units
 		for (int i = 0; i < pModel->getGamePtr()->getPlayersPtr()->size(); i++) {

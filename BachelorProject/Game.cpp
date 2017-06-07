@@ -18,8 +18,10 @@ Game::Game() {
 Game::~Game() {
 }
 
-void Game::Init(class Map* pMap0) {
+void Game::Init(class Map* pMap0, Timer* pTimerArg) {
 	pMap = pMap0;
+	pTimer = pTimerArg;
+
 	unitsCreated = 0;
 	terrainChangeTimer = -1;
 	terrainChangeTime = TERRAIN_TIMER_MAX;
@@ -139,7 +141,7 @@ void Game::Step() {
 
 void Game::CreatePlayer() {
 	players.push_back(Player());
-	players.at(players.size() - 1).Init(players.size() - 1, pMap);
+	players.at(players.size() - 1).Init(players.size() - 1, pMap, pTimer);
 	cout << "Player " << players.size() - 1 << " created.\n";
 }
 

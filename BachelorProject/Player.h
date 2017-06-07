@@ -14,7 +14,7 @@ class Player
 public:
 	Player();
 	~Player();
-	void Init(int playerNumberArg, class Map* pMapArg);
+	void Init(int playerNumberArg, class Map* pMapArg, class Timer* pTimerArg);
 	void Step();
 	void CreateUnit(double xArg, double yArg, class Map* pMapArg);
 	void RemoveUnit(int indexArg);
@@ -29,6 +29,7 @@ public:
 private:
 	Pathfinder pathfinder;
 	Vision vision;
+	Timer* pTimer;
 
 	std::vector<class Unit> units;
 	int playerNumber;

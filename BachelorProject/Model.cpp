@@ -15,8 +15,10 @@ Model::Model() {
 Model::~Model() {
 }
 
-void Model::Init(Graphics* graphics) {
+void Model::Init(Graphics* graphics, Timer* pTimerArg) {
 	pGraphics = graphics;
+	pTimer = pTimerArg;
+
 	status = Status::LOADING_MAP;
 }
 
@@ -29,7 +31,7 @@ void Model::Step() {
 				pGraphics->ComputeScaling();
 			}
 			else if (!game.getInitialized()) {
-				game.Init(&map);
+				game.Init(&map, pTimer);
 				pGraphics->GenerateFogTexture();
 				pGraphics->GenerateGraphTexture();
 				pGraphics->setMapPtr(game.getPlayersPtr()->at(0).getVisionPtr()->getMapPtr());

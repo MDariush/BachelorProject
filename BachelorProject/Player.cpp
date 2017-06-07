@@ -14,10 +14,12 @@ Player::Player() {
 Player::~Player() {
 }
 
-void Player::Init(int playerNumberArg, class Map* pMapArg) {
+void Player::Init(int playerNumberArg, class Map* pMapArg, Timer* pTimerArg) {
 	playerNumber = playerNumberArg;
+	pTimer = pTimerArg;
+
 	vision.Init(pMapArg, &pathfinder);
-	pathfinder.Init(&vision);
+	pathfinder.Init(&vision, pTimer);
 }
 
 void Player::Step() {
@@ -27,11 +29,11 @@ void Player::Step() {
 void Player::CreateUnit(double xArg, double yArg, class Map* pMapArg) {
 	units.push_back(Unit());
 	units.at(units.size() - 1).Init(playerNumber, xArg, yArg, pMapArg, &pathfinder);
-	cout << "Unit created for Player " << playerNumber << " at (" << units.at(units.size() - 1).getX() << ", " << units.at(units.size() - 1).getY() << ").\n";
+	//cout << "Unit created for Player " << playerNumber << " at (" << units.at(units.size() - 1).getX() << ", " << units.at(units.size() - 1).getY() << ").\n";
 }
 
 void Player::RemoveUnit(int indexArg) {
-	cout << "Unit removed for Player " << playerNumber << " at (" << units.at(indexArg).getX() << ", " << units.at(indexArg).getY() << ").\n";
+	//cout << "Unit removed for Player " << playerNumber << " at (" << units.at(indexArg).getX() << ", " << units.at(indexArg).getY() << ").\n";
 	units.erase(units.begin() + indexArg);
 }
 

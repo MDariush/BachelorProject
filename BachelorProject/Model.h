@@ -15,7 +15,7 @@ public:
 	Model();
 	~Model();
 
-	void Init(class Graphics* graphics);
+	void Init(class Graphics* graphics, class Timer* pTimerArg);
 	void Step();
 	Status getStatus();
 	Game* getGamePtr();
@@ -24,8 +24,10 @@ public:
 private:
 	void LoadMap();
 
-	Status status;
 	class Graphics* pGraphics;
+	class Timer* pTimer;
+
+	Status status;
 	Game game;
 	Map map;
 };

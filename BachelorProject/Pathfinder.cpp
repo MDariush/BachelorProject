@@ -7,20 +7,24 @@ Created by Martin Dariush Hansen, 2017-04-13
 #include "Constants.h"
 #include "Map.h"
 #include "Pathfinder.h"
+#include "Timer.h"
 #include "Vision.h"
 #include <iostream>
 #include <queue>
 #include <vector>
 using namespace std;
 
-void Pathfinder::Init(Vision* pVisionArg) {
+void Pathfinder::Init(Vision* pVisionArg, Timer* pTimerArg) {
 	pVision = pVisionArg;
 	pMap = pVisionArg->getMapPtr();
+	pTimer = pTimerArg;
+
 	mapWidth = pMap->getWidth();
 	mapHeight = pMap->getHeight();
 	generation = 0;
 	pathsCreated = 0;
 	totalPathLength = 0.0;
+	totalPathComputationTime = 0;
 
 	switch (GRAPH_TYPE) {
 	case VISIBILITY_DECOMPOSED:
@@ -98,13 +102,14 @@ void Pathfinder::UpdateGraph(int xArg, int yArg) {
 }
 
 stack<pair<double, double>> Pathfinder::GeneratePath(double unitXArg, double unitYArg, double destXArg, double destYArg) {
-	cout << "GeneratePath unitXArg " << unitXArg << " unitYArg " << unitYArg << " destXArg " << destXArg << " destYArg " << destYArg << endl;
+	//cout << "GeneratePath unitXArg " << unitXArg << " unitYArg " << unitYArg << " destXArg " << destXArg << " destYArg " << destYArg << endl;
 	if (GRAPH_TYPE != GRID && StraightLineIsOpen(unitXArg, unitYArg, destXArg, destYArg)) {
+		double timeNanoBefore = pTimer->getExactNanoTime();
 		stack<pair<double, double>> path;
 		path.push(make_pair(destXArg, destYArg));
-		cout << "Straight line path found" << endl;
+		//cout << "Straight line path found" << endl;
 		if (PERFORMANCE_TESTS) {
-			UpdateAveragePathLength(math.CellDistance(unitXArg, unitYArg, destXArg, destYArg));
+			UpdatePerformanceTest(math.CellDistance(unitXArg, unitYArg, destXArg, destYArg), pTimer->getExactNanoTime() - timeNanoBefore);
 		}
 		return path;
 	}
@@ -112,7 +117,8 @@ stack<pair<double, double>> Pathfinder::GeneratePath(double unitXArg, double uni
 }
 
 stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, double destXArg, double destYArg) {
-	cout << "AStar unitXArg " << unitXArg << " unitYArg " << unitYArg << " destXArg " << destXArg << " destYArg " << destYArg << endl;
+	//cout << "AStar unitXArg " << unitXArg << " unitYArg " << unitYArg << " destXArg " << destXArg << " destYArg " << destYArg << endl;
+	double timeNanoBefore = pTimer->getExactNanoTime();
 	ResetExploration();
 	priority_queue<ExploredNode, vector<ExploredNode>, CompareCost> exploredNodesQueue;
 	stack<pair<double, double>> path;
@@ -241,21 +247,22 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 				path.pop();
 			}
 			if (PERFORMANCE_TESTS) {
-				UpdateAveragePathLength(pathLength);
+				UpdatePerformanceTest(pathLength, pTimer->getExactNanoTime() - timeNanoBefore);
 			}
 			return path;
 		}
 	}
 	if (PERFORMANCE_TESTS) {
-		UpdateAveragePathLength(pathLength);
+		UpdatePerformanceTest(pathLength, pTimer->getExactNanoTime() - timeNanoBefore);
 	}
 	return path;
 }
 
-void Pathfinder::UpdateAveragePathLength(double pathLengthArg) {
+void Pathfinder::UpdatePerformanceTest(double pathLengthArg, long long pathComputationTimeArg) {
 	pathsCreated++;
 	totalPathLength += pathLengthArg;
-	cout << "Path created with length: " << pathLengthArg << ". Paths created: " << pathsCreated << ". Average length: " << totalPathLength / pathsCreated << endl;
+	totalPathComputationTime += pathComputationTimeArg;
+	cout << "Paths created: " << pathsCreated << ". Length: " << pathLengthArg << ". Avg. length: " << totalPathLength / pathsCreated << ". Time [nano s]: " << pathComputationTimeArg << ". Avg. time [nano s]: " << totalPathComputationTime / (long long)pathsCreated << endl;
 }
 
 std::vector<std::vector<Pathfinder::Node>>* Pathfinder::getNodesPtr() {

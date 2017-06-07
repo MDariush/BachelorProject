@@ -18,6 +18,7 @@ public:
 	int getTimeLoopRuns();
 	int getProgramSteps();
 	double getProgramTime();
+	long long getExactNanoTime();
 
 private:
 	void TimeLoop(int timeLoopRuns0);

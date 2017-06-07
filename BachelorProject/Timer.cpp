@@ -32,7 +32,7 @@ void Timer::Init(int timeLoopRuns0) {
 	timeLoopRuns = timeLoopRuns0;
 
 	// Create objects
-	model.Init(&graphics);
+	model.Init(&graphics, this);
 	graphics.Init(&model);
 	controls.Init();
 
@@ -82,11 +82,17 @@ void Timer::RecordFrameTime() {
 }
 
 bool Timer::ReadyForProgramStep() {
+	if (!LIMIT_SPEED) {
+		return true;
+	}
 	timeSincePreviousStep = currentTime - previousStepTime;
 	return timeSincePreviousStep >= stepDuration;
 }
 
 bool Timer::ReadyToRenderGraphics() {
+	if (!RENDER_GRAPHICS) {
+		return false;
+	}
 	timeSincePreviousFrame = currentTime - previousFrameTime;
 	return timeSincePreviousFrame >= frameDuration;
 }
@@ -101,4 +107,8 @@ int Timer::getProgramSteps() {
 
 double Timer::getProgramTime() {
 	return programTime;
+}
+
+long long Timer::getExactNanoTime() {
+	return high_resolution_clock::now().time_since_epoch().count();
 }
