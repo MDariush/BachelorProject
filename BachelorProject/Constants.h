@@ -6,6 +6,8 @@ Created by Martin Dariush Hansen, 2017-04-13
 #pragma once
 #include <math.h>
 
+// #TODO: Make all global constants static?
+
 // Math
 const double PI = 3.141592653589793238;
 const double PI_X2 = 6.283185307179586476;
@@ -20,8 +22,8 @@ const int MIN_RESOLUTION_X = TARGET_RESOLUTION_X / 4;
 const int MIN_RESOLUTION_Y = TARGET_RESOLUTION_Y / 4;
 const int MAX_RESOLUTION_X = TARGET_RESOLUTION_X * 4;
 const int MAX_RESOLUTION_Y = TARGET_RESOLUTION_Y * 4;
-const int DEFAULT_RESOLUTION_X = 800; // TARGET_RESOLUTION_X / 2;
-const int DEFAULT_RESOLUTION_Y = 800; // TARGET_RESOLUTION_Y / 2;
+const int DEFAULT_RESOLUTION_X = 1024; // TARGET_RESOLUTION_X / 2;
+const int DEFAULT_RESOLUTION_Y = 1024; // TARGET_RESOLUTION_Y / 2;
 
 // Time
 const int NANO = 1000000000;

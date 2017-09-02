@@ -4,7 +4,7 @@ Created by Martin Dariush Hansen, 2017-04-13
 */
 
 #pragma once
-#include "Mathematics.h"
+//#include "Mathematics.h"
 #include <forward_list>
 #include <stack>
 #include <set>
@@ -94,7 +94,7 @@ private:
 	std::vector<std::vector<std::set<std::pair<int, int>>>> visibilitySectionNodes; // List of visibility nodes in each visibility section
 	std::vector<std::vector<VisitedNode>> visitedNodes;
 	std::vector<std::vector<bool>> exploredNodesMap;
-	Mathematics math;
+	//Mathematics math;
 	class Map* pMap;
 	class Vision* pVision;
 	class Timer* pTimer;

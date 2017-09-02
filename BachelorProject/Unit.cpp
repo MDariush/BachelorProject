@@ -34,8 +34,8 @@ void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, cla
 	// #TODO
 	direction = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI_X2));
 	orientation = 0.0;
-	orientationAcc = (PI_X2 / STEPS_PER_SECOND) / 0.5;
-	spdMax = 20.0 / STEPS_PER_SECOND;
+	orientationAcc = (PI_X2 / STEPS_PER_SECOND) / 0.25;
+	spdMax = 1.0 / STEPS_PER_SECOND;
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
@@ -77,14 +77,14 @@ void Unit::ProcessCommands() {
 		switch (commandQueue.front().commandType) {
 		case MOVE:
 			if (commandIssued) {
-				if (IsInSquare(commandQueue.front().x, commandQueue.front().y, spdMax * 1.1) || commandQueue.front().path.size() == 0) {
+				if (IsInSquare(commandQueue.front().x, commandQueue.front().y, spd * 1.1) || commandQueue.front().path.size() == 0) {
 					commandIssued = false;
 					moving = false;
 					commandQueue.pop();
 					//cout << "Move command completed" << endl;
 				}
 				else {
-					if (IsInSquare(commandQueue.front().path.top().first, commandQueue.front().path.top().second, spdMax * 1.1)) {
+					if (IsInSquare(commandQueue.front().path.top().first, commandQueue.front().path.top().second, spd * 1.1)) {
 						commandQueue.front().path.pop();
 					}
 

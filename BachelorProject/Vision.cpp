@@ -6,6 +6,7 @@ Created by Martin Dariush Hansen, 2017-03-22
 #include "Configurations.h"
 #include "Constants.h"
 #include "Map.h"
+#include "Mathematics.h"
 #include "Pathfinder.h"
 #include "Unit.h"
 #include "Vision.h"
@@ -26,29 +27,30 @@ void Vision::Init(class Map* pMapArg, class Pathfinder* pPathfinderArg) {
 
 	map.Clear(Map::OPEN);
 	generation = 1;
-	visibleCells = 0;
-	visibleCellsPreviousStep = 0;
 	ResetVisionMap(pActualMap->getCellStatusArrayPtr()->size(), pActualMap->getCellStatusArrayPtr()->at(0).size(), VisionStatus::UNEXPLORED);
 }
 
 void Vision::FullUpdate(std::vector<class Unit>* pUnitsArg) {
+	generationIncreased = false;
 	visionMapPrevious = visionMap;
 	for (int i = 0; i < pActualMap->getCellStatusArrayPtr()->size(); i++) {
 		for (int j = 0; j < pActualMap->getCellStatusArrayPtr()->at(0).size(); j++) {
-			if (visionMap[i][j] == VisionStatus::VISIBLE)
-			visionMap[i][j] = VisionStatus::EXPLORED;
+			if (visionMap[i][j] == VisionStatus::VISIBLE) {
+				visionMap[i][j] = VisionStatus::EXPLORED;
+			}
 		}
 	}
-	
+
 	if (pUnitsArg->size() > 0) {
-		visionMapTemp = visionMap;
-		visibleCellsPreviousStep = visibleCells;
-		visibleCells = 0;
+		visionMapCalculations = visionMap;
 		for (int u = 0; u < pUnitsArg->size(); u++) {
-			UpdateVisionForUnit(&pUnitsArg->at(u), visionMapTemp);
+			UpdateVisionForUnit(&pUnitsArg->at(u), visionMapCalculations);
 		}
-		if (visibleCells != visibleCellsPreviousStep) {
+
+		// Check if vision map was updated, so it doesn't get redrawn if it was not
+		if (!generationIncreased && visionMap != visionMapPrevious) {
 			generation++;
+			generationIncreased++;
 		}
 	}
 }
@@ -57,8 +59,18 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 	double visionRng = unitArg->getVisionRng();
 	
 	if (visionRng > 0) {
-		double x = unitArg->getX();
-		double y = unitArg->getY();
+		int x = unitArg->getX();
+		int y = unitArg->getY();
+
+		/*for (int i = x - visionRng; i <= x + visionRng; i++) {
+			for (int j = y - visionRng; j <= y + visionRng; j++) {
+
+				// Check cells within Manhattan distance first
+				if (CellEu) {
+
+				}
+			}
+		}*/
 
 		// Vision on unit position
 		if (pActualMap->IsLegalCell(x, y)) {
@@ -80,7 +92,20 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 		// Loop through 'outer box' in vision circle
 		for (int i = visionRng * HYPOTENUSE_AXIS_SCALAR + 1; i < visionRng; i++) {
 			for (int j = 0; j < i * 2 + 1; j++) {
-				if (math.DistanceToCellSquared(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5) <= unitArg->getVisionRngSquared()) {
+				if (Mathematics::Instance()->DistanceToCellSquared(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5) <= unitArg->getVisionRngSquared()) {
+					GenerateVisionForCell(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5, &visionMapTempArg);
+				}
+				if (Mathematics::Instance()->DistanceToCellSquared(x, y, floor(x) - i + j + 0.5, floor(y) + i + 0.5) <= unitArg->getVisionRngSquared()) {
+					GenerateVisionForCell(x, y, floor(x) - i + j + 0.5, floor(y) + i + 0.5, &visionMapTempArg);
+				}
+				if (Mathematics::Instance()->DistanceToCellSquared(x, y, floor(x) - i + 0.5, floor(y) - i + j + 0.5) <= unitArg->getVisionRngSquared()) {
+					GenerateVisionForCell(x, y, floor(x) - i + 0.5, floor(y) - i + j + 0.5, &visionMapTempArg);
+				}
+				if (Mathematics::Instance()->DistanceToCellSquared(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5) <= unitArg->getVisionRngSquared()) {
+					GenerateVisionForCell(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5, &visionMapTempArg);
+				}
+
+				/*if (math.DistanceToCellSquared(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5) <= unitArg->getVisionRngSquared()) {
 					GenerateVisionForCell(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5, &visionMapTempArg);
 				}
 				if (math.DistanceToCellSquared(x, y, floor(x) - i + j + 0.5, floor(y) + i + 0.5) <= unitArg->getVisionRngSquared()) {
@@ -91,7 +116,7 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 				}
 				if (math.DistanceToCellSquared(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5) <= unitArg->getVisionRngSquared()) {
 					GenerateVisionForCell(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5, &visionMapTempArg);
-				}
+				}*/
 			}
 		}
 	}
@@ -108,13 +133,14 @@ void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, d
 }
 
 void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
-	if (visionMapPrevious[xArg][yArg] != VisionStatus::VISIBLE) {
+	if (!generationIncreased && visionMapPrevious[xArg][yArg] != VisionStatus::VISIBLE) {
 		generation++;
+		generationIncreased = true;
 	}
+
 	visionMapTempPtrArg->at(xArg).at(yArg) = VisionStatus::VISIBLE;
 	if (visionMap.at(xArg).at(yArg) != VisionStatus::VISIBLE) {
 		visionMap.at(xArg).at(yArg) = VisionStatus::VISIBLE;
-		visibleCells++;
 	}
 
 	if (map.getCellStatus(xArg, yArg) != pActualMap->getCellStatus(xArg, yArg)) {
@@ -131,7 +157,6 @@ void Vision::ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<Visi
 		else {
 			pPathfinder->UpdateGraph(xArg, yArg);
 		}
-		
 	}
 }
 
@@ -251,6 +276,9 @@ void Vision::ResetVisionMap(int widthArg, int heightArg, VisionStatus statusArg)
 }
 
 Map* Vision::getMapPtr() {
+	if (IGNORE_VISION) {
+		return pActualMap;
+	}
 	return &map;
 }
 

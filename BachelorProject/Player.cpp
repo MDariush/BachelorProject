@@ -3,6 +3,7 @@ Player.cpp
 Created by Martin Dariush Hansen, 2017-03-22
 */
 
+#include "Configurations.h"
 #include "Player.h"
 #include "Unit.h"
 #include <iostream>
@@ -23,7 +24,9 @@ void Player::Init(int playerNumberArg, class Map* pMapArg, Timer* pTimerArg) {
 }
 
 void Player::Step() {
-	vision.FullUpdate(&units);
+	if (!IGNORE_VISION) {
+		vision.FullUpdate(&units);
+	}
 }
 
 void Player::CreateUnit(double xArg, double yArg, class Map* pMapArg) {

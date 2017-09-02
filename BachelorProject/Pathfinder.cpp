@@ -6,6 +6,7 @@ Created by Martin Dariush Hansen, 2017-04-13
 #include "Configurations.h"
 #include "Constants.h"
 #include "Map.h"
+#include "Mathematics.h"
 #include "Pathfinder.h"
 #include "Timer.h"
 #include "Vision.h"
@@ -109,7 +110,7 @@ stack<pair<double, double>> Pathfinder::GeneratePath(double unitXArg, double uni
 		path.push(make_pair(destXArg, destYArg));
 		//cout << "Straight line path found" << endl;
 		if (PERFORMANCE_TESTS) {
-			UpdatePerformanceTest(math.CellDistance(unitXArg, unitYArg, destXArg, destYArg), pTimer->getExactNanoTime() - timeNanoBefore);
+			UpdatePerformanceTest(Mathematics::Instance()->CellDistance(unitXArg, unitYArg, destXArg, destYArg), pTimer->getExactNanoTime() - timeNanoBefore);
 		}
 		return path;
 	}
@@ -133,7 +134,7 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 	startNode.cameFromX = startNode.x;
 	startNode.cameFromY = startNode.y;
 	startNode.costFromStart = 0.0;
-	startNode.totalCost = math.CellDistance(startNode.x, startNode.y, destCellX, destCellY);
+	startNode.totalCost = Mathematics::Instance()->CellDistance(startNode.x, startNode.y, destCellX, destCellY);
 	exploredNodesQueue.push(startNode);
 	exploredNodesMap[startNode.x][startNode.y] = true;
 
@@ -180,7 +181,7 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 
 			for (set<pair<pair<int, int>, double>>::iterator it = nodes[destCellX][destCellY].neighbors.begin(); it != nodes[destCellX][destCellY].neighbors.end(); ) {
 				if (it->first.first == currentX && it->first.second == currentY) {
-					visitedNodes[destCellX][destCellY].cost = visitedNodes[currentX][currentY].cost + math.CellDistance(currentX, currentY, destCellX, destCellY);
+					visitedNodes[destCellX][destCellY].cost = visitedNodes[currentX][currentY].cost + Mathematics::Instance()->CellDistance(currentX, currentY, destCellX, destCellY);
 					visitedNodes[destCellX][destCellY].cameFromX = currentX;
 					visitedNodes[destCellX][destCellY].cameFromY = currentY;
 					currentX = destCellX;
@@ -208,7 +209,7 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 					exploredNode.cameFromX = currentX;
 					exploredNode.cameFromY = currentY;
 					exploredNode.costFromStart = visitedNodes[currentX][currentY].cost + it->second;
-					exploredNode.totalCost = exploredNode.costFromStart + math.CellDistance(exploredNode.x, exploredNode.y, destCellX, destCellY);
+					exploredNode.totalCost = exploredNode.costFromStart + Mathematics::Instance()->CellDistance(exploredNode.x, exploredNode.y, destCellX, destCellY);
 					exploredNodesQueue.push(exploredNode);
 					exploredNodesMap[neighborX][neighborY] = true;
 					//cout << "Explored " << neighborX << ", " << neighborY << endl;
@@ -233,7 +234,7 @@ stack<pair<double, double>> Pathfinder::AStar(double unitXArg, double unitYArg, 
 			while (backtrackCellX != unitCellX || backtrackCellY != unitCellY) {
 				//cout << backtrackCellX << ", " << backtrackCellY << " came from ";
 				if (PERFORMANCE_TESTS) {
-					pathLength += math.CellDistance(backtrackCellX, backtrackCellY, visitedNodes[backtrackCellX][backtrackCellY].cameFromX, visitedNodes[backtrackCellX][backtrackCellY].cameFromY);
+					pathLength += Mathematics::Instance()->CellDistance(backtrackCellX, backtrackCellY, visitedNodes[backtrackCellX][backtrackCellY].cameFromX, visitedNodes[backtrackCellX][backtrackCellY].cameFromY);
 				}
 				backtrackCellXPrev = backtrackCellX;
 				backtrackCellX = visitedNodes[backtrackCellX][backtrackCellY].cameFromX;
@@ -463,8 +464,8 @@ void Pathfinder::RemoveEdgesFromRectToPoint(int rectX0Arg, int rectY0Arg, int re
 	//cout << "RemoveEdgesFromRectToPoint rectX0Arg " << rectX0Arg << " rectY0Arg " << rectY0Arg << " rectX1Arg " << rectX1Arg << " rectY1Arg " << rectY1Arg << " xPointArg " << xPointArg << " yPointArg " << yPointArg << endl;
 	for (int x = rectX0Arg; x <= rectX1Arg; x++) {
 		for (int y = rectY0Arg; y <= rectY1Arg; y++) {
-			//cout << "Erase edge from " << x << ", " << y << " to " << xPointArg << ", " << yPointArg << " with distance " << math.CellDistance(x, y, xPointArg, yPointArg) << endl;
-			//nodes[x][y].neighbors.erase(make_pair(make_pair(x, y), math.CellDistance(x, y, xPointArg, yPointArg)));
+			//cout << "Erase edge from " << x << ", " << y << " to " << xPointArg << ", " << yPointArg << " with distance " << Mathematics::Instance()->CellDistance(x, y, xPointArg, yPointArg) << endl;
+			//nodes[x][y].neighbors.erase(make_pair(make_pair(x, y), Mathematics::Instance()->CellDistance(x, y, xPointArg, yPointArg)));
 			nodes[x][y].neighbors.erase(make_pair(make_pair(xPointArg, yPointArg), 0));
 		}
 	}
@@ -620,7 +621,7 @@ void Pathfinder::CreateVisibilityEdges(int xArg, int yArg, int xSectionArg, int 
 	// Find reachable visibility nodes in section
 	set<pair<int, int>>::iterator it = visibilitySectionNodes.at(xSectionArg).at(ySectionArg).begin();
 	while (it != visibilitySectionNodes.at(xSectionArg).at(ySectionArg).end()) {
-		edgeWeight = math.CellDistance(xArg, yArg, it->first, it->second);
+		edgeWeight = Mathematics::Instance()->CellDistance(xArg, yArg, it->first, it->second);
 
 		if ((it->first != xArg || it->second != yArg)
 			&& nodes[xArg][yArg].neighbors.find(make_pair(make_pair(it->first, it->second), edgeWeight)) == nodes[xArg][yArg].neighbors.end()
@@ -685,7 +686,7 @@ void Pathfinder::CreateEdge(int x0Arg, int y0Arg, int x1Arg, int y1Arg, bool bid
 
 		//cout << "CreateEdge x0Arg " << x0Arg << " y0Arg " << y0Arg << " x1Arg " << x1Arg << " y1Arg " << y1Arg << " bidirectedEdgeArg " << bidirectedEdgeArg << endl;
 
-		int edgeWeight = math.CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
+		int edgeWeight = Mathematics::Instance()->CellDistance(x0Arg, y0Arg, x1Arg, y1Arg);
 
 		if (nodes[x0Arg][y0Arg].neighbors.find(make_pair(make_pair(x1Arg, y1Arg), edgeWeight)) == nodes[x0Arg][y0Arg].neighbors.end()
 			&& StraightLineIsOpen(x0Arg, y0Arg, x1Arg, y1Arg)) {

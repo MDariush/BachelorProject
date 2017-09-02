@@ -4,7 +4,7 @@ Created by Martin Dariush Hansen, 2017-03-22
 */
 
 #pragma once
-#include "Mathematics.h"
+//#include "Mathematics.h"
 #include <vector>
 
 class Vision
@@ -30,12 +30,11 @@ public:
 private:
 	std::vector<std::vector<VisionStatus>> visionMap;
 	std::vector<std::vector<VisionStatus>> visionMapPrevious;
-	std::vector<std::vector<VisionStatus>> visionMapTemp;
-	Mathematics math;
+	std::vector<std::vector<VisionStatus>> visionMapCalculations;
+//	Mathematics math;
 	class Map* pActualMap;
 	class Map map;
 	class Pathfinder* pPathfinder;
 	int generation;
-	int visibleCells;
-	int visibleCellsPreviousStep;
+	bool generationIncreased;
 };
