@@ -18,11 +18,11 @@ const bool DRAW_GRAPH = true;
 
 // Units
 const int UNITS_TO_CREATE = 1000;
-const int MAX_UNITS_ON_MAP = 3;
+const int MAX_UNITS_ON_MAP = 1;
 const int UNIT_DESTINATIONS = 1000;
 
 // Terrain
-const char MAP_NAME[] = "MapRandom32x32.png";
+const char MAP_NAME[] = "MapBlank64x64.png";
 const bool DYNAMIC_TERRAIN = false;
 const int TERRAIN_TIMER_MIN = 5;
 const int TERRAIN_TIMER_MAX = 15;

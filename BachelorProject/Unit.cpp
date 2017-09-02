@@ -39,7 +39,7 @@ void Unit::Init(int playerArg, double xArg, double yArg, class Map* pMapArg, cla
 	spdAcc = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spdBrk = (spdMax / STEPS_PER_SECOND) / 1.0;
 	spd = 0;
-	setVisionRng(4.0 + 0.5);
+	setVisionRng(1.0 + 0.5);
 	hpMax = 100;
 	hp = hpMax;
 

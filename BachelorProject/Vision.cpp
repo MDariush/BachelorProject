@@ -75,7 +75,7 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 			ApplyVisionForCell(unitX, unitY, &visionMapTempArg);
 		}
 
-		for (int i = 1; i < visionRng; i++) {
+		for (int i = 1; i <= visionRng; i++) {
 
 			// Vision on cells horizontal and vertical from unit
 			CheckVisionForCell(unitX, unitY, unitX + i, unitY, &visionMapTempArg);
@@ -85,7 +85,7 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 
 			// Vision on other cells within sight range of unit
 			for (int j = 1; j <= i; j++) {
-				if (Mathematics::Instance()->CellDistanceEuclidean(unitX, unitY, unitX + i, unitY + j)) {
+				if (Mathematics::Instance()->CellDistanceEuclidean(unitX, unitY, unitX + i, unitY + j) <= visionRng) {
 					CheckVisionForCell(unitX, unitY, unitX + i, unitY + j, &visionMapTempArg);
 					CheckVisionForCell(unitX, unitY, unitX + i, unitY - j, &visionMapTempArg);
 					CheckVisionForCell(unitX, unitY, unitX - i, unitY + j, &visionMapTempArg);
