@@ -59,26 +59,49 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 	double visionRng = unitArg->getVisionRng();
 	
 	if (visionRng > 0) {
-		int x = unitArg->getX();
-		int y = unitArg->getY();
+		int unitX = unitArg->getX();
+		int unitY = unitArg->getY();
 
-		/*for (int i = x - visionRng; i <= x + visionRng; i++) {
-			for (int j = y - visionRng; j <= y + visionRng; j++) {
+		/*for (int i = 1; i <= x + visionRng; i++) {
 
-				// Check cells within Manhattan distance first
-				if (CellEu) {
+			// Check cells within Manhattan distance first
+			if (Mathematics::Instance()->CellDistanceEuclidean() <) {
 
-				}
 			}
 		}*/
 
 		// Vision on unit position
-		if (pActualMap->IsLegalCell(x, y)) {
-			ApplyVisionForCell(x, y, &visionMapTempArg);
+		if (pActualMap->IsLegalCell(unitX, unitY)) {
+			ApplyVisionForCell(unitX, unitY, &visionMapTempArg);
+		}
+
+		for (int i = 1; i < visionRng; i++) {
+
+			// Vision on cells horizontal and vertical from unit
+			CheckVisionForCell(unitX, unitY, unitX + i, unitY, &visionMapTempArg);
+			CheckVisionForCell(unitX, unitY, unitX - i, unitY, &visionMapTempArg);
+			CheckVisionForCell(unitX, unitY, unitX, unitY + i, &visionMapTempArg);
+			CheckVisionForCell(unitX, unitY, unitX, unitY - i, &visionMapTempArg);
+
+			// Vision on other cells within sight range of unit
+			for (int j = 1; j <= i; j++) {
+				if (Mathematics::Instance()->CellDistanceEuclidean(unitX, unitY, unitX + i, unitY + j)) {
+					CheckVisionForCell(unitX, unitY, unitX + i, unitY + j, &visionMapTempArg);
+					CheckVisionForCell(unitX, unitY, unitX + i, unitY - j, &visionMapTempArg);
+					CheckVisionForCell(unitX, unitY, unitX - i, unitY + j, &visionMapTempArg);
+					CheckVisionForCell(unitX, unitY, unitX - i, unitY - j, &visionMapTempArg);
+					if (i != j) {
+						CheckVisionForCell(unitX, unitY, unitX + j, unitY + i, &visionMapTempArg);
+						CheckVisionForCell(unitX, unitY, unitX - j, unitY + i, &visionMapTempArg);
+						CheckVisionForCell(unitX, unitY, unitX + j, unitY - i, &visionMapTempArg);
+						CheckVisionForCell(unitX, unitY, unitX - j, unitY - i, &visionMapTempArg);
+					}
+				}
+			}
 		}
 
 		// Loop through 'inner box' in vision circle
-		for (int i = 1; i < visionRng * HYPOTENUSE_AXIS_SCALAR; i++) {
+		/*for (int i = 1; i < visionRng * HYPOTENUSE_AXIS_SCALAR; i++) {
 			for (int j = 0; j < i * 2 + 1; j++) {
 				GenerateVisionForCell(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5, &visionMapTempArg);
 				GenerateVisionForCell(x, y, floor(x) - i + j + 0.5, floor(y) + i + 0.5, &visionMapTempArg);
@@ -104,30 +127,17 @@ void Vision::UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionSt
 				if (Mathematics::Instance()->DistanceToCellSquared(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5) <= unitArg->getVisionRngSquared()) {
 					GenerateVisionForCell(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5, &visionMapTempArg);
 				}
-
-				/*if (math.DistanceToCellSquared(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5) <= unitArg->getVisionRngSquared()) {
-					GenerateVisionForCell(x, y, floor(x) - i + j + 0.5, floor(y) - i + 0.5, &visionMapTempArg);
-				}
-				if (math.DistanceToCellSquared(x, y, floor(x) - i + j + 0.5, floor(y) + i + 0.5) <= unitArg->getVisionRngSquared()) {
-					GenerateVisionForCell(x, y, floor(x) - i + j + 0.5, floor(y) + i + 0.5, &visionMapTempArg);
-				}
-				if (math.DistanceToCellSquared(x, y, floor(x) - i + 0.5, floor(y) - i + j + 0.5) <= unitArg->getVisionRngSquared()) {
-					GenerateVisionForCell(x, y, floor(x) - i + 0.5, floor(y) - i + j + 0.5, &visionMapTempArg);
-				}
-				if (math.DistanceToCellSquared(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5) <= unitArg->getVisionRngSquared()) {
-					GenerateVisionForCell(x, y, floor(x) + i + 0.5, floor(y) - i + j + 0.5, &visionMapTempArg);
-				}*/
 			}
-		}
+		}*/
 	}
 }
 
-void Vision::GenerateVisionForCell(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
-	if (pActualMap->IsLegalCell(unitX, unitY) && pActualMap->IsLegalCell(originX, originY)) {
-		if (CanSeeCellEasily(unitX, unitY, originX, originY, visionMapTempPtrArg) // TODO: Fix bug with blocked vision in a line
-			|| CanSeeCellPrecisely(unitX, unitY, originX, originY, visionMapTempPtrArg)) {
+void Vision::CheckVisionForCell(int unitXArg, int unitYArg, int visionXArg, int visionYArg, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg) {
+	if (pActualMap->IsLegalCell(unitXArg, unitYArg) && pActualMap->IsLegalCell(visionXArg, visionYArg)) {
+		if (CanSeeCellEasily(unitXArg, unitYArg, visionXArg, visionYArg, visionMapTempPtrArg) // TODO: Fix bug with blocked vision in a line
+			/*|| CanSeeCellPrecisely(unitX, unitY, originX, originY, visionMapTempPtrArg)*/) {
 
-			ApplyVisionForCell(originX, originY, visionMapTempPtrArg);
+			ApplyVisionForCell(visionXArg, visionYArg, visionMapTempPtrArg);
 		}
 	}
 }
@@ -186,21 +196,46 @@ bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, st
 
 		result = true;
 
-		// Check a cell next to origin and the other cell towards the goal
+		// Check a cell next to origin and the other cell towards the unit
 		if (unitX != originX
-			&& unitY != originY
-			&& (unitX - originX) * (unitX - originX) != (unitY - originY) * (unitY - originY)) {
-
-			if ((unitX - originX) * (unitX - originX) < (unitY - originY) * (unitY - originY)) {
-				xSpd = 0;
+			&& unitY != originY) {
+			if (Mathematics::Instance()->AbsoluteValue(unitX - originX) == Mathematics::Instance()->AbsoluteValue(unitY - originY)) {
+				result = visionMapTempPtrArg->at(originX).at(originY + ySpd) == VisionStatus::VISIBLE
+					&& pActualMap->getCellStatusArrayPtr()->at(originX).at(originY + ySpd) == Map::OPEN
+					&& visionMapTempPtrArg->at(originX + xSpd).at(originY) == VisionStatus::VISIBLE
+					&& pActualMap->getCellStatusArrayPtr()->at(originX + xSpd).at(originY) == Map::OPEN;
 			}
 			else {
-				ySpd = 0;
+				if (Mathematics::Instance()->AbsoluteValue(unitX - originX) < Mathematics::Instance()->AbsoluteValue(unitY - originY)) {
+					xSpd = 0;
+				}
+				else {
+					ySpd = 0;
+				}
+				result = visionMapTempPtrArg->at(originX + xSpd).at(originY + ySpd) == VisionStatus::VISIBLE
+					&& pActualMap->getCellStatusArrayPtr()->at(originX + xSpd).at(originY + ySpd) == Map::OPEN;
 			}
-
-			result = visionMapTempPtrArg->at(originX + xSpd).at(originY + ySpd) == VisionStatus::VISIBLE
-				&& pActualMap->getCellStatusArrayPtr()->at(originX + xSpd).at(originY + ySpd) == Map::OPEN;
 		}
+		
+		/*if (unitX != originX
+			&& unitY != originY) {
+			if ((unitX - originX) * (unitX - originX) == (unitY - originY) * (unitY - originY)) {
+				result = visionMapTempPtrArg->at(originX).at(originY + ySpd) == VisionStatus::VISIBLE
+					&& pActualMap->getCellStatusArrayPtr()->at(originX).at(originY + ySpd) == Map::OPEN
+					&& visionMapTempPtrArg->at(originX + xSpd).at(originY) == VisionStatus::VISIBLE
+					&& pActualMap->getCellStatusArrayPtr()->at(originX + xSpd).at(originY) == Map::OPEN;
+			}
+			else {
+				if ((unitX - originX) * (unitX - originX) < (unitY - originY) * (unitY - originY)) {
+					xSpd = 0;
+				}
+				else {
+					ySpd = 0;
+				}
+				result = visionMapTempPtrArg->at(originX + xSpd).at(originY + ySpd) == VisionStatus::VISIBLE
+					&& pActualMap->getCellStatusArrayPtr()->at(originX + xSpd).at(originY + ySpd) == Map::OPEN;
+			}
+		}*/
 	}
 
 	return result;

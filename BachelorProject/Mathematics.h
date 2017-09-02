@@ -13,7 +13,7 @@ public:
 
 	double CellDistanceEuclidean(int x0, int y0, int x1, int y1);
 	double CellDistanceManhattan(int x0, int y0, int x1, int y1);
-	unsigned int AbsoluteValue(int signedArg);
+	int AbsoluteValue(int signedArg);
 
 	// #TODO: Delete functions?
 	double CellDistance(int x0, int y0, int x1, int y1);

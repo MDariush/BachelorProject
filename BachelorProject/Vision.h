@@ -17,7 +17,7 @@ public:
 	void Init(class Map* pMapArg, class Pathfinder* pPathfinderArg);
 	void FullUpdate(std::vector<class Unit>* pUnitsArg);
 	void UpdateVisionForUnit(Unit* unitArg, std::vector<std::vector<VisionStatus>> visionMapTempArg);
-	void GenerateVisionForCell(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
+	void CheckVisionForCell(int unitXArg, int unitYArg, int originXArg, int originYArg, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 	void ApplyVisionForCell(int xArg, int yArg, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 	bool Vision::CanSeeCellEasily(int unitX, int unitY, int originX, int originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);
 	bool Vision::CanSeeCellPrecisely(double unitX, double unitY, double originX, double originY, std::vector<std::vector<VisionStatus>>* visionMapTempPtrArg);

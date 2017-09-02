@@ -62,7 +62,7 @@ double Mathematics::CellDistanceManhattan(int x0, int y0, int x1, int y1) {
 	return xOffset + yOffset;
 }
 
-unsigned int Mathematics::AbsoluteValue(int signedArg) {
+int Mathematics::AbsoluteValue(int signedArg) {
 	if (signedArg >= 0) {
 		return signedArg;
 	}
